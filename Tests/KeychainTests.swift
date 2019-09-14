@@ -39,12 +39,14 @@ class KeychainTests: XCTestCase {
             let keychain = Keychain(service: keychainService)
             XCTAssertEqual(keychain.service, keychainService)
             XCTAssertEqual(keychain.accessible, AccessibilityLevel.whenUnlocked)
+            XCTAssertEqual(keychain.itemClass, ItemClass.genericPassword)
         }
 
         do {
             let keychain = Keychain(service: keychainService, accessible: .whenPasscodeSetThisDeviceOnly)
             XCTAssertEqual(keychain.service, keychainService)
             XCTAssertEqual(keychain.accessible, AccessibilityLevel.whenPasscodeSetThisDeviceOnly)
+            XCTAssertEqual(keychain.itemClass, ItemClass.genericPassword)
         }
     }
 
@@ -53,11 +55,11 @@ class KeychainTests: XCTestCase {
         let key = KeychainKey<String>(key: "Key")
 
         /// Save new value
-        XCTAssertNoThrow(try keychain.save(key: key, value: "secret"))
+        XCTAssertNoThrow(try keychain.save("secret", key: key))
         XCTAssertEqual(try keychain.get(key: key), "secret")
 
         /// Update value
-        XCTAssertNoThrow(try keychain.save(key: key, value: "secret2"))
+        XCTAssertNoThrow(try keychain.save("secret2", key: key))
         XCTAssertEqual(try keychain.get(key: key), "secret2")
     }
 
@@ -66,11 +68,11 @@ class KeychainTests: XCTestCase {
         let key = KeychainKey<Int>(key: "Key")
 
         /// Save new value
-        XCTAssertNoThrow(try keychain.save(key: key, value: 10))
+        XCTAssertNoThrow(try keychain.save(10, key: key))
         XCTAssertEqual(try keychain.get(key: key), 10)
 
         /// Update value
-        XCTAssertNoThrow(try keychain.save(key: key, value: 20))
+        XCTAssertNoThrow(try keychain.save(20, key: key))
         XCTAssertEqual(try keychain.get(key: key), 20)
     }
 
@@ -81,8 +83,8 @@ class KeychainTests: XCTestCase {
         let key1 = KeychainKey<String>(key: "Key1")
         let key2 = KeychainKey<String>(key: "Key2")
 
-        XCTAssertNoThrow(try keychain.save(key: key1, value: "secret"))
-        XCTAssertNoThrow(try keychain.save(key: key2, value: "secret"))
+        XCTAssertNoThrow(try keychain.save("secret", key: key1))
+        XCTAssertNoThrow(try keychain.save("secret", key: key2))
 
         XCTAssertNoThrow(try keychain.remove(key: key1))
         XCTAssertNotNil(try keychain.get(key: key2))
@@ -94,8 +96,8 @@ class KeychainTests: XCTestCase {
         let key1 = KeychainKey<String>(key: "Key1")
         let key2 = KeychainKey<String>(key: "Key2")
 
-        XCTAssertNoThrow(try keychain.save(key: key1, value: "secret"))
-        XCTAssertNoThrow(try keychain.save(key: key2, value: "secret"))
+        XCTAssertNoThrow(try keychain.save("secret", key: key1))
+        XCTAssertNoThrow(try keychain.save("secret", key: key2))
 
         XCTAssertNoThrow(try keychain.removeAll())
 

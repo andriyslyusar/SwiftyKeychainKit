@@ -100,7 +100,7 @@ public struct Keychain {
         self.accessible = accessible
     }
     
-    public func save<T: KeychainSerializable>(key: KeychainKey<T>, value: T.T) throws {
+    public func save<T: KeychainSerializable>(_ value: T.T, key: KeychainKey<T>) throws {
         try T.bridge.save(key: key._key, value: value, keychain: self)
     }
     
@@ -185,8 +185,6 @@ enum Attribute {
     case matchLimitAll
 
     var rawValue: Element {
-        KeyValuePairs
-
         switch self {
         case .class(let value):
             return Element(key: String(kSecClass), value: value.rawValue)
