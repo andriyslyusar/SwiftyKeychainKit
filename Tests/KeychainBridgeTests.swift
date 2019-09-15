@@ -25,16 +25,15 @@
 import XCTest
 @testable import SwiftyKeychain
 
-class KeychainBridgeTests: XCTestCase {
-    private let keychainService = "com.swifty.keychain.example"
+private let keychainService = "com.swifty.keychain.example"
 
+class KeychainBridgeIntTests: XCTestCase {
     override func setUp() {
         super.setUp()
-
         do { try Keychain(service: keychainService).removeAll() } catch {}
     }
 
-    func testSaveAndGetString() {
+    func test_saveAndGetString_suceessfully() {
         let keychain = Keychain(service: keychainService)
         let keychainBridge = KeychainBridgeString()
 
@@ -46,9 +45,15 @@ class KeychainBridgeTests: XCTestCase {
         XCTAssertNoThrow(try keychainBridge.save(key: "key", value: "value2", keychain: keychain))
         XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), "value2")
     }
+}
 
+class KeychainBridgeStringTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        do { try Keychain(service: keychainService).removeAll() } catch {}
+    }
 
-    func testSaveAndGetInt() {
+    func test_saveAndGet_successfully() {
         let keychain = Keychain(service: keychainService)
         let keychainBridge = KeychainBridgeInt()
 
@@ -59,5 +64,57 @@ class KeychainBridgeTests: XCTestCase {
         /// Update value
         XCTAssertNoThrow(try keychainBridge.save(key: "key", value: 20, keychain: keychain))
         XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), 20)
+    }
+
+}
+
+class KeychainBridgeCodableTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        do { try Keychain(service: keychainService).removeAll() } catch {}
+    }
+
+    func test_saveAndGetCodable_successfully() {
+        let keychain = Keychain(service: keychainService)
+        let keychainBridge = KeychainBridgeCodable<CodableMock>()
+
+        do {
+            let codable = CodableMock(intProperty: 10)
+            /// Save value
+            XCTAssertNoThrow(try keychainBridge.save(key: "key", value: codable, keychain: keychain))
+            XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), codable)
+        }
+
+        do {
+            let codable = CodableMock(intProperty: 20)
+            /// Save value
+            XCTAssertNoThrow(try keychainBridge.save(key: "key", value: codable, keychain: keychain))
+            XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), codable)
+        }
+    }
+
+    func test_getCodable_itemDooesNotExist() {
+        let keychain = Keychain(service: keychainService)
+        let keychainBridge = KeychainBridgeCodable<CodableMock>()
+
+        XCTAssertNil(try keychainBridge.get(key: "key", keychain: keychain))
+    }
+
+    func test_getCodable_itemFailedToDecode() throws {
+        let keychain = Keychain(service: keychainService)
+        let keychainBridge = KeychainBridgeCodable<CodableMock>()
+        let keychainBridge2 = KeychainBridgeCodable<CodableMockTwo>()
+
+        try keychainBridge.save(key: "key", value: CodableMock(intProperty: 10), keychain: keychain)
+
+        XCTAssertThrowsError(try keychainBridge2.get(key: "key", keychain: keychain))
+    }
+
+    private struct CodableMock: Codable, Equatable {
+        let intProperty: Int
+    }
+
+    private struct CodableMockTwo: Codable, Equatable {
+        let stringProperty: String
     }
 }

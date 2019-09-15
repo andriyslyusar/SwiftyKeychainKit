@@ -38,3 +38,6 @@ extension String: KeychainSerializable {
     public static var bridge: KeychainBridge<String> { return KeychainBridgeString() }
 }
 
+extension KeychainSerializable where Self: Codable {
+    public static var bridge: KeychainBridge<Self> { return KeychainBridgeCodable() }
+}

@@ -52,7 +52,7 @@ open class KeychainBridgeInt: KeychainBridge<Int> {
     }
 }
 
-open class KeychainBridgeString: KeychainBridge<String> {
+class KeychainBridgeString: KeychainBridge<String> {
     open override func save(key: String, value: String, keychain: Keychain) throws {
         guard let data = value.data(using: .utf8) else {
             throw KeychainError.conversionError
@@ -67,6 +67,25 @@ open class KeychainBridgeString: KeychainBridge<String> {
                 return nil
             }
             return String(data: data, encoding: .utf8)
+        } catch {
+            throw error
+        }
+    }
+}
+
+class KeychainBridgeCodable<T: Codable>: KeychainBridge<T> {
+    open override func save(key: String, value: T, keychain: Keychain) throws {
+        let data = try JSONEncoder().encode(value)
+        try persist(value: data, key: key, keychain: keychain)
+    }
+
+    override func get(key: String, keychain: Keychain) throws -> T? {
+        do {
+            guard let data = try find(key: key, keychain: keychain) else {
+                return nil
+            }
+
+            return try JSONDecoder().decode(T.self, from: data)
         } catch {
             throw error
         }
