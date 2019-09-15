@@ -37,8 +37,8 @@ try? keychain.remvoeAll()
 * [ ] URL  
 
 and more:  
-* [ ] Codable  
-* [ ] NSCoding  
+* [x] Codable  
+* [x] NSCoding  
 * [ ] RawRepresentable  
 
 

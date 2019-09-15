@@ -1,7 +1,7 @@
 //
-// KeychainSerializable.swift
+// SwiftyKeychainError.swift
 //
-// Created by Andriy Slyusar on 2019-08-23.
+// Created by Andriy Slyusar on 2019-09-15.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,24 +24,13 @@
 
 import Foundation
 
-public protocol KeychainSerializable {
-    associatedtype T
+public enum SwiftyKeychainError: Error {
+    case invalidDataCast
 
-    static var bridge: KeychainBridge<T> { get }
-}
-
-extension Int: KeychainSerializable {
-    public static var bridge: KeychainBridge<Int> { return KeychainBridgeInt() }
-}
-
-extension String: KeychainSerializable {
-    public static var bridge: KeychainBridge<String> { return KeychainBridgeString() }
-}
-
-extension KeychainSerializable where Self: Codable {
-    public static var bridge: KeychainBridge<Self> { return KeychainBridgeCodable() }
-}
-
-extension KeychainSerializable where Self: NSCoding {
-    public static var bridge: KeychainBridge<Self> { return KeychainBridgeArchivable() }
+    public var description: String {
+        switch self {
+        case .invalidDataCast:
+            return "Type of keychain stored object incopatible"
+        }
+    }
 }

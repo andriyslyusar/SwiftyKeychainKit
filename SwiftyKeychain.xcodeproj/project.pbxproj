@@ -17,6 +17,7 @@
 		05DB40F02326D3F800ED3C31 /* KeychainBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40EF2326D3F800ED3C31 /* KeychainBridgeTests.swift */; };
 		05DB40F8232D2E6500ED3C31 /* AttributeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */; };
 		05DB40FA232D491200ED3C31 /* KeychainEnumsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40F9232D491200ED3C31 /* KeychainEnumsTests.swift */; };
+		05DB40FE232E574B00ED3C31 /* SwiftyKeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40FD232E574B00ED3C31 /* SwiftyKeychainError.swift */; };
 		05F90F9A2323DAD600E53A8B /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F90F992323DAD600E53A8B /* KeychainTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		05DB40EF2326D3F800ED3C31 /* KeychainBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainBridgeTests.swift; sourceTree = "<group>"; };
 		05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributeTests.swift; sourceTree = "<group>"; };
 		05DB40F9232D491200ED3C31 /* KeychainEnumsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainEnumsTests.swift; sourceTree = "<group>"; };
+		05DB40FD232E574B00ED3C31 /* SwiftyKeychainError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyKeychainError.swift; sourceTree = "<group>"; };
 		05F90F992323DAD600E53A8B /* KeychainTests.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; tabWidth = 4; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		"SwiftyKeychain::SwiftyKeychain::Product" /* SwiftyKeychain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftyKeychain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -130,6 +132,7 @@
 				055848D023105F4600FE1AD8 /* KeychainSerializable.swift */,
 				055848D22310633900FE1AD8 /* KeychainBridge.swift */,
 				055848F823130E9F00FE1AD8 /* KeychainError.swift */,
+				05DB40FD232E574B00ED3C31 /* SwiftyKeychainError.swift */,
 			);
 			path = Sources;
 			sourceTree = SOURCE_ROOT;
@@ -284,6 +287,7 @@
 			files = (
 				055848D32310633900FE1AD8 /* KeychainBridge.swift in Sources */,
 				055848D123105F4600FE1AD8 /* KeychainSerializable.swift in Sources */,
+				05DB40FE232E574B00ED3C31 /* SwiftyKeychainError.swift in Sources */,
 				055848CF230F1F7100FE1AD8 /* KeychainKeys.swift in Sources */,
 				055848D523106B0400FE1AD8 /* Keychain.swift in Sources */,
 				055848F923130E9F00FE1AD8 /* KeychainError.swift in Sources */,
