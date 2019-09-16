@@ -16,8 +16,22 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "SwiftyKeychain::SwiftyKeychain"
                BuildableName = "SwiftyKeychain.framework"
-               BlueprintName = "SwiftyKeychain"
-               ReferencedContainer = "container:SwiftyKeychain.xcodeproj">
+               BlueprintName = "SwiftyKeychainKit"
+               ReferencedContainer = "container:SwiftyKeychainKit.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "059D47A723219D4D000328C9"
+               BuildableName = "SwiftyKeychainKitTests.xctest"
+               BlueprintName = "SwiftyKeychainKitTests"
+               ReferencedContainer = "container:SwiftyKeychainKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,8 +48,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "SwiftyKeychain::SwiftyKeychain"
             BuildableName = "SwiftyKeychain.framework"
-            BlueprintName = "SwiftyKeychain"
-            ReferencedContainer = "container:SwiftyKeychain.xcodeproj">
+            BlueprintName = "SwiftyKeychainKit"
+            ReferencedContainer = "container:SwiftyKeychainKit.xcodeproj">
          </BuildableReference>
       </CodeCoverageTargets>
       <Testables>
@@ -44,9 +58,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "059D47A723219D4D000328C9"
-               BuildableName = "SwiftyKeychainTests.xctest"
-               BlueprintName = "SwiftyKeychainTests"
-               ReferencedContainer = "container:SwiftyKeychain.xcodeproj">
+               BuildableName = "SwiftyKeychainKitTests.xctest"
+               BlueprintName = "SwiftyKeychainKitTests"
+               ReferencedContainer = "container:SwiftyKeychainKit.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,8 +69,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "SwiftyKeychain::SwiftyKeychain"
             BuildableName = "SwiftyKeychain.framework"
-            BlueprintName = "SwiftyKeychain"
-            ReferencedContainer = "container:SwiftyKeychain.xcodeproj">
+            BlueprintName = "SwiftyKeychainKit"
+            ReferencedContainer = "container:SwiftyKeychainKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -77,8 +91,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "SwiftyKeychain::SwiftyKeychain"
             BuildableName = "SwiftyKeychain.framework"
-            BlueprintName = "SwiftyKeychain"
-            ReferencedContainer = "container:SwiftyKeychain.xcodeproj">
+            BlueprintName = "SwiftyKeychainKit"
+            ReferencedContainer = "container:SwiftyKeychainKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -95,8 +109,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "SwiftyKeychain::SwiftyKeychain"
             BuildableName = "SwiftyKeychain.framework"
-            BlueprintName = "SwiftyKeychain"
-            ReferencedContainer = "container:SwiftyKeychain.xcodeproj">
+            BlueprintName = "SwiftyKeychainKit"
+            ReferencedContainer = "container:SwiftyKeychainKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

@@ -85,7 +85,6 @@ class KeychainBridgeCodable<T: Codable>: KeychainBridge<T> {
     }
 }
 
-
 class KeychainBridgeArchivable<T: NSCoding>: KeychainBridge<T> {
     override func save(key: String, value: T, keychain: Keychain) throws {
         // TODO: iOS 13 deprecated +archivedDataWithRootObject:requiringSecureCoding:error:
@@ -99,7 +98,7 @@ class KeychainBridgeArchivable<T: NSCoding>: KeychainBridge<T> {
 
             // TODO: iOS 13 deprecated +unarchivedObjectOfClass:fromData:error:
             guard let object = NSKeyedUnarchiver.unarchiveObject(with: data) as? T else {
-                throw SwiftyKeychainError.invalidDataCast
+                throw SwiftyKeychainKitError.invalidDataCast
             }
 
             return object
@@ -197,5 +196,3 @@ extension Data {
         return value
     }
 }
-
-

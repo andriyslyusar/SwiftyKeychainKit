@@ -23,7 +23,7 @@
 //
 
 import XCTest
-@testable import SwiftyKeychain
+@testable import SwiftyKeychainKit
 
 class KeychainTests: XCTestCase {
     private let keychainService = "com.swifty.keychain.example"

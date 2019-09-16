@@ -23,7 +23,7 @@
 //
 
 import XCTest
-@testable import SwiftyKeychain
+@testable import SwiftyKeychainKit
 
 private let keychainService = "com.swifty.keychain.example"
 
@@ -160,7 +160,7 @@ class KeychainBridgeArhivableTests: XCTestCase {
 
         XCTAssertThrowsError(try keychainBridge2.get(key: "key", keychain: keychain))
         XCTAssertThrowsError(try keychainBridge2.get(key: "key", keychain: keychain)) { (error) in
-            XCTAssertEqual(error as? SwiftyKeychainError, SwiftyKeychainError.invalidDataCast)
+            XCTAssertEqual(error as? SwiftyKeychainKitError, SwiftyKeychainKitError.invalidDataCast)
         }
     }
 

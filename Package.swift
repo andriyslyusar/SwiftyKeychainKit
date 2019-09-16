@@ -4,15 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftyKeychain",
+    name: "SwiftyKeychainKit",
     products: [
         .library(
-            name: "SwiftyKeychain",
-            targets: ["SwiftyKeychain"]),
+            name: "SwiftyKeychainKit",
+            targets: ["SwiftyKeychainKit"]),
     ],
     targets: [
         .target(
-            name: "SwiftyKeychain",
+            name: "SwiftyKeychainKit",
             dependencies: [],
             path: "Sources"),
     ]

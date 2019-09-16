@@ -1,5 +1,5 @@
 //
-// SwiftyKeychainError.swift
+// SwiftyKeychainKitError.swift
 //
 // Created by Andriy Slyusar on 2019-09-15.
 //
@@ -24,7 +24,7 @@
 
 import Foundation
 
-public enum SwiftyKeychainError: Error {
+public enum SwiftyKeychainKitError: Error {
     case invalidDataCast
 
     public var description: String {

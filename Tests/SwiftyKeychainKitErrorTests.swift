@@ -1,5 +1,5 @@
 //
-// SwiftyKeychainErrorTests.swift
+// SwiftyKeychainKitErrorTests.swift
 //
 // Created by Andriy Slyusar on 2019-09-15.
 //
@@ -23,11 +23,11 @@
 //
 
 import XCTest
-@testable import SwiftyKeychain
+@testable import SwiftyKeychainKit
 
-class SwiftyKeychainErrorTests: XCTestCase {
+class SwiftyKeychainKitErrorTests: XCTestCase {
 
     func test_invalidDataCast() {
-        XCTAssertEqual(SwiftyKeychainError.invalidDataCast.description, "Type of keychain stored object incopatible")
+        XCTAssertEqual(SwiftyKeychainKitError.invalidDataCast.description, "Type of keychain stored object incopatible")
     }
 }
