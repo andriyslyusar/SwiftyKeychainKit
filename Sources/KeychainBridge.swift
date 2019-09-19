@@ -110,47 +110,37 @@ class KeychainBridgeArchivable<T: NSCoding>: KeychainBridge<T> {
 
 extension KeychainBridge {
     func persist(value: Data, key: String, keychain: Keychain) throws {
-        let query: [Attribute] = [
-            .class(.genericPassword),
-            .service(keychain.service),
+        let query: [Attribute] = keychain.searchQuery([
             .account(key)
-        ]
+        ])
 
         let status = Keychain.itemFetch(query)
 
         switch status {
+        // Keychain already contains key -> update existing item
         case errSecSuccess:
-            // Keychain already contains key -> update existing item
-
-            let attributes = keychain.attributes(value: value)
+            let attributes = keychain.updateRequestAttributes(value: value)
 
             let status = Keychain.itemUpdate(query, attributes)
             if status != errSecSuccess {
                 throw KeychainError(status: status)
             }
 
+        // Keychain doesn't contain key -> add new item
         case errSecItemNotFound:
-            // Keychain doesn't contain key -> add new item
+            let attributes = keychain.addRequestAttributes(value: value, key: key)
 
-            let query: Attributes = [
-                .class(.genericPassword),
-                .accessible(keychain.accessible),
-                .service(keychain.service),
-                .account(key),
-                .valueData(value)
-            ]
-
-            let status = Keychain.itemAdd(query)
+            let status = Keychain.itemAdd(attributes)
             if status != errSecSuccess {
                 throw KeychainError(status: status)
             }
 
+        // This error can happen when your app is launched in the background while the device is locked
+        // (for example, in response to an actionable push notification or a Core Location geofence event),
+        // the application may crash as a result of accessing a locked keychain entry.
+        //
+        // TODO: Maybe introduce `force` property to allow remove and save key with different permissions
         case errSecInteractionNotAllowed:
-            // This error can happen when your app is launched in the background while the device is locked
-            // (for example, in response to an actionable push notification or a Core Location geofence event),
-            // the application may crash as a result of accessing a locked keychain entry.
-            //
-            // TODO: Maybe introduce `force` property to allow remove and save key with different permissions
             throw KeychainError(status: status)
 
         default:
@@ -159,16 +149,15 @@ extension KeychainBridge {
     }
 
     func find(key: String, keychain: Keychain) throws -> Data? {
-        let query: Attributes = [
-            .class(.genericPassword),
-            .service(keychain.service),
+        let query: Attributes = keychain.searchQuery([
             .account(key),
             .isReturnData(true),
             .matchLimitOne
-        ]
+        ])
+
 
         var result: AnyObject?
-        let status = 	SecItemCopyMatching(query.compose(), &result)
+        let status = SecItemCopyMatching(query.compose(), &result)
         switch status {
         case errSecSuccess:
             guard let data = result as? Data else {

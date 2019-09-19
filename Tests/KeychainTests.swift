@@ -27,11 +27,13 @@ import XCTest
 
 class KeychainTests: XCTestCase {
     private let keychainService = "com.swifty.keychain.example"
+    private let keychainAccessGroup = "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost"
 
     override func setUp() {
         super.setUp()
 
         do { try Keychain(service: keychainService).removeAll() } catch {}
+        do { try Keychain(service: keychainService, accessGroup: keychainAccessGroup).removeAll() } catch {}
     }
 
     func testInitializer() {
@@ -48,6 +50,16 @@ class KeychainTests: XCTestCase {
             XCTAssertEqual(keychain.accessible, AccessibilityLevel.whenPasscodeSetThisDeviceOnly)
             XCTAssertEqual(keychain.itemClass, ItemClass.genericPassword)
         }
+
+        do {
+            let keychain = Keychain(service: keychainService,
+                                    accessible: .whenPasscodeSetThisDeviceOnly,
+                                    accessGroup: keychainAccessGroup)
+            XCTAssertEqual(keychain.service, keychainService)
+            XCTAssertEqual(keychain.accessible, AccessibilityLevel.whenPasscodeSetThisDeviceOnly)
+            XCTAssertEqual(keychain.itemClass, ItemClass.genericPassword)
+            XCTAssertEqual(keychain.accessGroup, keychainAccessGroup)
+        }
     }
 
     func testSaveAndGetStringKeychain() {
@@ -63,6 +75,19 @@ class KeychainTests: XCTestCase {
         XCTAssertEqual(try keychain.get(key: key), "secret2")
     }
 
+//    func test_saveAndGetStringKeychainWithAccessGroup() {
+//        let keychain = Keychain(service: keychainService, accessGroup: keychainAccessGroup)
+//        let key = KeychainKey<String>(key: "Key")
+//
+//        /// Save new value
+//        XCTAssertNoThrow(try keychain.save("secret", key: key))
+//        XCTAssertEqual(try keychain.get(key: key), "secret")
+//
+//        /// Update value
+//        XCTAssertNoThrow(try keychain.save("secret2", key: key))
+//        XCTAssertEqual(try keychain.get(key: key), "secret2")
+//    }
+
     func testSaveAndGetIntKeychain() {
         let keychain = Keychain(service: keychainService)
         let key = KeychainKey<Int>(key: "Key")
@@ -75,7 +100,6 @@ class KeychainTests: XCTestCase {
         XCTAssertNoThrow(try keychain.save(20, key: key))
         XCTAssertEqual(try keychain.get(key: key), 20)
     }
-
 
     func testRemoveSingleGenericPassword() {
         let keychain = Keychain(service: keychainService)

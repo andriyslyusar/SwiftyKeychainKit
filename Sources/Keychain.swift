@@ -88,16 +88,23 @@ public enum AccessibilityLevel {
 }
 
 public struct Keychain {
+    /// The kind of data Keychain items hold
     public let itemClass: ItemClass = .genericPassword
 
     //TODO: Budnle identifier by default
+    /// The service associated with Keychain item
     public let service: String
-    
+
+    /// Indicates when your app has access to the data in a Keychain item
     public let accessible: AccessibilityLevel
+
+    /// Keychain items with share access same group
+    public let accessGroup: String?
     
-    public init(service: String, accessible: AccessibilityLevel = .whenUnlocked) {
+    public init(service: String, accessible: AccessibilityLevel = .whenUnlocked, accessGroup: String? = nil) {
         self.service = service
         self.accessible = accessible
+        self.accessGroup = accessGroup
     }
     
     public func save<T: KeychainSerializable>(_ value: T.T, key: KeychainKey<T>) throws {
@@ -109,11 +116,9 @@ public struct Keychain {
     }
     
     public func remove<T: KeychainSerializable>(key: KeychainKey<T>) throws {
-        let query: [Attribute] = [
-            .class(itemClass),
-            .service(service),
+        let query = searchQuery([
             .account(key._key)
-        ]
+        ])
 
         let status = Keychain.itemDelete(query)
         if status != errSecSuccess && status != errSecItemNotFound {
@@ -122,10 +127,7 @@ public struct Keychain {
     }
     
     public func removeAll() throws {
-        let query: Attributes = [
-            .class(itemClass),
-            .service(service)
-        ]
+        let query = searchQuery()
 
         let status = Keychain.itemDelete(query)
         if status != errSecSuccess && status != errSecItemNotFound {
@@ -135,26 +137,52 @@ public struct Keychain {
 }
 
 extension Keychain {
-    func baseQuery() -> Attributes {
-        let query: Attributes = [
-            .class(itemClass),
-            .service(service)
+    func searchQuery(_ extraAttributes: Attributes = Attributes()) -> Attributes {
+        var query: Attributes = [
+            .class(itemClass)
         ]
 
-        return query
+        switch itemClass {
+        case .genericPassword:
+            query.append(.service(service))
+
+            // TODO: Access group is not supported on any simulators.
+            if let accessGroup = accessGroup {
+                query.append(.accessGroup(accessGroup))
+            }
+        case .internetPassword:
+            fatalError("Not yet implemented")
+        }
+
+        return query + extraAttributes
     }
 
-    func attributes(value: Data) -> Attributes {
-        let attributes: Attributes = [
-            .valueData(value)
-        ]
+    /// Use this method to build attributes to add a new keychain entry
+    func addRequestAttributes(value: Data, key: String) -> Attributes {
+        var attributes = searchQuery()
+
+        attributes.append(.account(key))
+        attributes += updateRequestAttributes(value: value)
+
+        return attributes
+    }
+
+    /// Use this method to build attributes to update a new keychain entry
+    /// Keychain SecItemUpdate do not allow search query parameters and account to pass as attributes
+    func updateRequestAttributes(value: Data) -> Attributes {
+        var attributes = Attributes()
+
+        attributes.append(contentsOf: [
+            .valueData(value),
+            .accessible(accessible),
+        ])
 
         return attributes
     }
 }
 
 extension Keychain {
-    //TODO: Maybe use global function instead
+    // TODO: Maybe use global function instead
     static func itemDelete(_ query: Attributes) -> OSStatus {
         return SecItemDelete(query.compose())
     }
@@ -183,32 +211,44 @@ enum Attribute {
     case isReturnData(Bool)
     case matchLimitOne
     case matchLimitAll
+    case accessGroup(String)
+    /// Query for both synchronizable and non-synchronizable results.
+    case synchronizableAny
 
     var rawValue: Element {
         switch self {
         case .class(let value):
-            return Element(key: String(kSecClass), value: value.rawValue)
+            return Element(key: kSecClass, value: value.rawValue)
         case .service(let value):
-            return Element(key: String(kSecAttrService), value: value)
+            return Element(key: kSecAttrService, value: value)
         case .account(let value):
-            return Element(key: String(kSecAttrAccount), value: value)
+            return Element(key: kSecAttrAccount, value: value)
         case .valueData(let data):
-            return Element(key: String(kSecValueData), value: data)
+            return Element(key: kSecValueData, value: data)
         case .accessible(let level):
-            return Element(key: String(kSecAttrAccessible), value: level.rawValue)
+            return Element(key: kSecAttrAccessible, value: level.rawValue)
         case .isReturnData(let isReturn):
             let value = isReturn ? kCFBooleanTrue : kCFBooleanFalse
-            return Element(key: String(kSecReturnData), value: value as Any)
+            return Element(key: kSecReturnData, value: value as Any)
         case .matchLimitOne:
-            return Element(key: String(kSecMatchLimit), value: kSecMatchLimitOne)
+            return Element(key: kSecMatchLimit, value: kSecMatchLimitOne)
         case .matchLimitAll:
-            return Element(key: String(kSecMatchLimit), value: kSecMatchLimitAll)
+            return Element(key: kSecMatchLimit, value: kSecMatchLimitAll)
+        case .accessGroup(let value):
+            return Element(key: kSecAttrAccessGroup, value: value)
+        case .synchronizableAny:
+            return Element(key: kSecAttrSynchronizable, value: kSecAttrSynchronizableAny)
         }
     }
 
     struct Element {
         let key: String
         let value: Any
+
+        init(key: CFString, value: Any) {
+            self.key = String(key)
+            self.value = value
+        }
     }
 }
 

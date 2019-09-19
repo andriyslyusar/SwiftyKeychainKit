@@ -15,7 +15,7 @@ let keychain = Keychain(service: "com.swifty.keychain")
 let accessTokenKey = KeychainKey<String>(key: "accessToken")
 
 // Save or modify value
-try? keychain.save(key: accessTokenKey, value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")
+try? keychain.save("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", key: accessTokenKey)
 
 // Get value 
 let value = try? keychain.get(key: accessTokenKey)
@@ -24,23 +24,50 @@ let value = try? keychain.get(key: accessTokenKey)
 try? keychain.remove(key: accessTokenKey)
 
 // Remove all values 
-try? keychain.remvoeAll()
+try? keychain.removeAll()
 ```
 
 ## Supported types
-* [x] Int  
-* [x] String  
-* [ ] Double  
-* [ ] Bool  
-* [ ] Data  
-* [ ] Date  
-* [ ] URL  
+- [x] Int  
+- [x] String  
+- [ ] Double  
+- [ ] Bool  
+- [ ] Data  
+- [ ] Date  
+- [ ] URL  
 
-and more:  
-* [x] Codable  
-* [x] NSCoding  
-* [ ] RawRepresentable  
+and more:
+- [x] Codable  
+- [x] NSCoding  
+- [ ] RawRepresentable  
 
+## Supported attributes
+- [x] kSecAttrAccessGroup 
+- [x] kSecAttrAccessible 
+- [ ] kSecAttrCreationDate
+- [ ] kSecAttrModificationDate
+- [ ] kSecAttrDescription
+- [ ] kSecAttrComment
+- [ ] kSecAttrCreator
+- [ ] kSecAttrType
+- [ ] kSecAttrLabel
+- [ ] kSecAttrIsInvisible
+- [ ] kSecAttrIsNegative
+- [x] kSecAttrAccount
+- [ ] kSecAttrSynchronizable
+
+**Generic password**
+- [ ] kSecAttrAccessControl
+- [x] kSecAttrService 
+- [ ] kSecAttrGeneric
+
+**Internet password**
+- [ ] kSecAttrSecurityDomain
+- [ ] kSecAttrServer
+- [ ] kSecAttrProtocol
+- [ ] kSecAttrAuthenticationType
+- [ ] kSecAttrPort
+- [ ] kSecAttrPath
 
 ## Requirement
 
