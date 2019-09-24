@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		055848CF230F1F7100FE1AD8 /* KeychainKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848CE230F1F7100FE1AD8 /* KeychainKeys.swift */; };
 		055848D123105F4600FE1AD8 /* KeychainSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D023105F4600FE1AD8 /* KeychainSerializable.swift */; };
 		055848D32310633900FE1AD8 /* KeychainBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D22310633900FE1AD8 /* KeychainBridge.swift */; };
 		055848D523106B0400FE1AD8 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D423106B0400FE1AD8 /* Keychain.swift */; };
@@ -34,7 +33,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		055848CE230F1F7100FE1AD8 /* KeychainKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainKeys.swift; sourceTree = "<group>"; };
 		055848D023105F4600FE1AD8 /* KeychainSerializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSerializable.swift; sourceTree = "<group>"; };
 		055848D22310633900FE1AD8 /* KeychainBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainBridge.swift; sourceTree = "<group>"; };
 		055848D423106B0400FE1AD8 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
@@ -142,7 +140,6 @@
 			isa = PBXGroup;
 			children = (
 				055848D423106B0400FE1AD8 /* Keychain.swift */,
-				055848CE230F1F7100FE1AD8 /* KeychainKeys.swift */,
 				055848D023105F4600FE1AD8 /* KeychainSerializable.swift */,
 				055848D22310633900FE1AD8 /* KeychainBridge.swift */,
 				055848F823130E9F00FE1AD8 /* KeychainError.swift */,
@@ -304,7 +301,6 @@
 				055848D32310633900FE1AD8 /* KeychainBridge.swift in Sources */,
 				055848D123105F4600FE1AD8 /* KeychainSerializable.swift in Sources */,
 				05DB40FE232E574B00ED3C31 /* SwiftyKeychainKitError.swift in Sources */,
-				055848CF230F1F7100FE1AD8 /* KeychainKeys.swift in Sources */,
 				055848D523106B0400FE1AD8 /* Keychain.swift in Sources */,
 				055848F923130E9F00FE1AD8 /* KeychainError.swift in Sources */,
 			);

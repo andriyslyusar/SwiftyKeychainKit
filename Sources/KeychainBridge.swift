@@ -152,7 +152,7 @@ extension KeychainBridge {
         let query: Attributes = keychain.searchQuery([
             .account(key),
             .isReturnData(true),
-            .matchLimitOne
+            .matchLimit(.one)
         ])
 
 

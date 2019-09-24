@@ -128,4 +128,68 @@ class KeychainTests: XCTestCase {
         XCTAssertNil(try keychain.get(key: key1))
         XCTAssertNil(try keychain.get(key: key2))
     }
+
+    func test_updateRequestAttributes_returnDefaultAttributes() {
+        let keychain = Keychain(service: "",
+                                accessible: .whenUnlocked,
+                                synchronizable: false)
+
+        let attributes =  keychain.updateRequestAttributes(value: Data())
+
+        XCTAssertTrue(attributes.contains { $0 == Attribute.valueData(Data()) })
+        XCTAssertTrue(attributes.contains { $0 == Attribute.accessible(.whenUnlocked) })
+        XCTAssertTrue(attributes.contains { $0 == Attribute.synchronizable(.init(boolValue: false)) })
+        XCTAssertEqual(attributes.count, 3)
+    }
+
+    func test_addRequestAttributes_returnDefaultAttributes() {
+        let keychain = Keychain(service: "",
+                                accessible: .whenUnlocked,
+                                synchronizable: false)
+
+        let attributes = keychain.addRequestAttributes(value: Data(), key: "account")
+
+//        XCTAssertEqual(attributes.count, 4)
+
+        // attributes from updateRequestAttributes
+        XCTAssertTrue(attributes.contains { $0 == Attribute.valueData(Data()) })
+        XCTAssertTrue(attributes.contains { $0 == Attribute.accessible(.whenUnlocked) })
+        XCTAssertTrue(attributes.contains { $0 == Attribute.synchronizable(.init(boolValue: false)) })
+
+        // attributes from addRequestAttributes
+        XCTAssertTrue(attributes.contains { $0 == Attribute.account("account") })
+    }
+
+}
+
+
+extension Attribute: Equatable {}
+
+public func ==(lhs: Attribute, rhs: Attribute) -> Bool {
+    switch (lhs, rhs) {
+    case (.`class`(let a), .`class`(let b)):
+        return a == b
+    case (.service(let a), .service(let b)):
+        return a == b
+    case (.account(let a), .account(let b)):
+        return a == b
+    case (.valueData(let a), .valueData(let b)):
+        return a == b
+     case (.accessible(let a), .accessible(let b)):
+        return a == b
+    case (.isReturnData(let a), .isReturnData(let b)):
+        return a == b
+    case (.matchLimit(let a), .matchLimit(let b)):
+        return a == b
+    case (.accessGroup(let a), .accessGroup(let b)):
+        return a == b
+    case (.synchronizable(let a), .synchronizable(let b)):
+        return a == b
+    case (.server(let a), .server(let b)):
+        return a == b
+    case (.port(let a), .port(let b)):
+        return a == b
+    default:
+      return false
+    }
 }

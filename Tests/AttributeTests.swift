@@ -66,14 +66,23 @@ class AttributeTests: XCTestCase {
         XCTAssertFalse(Attribute.isReturnData(false).rawValue.value as! Bool)
     }
 
-    func testMatchLimitOne() {
-        XCTAssertEqual(Attribute.matchLimitOne.rawValue.key, String(kSecMatchLimit))
-        XCTAssertEqual(Attribute.matchLimitOne.rawValue.value as! CFString, kSecMatchLimitOne)
+    func test_matchLimit() {
+        XCTAssertEqual(Attribute.matchLimit(.one).rawValue.key, String(kSecMatchLimit))
+        XCTAssertEqual(Attribute.matchLimit(.one).rawValue.value as! CFString, kSecMatchLimitOne)
+
+        XCTAssertEqual(Attribute.matchLimit(.all).rawValue.key, String(kSecMatchLimit))
+        XCTAssertEqual(Attribute.matchLimit(.all).rawValue.value as! CFString, kSecMatchLimitAll)
     }
 
-    func testMatchLimitAll() {
-        XCTAssertEqual(Attribute.matchLimitAll.rawValue.key, String(kSecMatchLimit))
-        XCTAssertEqual(Attribute.matchLimitAll.rawValue.value as! CFString, kSecMatchLimitAll)
+    func test_accessGroup() {
+        let value = "W7JL9XM57U.com.swifty.keychain"
+        XCTAssertEqual(Attribute.accessGroup(value).rawValue.key, String(kSecAttrAccessGroup))
+        XCTAssertEqual(Attribute.accessGroup(value).rawValue.value as! String, value)
+    }
+
+    func test_synchronizable() {
+        XCTAssertEqual(Attribute.synchronizable(.any).rawValue.key, String(kSecAttrSynchronizable))
+        XCTAssertEqual(Attribute.synchronizable(.any).rawValue.value as! CFString, kSecAttrSynchronizableAny)
     }
 
     func testAttributeArray_compose_to_dictinary() {
