@@ -28,6 +28,12 @@ import XCTest
 class KeychainErrorTests: XCTestCase {
     func testErrorType() {
         do {
+            let status = KeychainError(rawValue: 1000)
+            XCTAssertEqual(status, .invalidDataCast)
+            XCTAssertEqual(status?.description, "Type of keychain stored object incopatible")
+        }
+
+        do {
             let status = KeychainError(rawValue: errSecSuccess)
             XCTAssertEqual(status, .success)
             XCTAssertEqual(status?.description, "No error.")

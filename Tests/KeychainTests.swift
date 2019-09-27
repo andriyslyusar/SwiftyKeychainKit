@@ -25,6 +25,11 @@
 import XCTest
 @testable import SwiftyKeychainKit
 
+
+extension KeychainKeys {
+    static let stringKey = KeychainKey<String>(key: "Key")
+}
+
 class KeychainTests: XCTestCase {
     private let keychainService = "com.swifty.keychain.example"
     private let keychainAccessGroup = "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost"
@@ -68,11 +73,51 @@ class KeychainTests: XCTestCase {
 
         /// Save new value
         XCTAssertNoThrow(try keychain.save("secret", key: key))
-        XCTAssertEqual(try keychain.get(key: key), "secret")
+        XCTAssertEqual(try keychain.get(key), "secret")
+        XCTAssertEqual(try keychain.get(.stringKey), "secret")
+        XCTAssertEqual(try keychain[.stringKey].get(), "secret")
+
+
+        if case .success(let value) = keychain[.stringKey] {
+            XCTAssertEqual(value, "secret")
+        }
+
+
+//        let a = keychain[.stringKey]
+
+        let key2 = KeychainKey<String>(key: "Key2")
+
+        XCTAssertEqual(try keychain[key2, default: "secret2"].get(), "secret2")
+        XCTAssertEqual(try keychain.get(key2, default: "secret3"), "secret3")
+
+//        XCTAssertEqual(keychain[key: key], "secret")
+//
+//        let a = try? keychain[key].get()
+
+
+        
+//        let a = keychain[key, { error in }]
+
+//        keychain[key, () -> ({ print($0)})] = ""
+
+//        keychain[key, { error in }] = "some value"
+
+//        XCTAssertEqual(keychain[.stringKey], "secret")
+
+//        XCTAssertEqual(try keychain[key](), "secret")
+
+//        let a = keychain[key]
+//        switch a {
+//        case .success(let value):
+//            ()
+//        case .failure(let error):
+//            ()
+//        }
 
         /// Update value
         XCTAssertNoThrow(try keychain.save("secret2", key: key))
-        XCTAssertEqual(try keychain.get(key: key), "secret2")
+        XCTAssertEqual(try keychain.get(key), "secret2")
+        XCTAssertEqual(try keychain[key].get(), "secret2")
     }
 
 //    func test_saveAndGetStringKeychainWithAccessGroup() {
@@ -94,11 +139,11 @@ class KeychainTests: XCTestCase {
 
         /// Save new value
         XCTAssertNoThrow(try keychain.save(10, key: key))
-        XCTAssertEqual(try keychain.get(key: key), 10)
+        XCTAssertEqual(try keychain.get(key), 10)
 
         /// Update value
         XCTAssertNoThrow(try keychain.save(20, key: key))
-        XCTAssertEqual(try keychain.get(key: key), 20)
+        XCTAssertEqual(try keychain.get(key), 20)
     }
 
     func testRemoveSingleGenericPassword() {
@@ -110,8 +155,8 @@ class KeychainTests: XCTestCase {
         XCTAssertNoThrow(try keychain.save("secret", key: key1))
         XCTAssertNoThrow(try keychain.save("secret", key: key2))
 
-        XCTAssertNoThrow(try keychain.remove(key: key1))
-        XCTAssertNotNil(try keychain.get(key: key2))
+        XCTAssertNoThrow(try keychain.remove(key1))
+        XCTAssertNotNil(try keychain.get(key2))
     }
 
     func testRemoveAllGenericPasswordObjects() {
@@ -125,8 +170,8 @@ class KeychainTests: XCTestCase {
 
         XCTAssertNoThrow(try keychain.removeAll())
 
-        XCTAssertNil(try keychain.get(key: key1))
-        XCTAssertNil(try keychain.get(key: key2))
+        XCTAssertNil(try keychain.get(key1))
+        XCTAssertNil(try keychain.get(key2))
     }
 
     func test_updateRequestAttributes_returnDefaultAttributes() {

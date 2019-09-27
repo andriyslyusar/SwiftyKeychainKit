@@ -33,6 +33,17 @@ open class KeychainBridge<T> {
     func get(key: String, keychain: Keychain) throws -> T? {
         fatalError()
     }
+
+    func remove(key: String, keychain: Keychain) throws {
+        let query = keychain.searchQuery([
+            .account(key)
+        ])
+
+        let status = Keychain.itemDelete(query)
+        if status != errSecSuccess && status != errSecItemNotFound {
+            throw KeychainError(status: status)
+        }
+    }
 }
 
 open class KeychainBridgeInt: KeychainBridge<Int> {
@@ -98,7 +109,7 @@ class KeychainBridgeArchivable<T: NSCoding>: KeychainBridge<T> {
 
             // TODO: iOS 13 deprecated +unarchivedObjectOfClass:fromData:error:
             guard let object = NSKeyedUnarchiver.unarchiveObject(with: data) as? T else {
-                throw SwiftyKeychainKitError.invalidDataCast
+                throw KeychainError.invalidDataCast
             }
 
             return object

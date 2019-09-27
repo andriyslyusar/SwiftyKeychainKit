@@ -160,7 +160,7 @@ class KeychainBridgeArhivableTests: XCTestCase {
 
         XCTAssertThrowsError(try keychainBridge2.get(key: "key", keychain: keychain))
         XCTAssertThrowsError(try keychainBridge2.get(key: "key", keychain: keychain)) { (error) in
-            XCTAssertEqual(error as? SwiftyKeychainKitError, SwiftyKeychainKitError.invalidDataCast)
+            XCTAssertEqual(error as? KeychainError, KeychainError.invalidDataCast)
         }
     }
 

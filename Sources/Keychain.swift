@@ -110,19 +110,27 @@ public enum AuthenticationType {
     case `default`
 }
 
-/// Extend this class and add your user defaults keys as static constants
-/// so you can use the shortcut dot notation (e.g. `Keychain[.yourKey]`)
-open class KeychainKeys {
-    fileprivate init() {}
-}
+/**
+    Extend this class and add your user defaults keys as static constants so you can use the shortcut dot notation
+    (e.g. `KeychainKeys[.yourKey]`)
 
-open class KeychainKey<ValueType: KeychainSerializable> {
+    Example:
+    ```
+    extension KeychainKeys {
+        static let someKey = KeychainKey<String>(key: "key")
+    }
+    ```
+*/
+open class KeychainKeys {}
+
+open class KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
     public let key: String
 
     init(key: String) {
         self.key = key
     }
 }
+
 
 public struct Keychain {
     /// The kind of data Keychain items hold
@@ -185,32 +193,67 @@ public struct Keychain {
         self.synchronizable = synchronizable
         self.securityDomain = securityDomain
     }
-    
+
+    /// Persist value for key in Keychain
+    /// - Parameter value: Persisting value
+    /// - Parameter key: Key for value
     public func save<T: KeychainSerializable>(_ value: T.T, key: KeychainKey<T>) throws {
         try T.bridge.save(key: key.key, value: value, keychain: self)
     }
-    
-    public func get<T: KeychainSerializable>(key: KeychainKey<T>) throws -> T.T? {
+
+    /// Get value for provided key from Keycina,
+    /// - Parameter key: Key for value
+    public func get<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> T.T? {
         return try T.bridge.get(key: key.key, keychain: self)
     }
-    
-    public func remove<T: KeychainSerializable>(key: KeychainKey<T>) throws {
-        let query = searchQuery([
-            .account(key.key)
-        ])
 
-        let status = Keychain.itemDelete(query)
+    /// Get value for provided key from Keycina, return default value in case `value == nil` and not error rised
+    /// - Parameter key: Key for value
+    /// - Parameter defaultProvider: Default return value
+    public func get<T: KeychainSerializable>(_ key: KeychainKey<T>,
+                                             default defaultProvider: @autoclosure () -> T.T) throws -> T.T {
+        do {
+            if let value = try T.bridge.get(key: key.key, keychain: self) {
+                return value
+            }
+            return defaultProvider()
+        } catch {
+            throw error
+        }
+    }
+
+    /// Remove key from specific keychain
+    /// - Parameter key: Keychain key to remove
+    public func remove<T: KeychainSerializable>(_ key: KeychainKey<T>) throws {
+        try T.bridge.remove(key: key.key, keychain: self)
+    }
+
+    /// Remove all keys from specific keychain
+    public func removeAll() throws {
+        let status = Keychain.itemDelete(searchQuery())
         if status != errSecSuccess && status != errSecItemNotFound {
             throw KeychainError(status: status)
         }
     }
-    
-    public func removeAll() throws {
-        let query = searchQuery()
 
-        let status = Keychain.itemDelete(query)
-        if status != errSecSuccess && status != errSecItemNotFound {
-            throw KeychainError(status: status)
+    /// Subsript fetching from keychain in return result with Result type
+    public subscript<T: KeychainSerializable>(key: KeychainKey<T>) -> Result<T.T?, KeychainError> {
+        do {
+            return .success(try self.get(key))
+        } catch {
+            return .failure(KeychainError(error))
+        }
+    }
+
+     /// Subsript with defaul value. In case of error raise fetchin from keychain `.failure` result returns, default
+     /// value apply only in case fetch value is nil
+    public subscript<T: KeychainSerializable>(key: KeychainKey<T>, default defaultProvider: @autoclosure () -> T.T)
+        -> Result<T.T, KeychainError> {
+
+        do {
+            return .success(try self.get(key, default: defaultProvider()))
+        } catch {
+            return .failure(KeychainError(error))
         }
     }
 }

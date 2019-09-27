@@ -14,8 +14,6 @@
 		05DB40F02326D3F800ED3C31 /* KeychainBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40EF2326D3F800ED3C31 /* KeychainBridgeTests.swift */; };
 		05DB40F8232D2E6500ED3C31 /* AttributeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */; };
 		05DB40FA232D491200ED3C31 /* KeychainEnumsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40F9232D491200ED3C31 /* KeychainEnumsTests.swift */; };
-		05DB40FE232E574B00ED3C31 /* SwiftyKeychainKitError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40FD232E574B00ED3C31 /* SwiftyKeychainKitError.swift */; };
-		05DB4100232E5BB700ED3C31 /* SwiftyKeychainKitErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40FF232E5BB700ED3C31 /* SwiftyKeychainKitErrorTests.swift */; };
 		05DB4102232E5C9A00ED3C31 /* KeychainErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB4101232E5C9A00ED3C31 /* KeychainErrorTests.swift */; };
 		05DB410823300A0800ED3C31 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05DB410523300A0800ED3C31 /* Assets.xcassets */; };
 		05DB410923300A0800ED3C31 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB410623300A0800ED3C31 /* AppDelegate.swift */; };
@@ -43,8 +41,6 @@
 		05DB40EF2326D3F800ED3C31 /* KeychainBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainBridgeTests.swift; sourceTree = "<group>"; };
 		05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributeTests.swift; sourceTree = "<group>"; };
 		05DB40F9232D491200ED3C31 /* KeychainEnumsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainEnumsTests.swift; sourceTree = "<group>"; };
-		05DB40FD232E574B00ED3C31 /* SwiftyKeychainKitError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyKeychainKitError.swift; sourceTree = "<group>"; };
-		05DB40FF232E5BB700ED3C31 /* SwiftyKeychainKitErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftyKeychainKitErrorTests.swift; sourceTree = "<group>"; };
 		05DB4101232E5C9A00ED3C31 /* KeychainErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainErrorTests.swift; sourceTree = "<group>"; };
 		05DB410423300A0800ED3C31 /* TestsHost.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = TestsHost.entitlements; sourceTree = "<group>"; };
 		05DB410523300A0800ED3C31 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -97,7 +93,6 @@
 				05DB40EF2326D3F800ED3C31 /* KeychainBridgeTests.swift */,
 				05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */,
 				05DB40F9232D491200ED3C31 /* KeychainEnumsTests.swift */,
-				05DB40FF232E5BB700ED3C31 /* SwiftyKeychainKitErrorTests.swift */,
 				05DB4101232E5C9A00ED3C31 /* KeychainErrorTests.swift */,
 			);
 			path = Tests;
@@ -143,7 +138,6 @@
 				055848D023105F4600FE1AD8 /* KeychainSerializable.swift */,
 				055848D22310633900FE1AD8 /* KeychainBridge.swift */,
 				055848F823130E9F00FE1AD8 /* KeychainError.swift */,
-				05DB40FD232E574B00ED3C31 /* SwiftyKeychainKitError.swift */,
 			);
 			path = Sources;
 			sourceTree = SOURCE_ROOT;
@@ -277,7 +271,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05DB4100232E5BB700ED3C31 /* SwiftyKeychainKitErrorTests.swift in Sources */,
 				05DB40F02326D3F800ED3C31 /* KeychainBridgeTests.swift in Sources */,
 				05F90F9A2323DAD600E53A8B /* KeychainTests.swift in Sources */,
 				05DB40FA232D491200ED3C31 /* KeychainEnumsTests.swift in Sources */,
@@ -300,7 +293,6 @@
 			files = (
 				055848D32310633900FE1AD8 /* KeychainBridge.swift in Sources */,
 				055848D123105F4600FE1AD8 /* KeychainSerializable.swift in Sources */,
-				05DB40FE232E574B00ED3C31 /* SwiftyKeychainKitError.swift in Sources */,
 				055848D523106B0400FE1AD8 /* Keychain.swift in Sources */,
 				055848F923130E9F00FE1AD8 /* KeychainError.swift in Sources */,
 			);

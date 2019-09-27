@@ -27,6 +27,7 @@ import Foundation
 public let KeychainAccessErrorDomain = "com.swifty.keychain.error"
 
 public enum KeychainError: OSStatus, Error {
+    case invalidDataCast                    = 1000
     case success                            = 0
     case unimplemented                      = -4
     case diskFull                           = -34
@@ -432,7 +433,17 @@ public enum KeychainError: OSStatus, Error {
     case unexpectedError                    = -99999
 }
 
-extension KeychainError: RawRepresentable, CustomStringConvertible {
+extension KeychainError {
+    public init(_ error: Error) {
+        if let error = error as? KeychainError {
+            self = error
+        } else {
+            self = .unexpectedError
+        }
+    }
+}
+
+extension KeychainError: RawRepresentable {
     public init(status: OSStatus) {
         if let mappedStatus = KeychainError(rawValue: status) {
             self = mappedStatus
@@ -440,9 +451,13 @@ extension KeychainError: RawRepresentable, CustomStringConvertible {
             self = .unexpectedError
         }
     }
+}
 
+extension KeychainError: CustomStringConvertible {
     public var description: String {
         switch self {
+        case .invalidDataCast:
+           return "Type of keychain stored object incopatible"
         case .success:
             return "No error."
         case .unimplemented:
