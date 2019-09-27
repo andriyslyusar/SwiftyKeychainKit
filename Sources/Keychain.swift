@@ -131,7 +131,7 @@ open class KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
     }
 }
 
-
+@dynamicCallable
 public struct Keychain {
     /// The kind of data Keychain items hold
     public var itemClass: ItemClass = .genericPassword
@@ -148,8 +148,7 @@ public struct Keychain {
 
     public var synchronizable: Bool = false
 
-    /// Only Internet Password attribuite
-    /// `Port`, `Path` attributes extracted from URL
+    /// Attributes `Host`, `Path` and `Port` extracted from URL. Exclusive Internet Password attribuite.
     public var server: URL?
 
     /// Only Internet Password attribuite
@@ -197,14 +196,14 @@ public struct Keychain {
     /// Persist value for key in Keychain
     /// - Parameter value: Persisting value
     /// - Parameter key: Key for value
-    public func save<T: KeychainSerializable>(_ value: T.T, key: KeychainKey<T>) throws {
-        try T.bridge.save(key: key.key, value: value, keychain: self)
+    public func set<T: KeychainSerializable>(_ value: T.T, for key: KeychainKey<T>) throws {
+        try T.bridge.set(value, forKey: key.key, in: self)
     }
 
     /// Get value for provided key from Keycina,
     /// - Parameter key: Key for value
     public func get<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> T.T? {
-        return try T.bridge.get(key: key.key, keychain: self)
+        return try T.bridge.get(key: key.key, from: self)
     }
 
     /// Get value for provided key from Keycina, return default value in case `value == nil` and not error rised
@@ -213,7 +212,7 @@ public struct Keychain {
     public func get<T: KeychainSerializable>(_ key: KeychainKey<T>,
                                              default defaultProvider: @autoclosure () -> T.T) throws -> T.T {
         do {
-            if let value = try T.bridge.get(key: key.key, keychain: self) {
+            if let value = try T.bridge.get(key: key.key, from: self) {
                 return value
             }
             return defaultProvider()
@@ -225,7 +224,7 @@ public struct Keychain {
     /// Remove key from specific keychain
     /// - Parameter key: Keychain key to remove
     public func remove<T: KeychainSerializable>(_ key: KeychainKey<T>) throws {
-        try T.bridge.remove(key: key.key, keychain: self)
+        try T.bridge.remove(key: key.key, from: self)
     }
 
     /// Remove all keys from specific keychain
@@ -239,7 +238,7 @@ public struct Keychain {
     /// Subsript fetching from keychain in return result with Result type
     public subscript<T: KeychainSerializable>(key: KeychainKey<T>) -> Result<T.T?, KeychainError> {
         do {
-            return .success(try self.get(key))
+            return .success(try get(key))
         } catch {
             return .failure(KeychainError(error))
         }
@@ -251,7 +250,37 @@ public struct Keychain {
         -> Result<T.T, KeychainError> {
 
         do {
-            return .success(try self.get(key, default: defaultProvider()))
+            return .success(try get(key, default: defaultProvider()))
+        } catch {
+            return .failure(KeychainError(error))
+        }
+    }
+
+    /// User `dynamicCallable` syntax sugar to implement `get` keychain value
+    ///
+    /// NOTE: Current implementation support only single argument and will ignore others.
+    ///
+    /// Example:
+    /// ```
+    /// try keychain(.stringKey)
+    ///  ```
+    /// - Parameter args: KeychainKey object
+    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [KeychainKey<T>]) throws -> T.T? {
+        return try get(args[0])
+    }
+
+    /// User `dynamicCallable` syntax sugar to implement `get` keychain value. 
+    ///
+    /// NOTE: Current implementation support only single argument and will ignore others.
+    ///
+    /// Due to `ambiguous use of method` error it is required to case return type to `Result`
+    /// ```
+    /// if case .success(let value) = keychain(key) as Result { ... }
+    /// ```
+    /// - Parameter args: KeychainKey object
+    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [KeychainKey<T>]) -> Result<T.T?, KeychainError> {
+        do {
+            return .success(try get(args[0]))
         } catch {
             return .failure(KeychainError(error))
         }

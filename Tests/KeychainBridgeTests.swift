@@ -38,12 +38,12 @@ class KeychainBridgeIntTests: XCTestCase {
         let keychainBridge = KeychainBridgeString()
 
         /// Save value
-        XCTAssertNoThrow(try keychainBridge.save(key: "key", value: "value1", keychain: keychain))
-        XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), "value1")
+        XCTAssertNoThrow(try keychainBridge.set("value1", forKey: "key", in: keychain))
+        XCTAssertEqual(try keychainBridge.get(key: "key", from: keychain), "value1")
 
         /// Update value
-        XCTAssertNoThrow(try keychainBridge.save(key: "key", value: "value2", keychain: keychain))
-        XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), "value2")
+        XCTAssertNoThrow(try keychainBridge.set("value2", forKey: "key", in: keychain))
+        XCTAssertEqual(try keychainBridge.get(key: "key", from: keychain), "value2")
     }
 }
 
@@ -58,12 +58,12 @@ class KeychainBridgeStringTests: XCTestCase {
         let keychainBridge = KeychainBridgeInt()
 
         /// Save value
-        XCTAssertNoThrow(try keychainBridge.save(key: "key", value: 10, keychain: keychain))
-        XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), 10)
+        XCTAssertNoThrow(try keychainBridge.set(10, forKey: "key", in: keychain))
+        XCTAssertEqual(try keychainBridge.get(key: "key", from: keychain), 10)
 
         /// Update value
-        XCTAssertNoThrow(try keychainBridge.save(key: "key", value: 20, keychain: keychain))
-        XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), 20)
+        XCTAssertNoThrow(try keychainBridge.set(20, forKey: "key", in: keychain))
+        XCTAssertEqual(try keychainBridge.get(key: "key", from: keychain), 20)
     }
 
 }
@@ -81,15 +81,15 @@ class KeychainBridgeCodableTests: XCTestCase {
         do {
             let codable = CodableMock(intProperty: 10)
             /// Save value
-            XCTAssertNoThrow(try keychainBridge.save(key: "key", value: codable, keychain: keychain))
-            XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), codable)
+            XCTAssertNoThrow(try keychainBridge.set(codable, forKey: "key", in: keychain))
+            XCTAssertEqual(try keychainBridge.get(key: "key", from: keychain), codable)
         }
 
         do {
             let codable = CodableMock(intProperty: 20)
             /// Update value
-            XCTAssertNoThrow(try keychainBridge.save(key: "key", value: codable, keychain: keychain))
-            XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), codable)
+            XCTAssertNoThrow(try keychainBridge.set(codable, forKey: "key", in: keychain))
+            XCTAssertEqual(try keychainBridge.get(key: "key", from: keychain), codable)
         }
     }
 
@@ -97,7 +97,7 @@ class KeychainBridgeCodableTests: XCTestCase {
         let keychain = Keychain(service: keychainService)
         let keychainBridge = KeychainBridgeCodable<CodableMock>()
 
-        XCTAssertNil(try keychainBridge.get(key: "key", keychain: keychain))
+        XCTAssertNil(try keychainBridge.get(key: "key", from: keychain))
     }
 
     func test_getCodable_itemFailedToDecode() throws {
@@ -105,9 +105,9 @@ class KeychainBridgeCodableTests: XCTestCase {
         let keychainBridge = KeychainBridgeCodable<CodableMock>()
         let keychainBridge2 = KeychainBridgeCodable<CodableMockTwo>()
 
-        try keychainBridge.save(key: "key", value: CodableMock(intProperty: 10), keychain: keychain)
+        try keychainBridge.set(CodableMock(intProperty: 10), forKey: "key", in: keychain)
 
-        XCTAssertThrowsError(try keychainBridge2.get(key: "key", keychain: keychain))
+        XCTAssertThrowsError(try keychainBridge2.get(key: "key", from: keychain))
     }
 
     private struct CodableMock: Codable, Equatable {
@@ -132,15 +132,15 @@ class KeychainBridgeArhivableTests: XCTestCase {
         do {
             let object = ArchivableMock(intProperty: 10)
             /// Save value
-            XCTAssertNoThrow(try keychainBridge.save(key: "key", value: object, keychain: keychain))
-            XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), object)
+            XCTAssertNoThrow(try keychainBridge.set(object, forKey: "key", in: keychain))
+            XCTAssertEqual(try keychainBridge.get(key: "key", from: keychain), object)
         }
 
         do {
             let object = ArchivableMock(intProperty: 20)
             /// Update value
-            XCTAssertNoThrow(try keychainBridge.save(key: "key", value: object, keychain: keychain))
-            XCTAssertEqual(try keychainBridge.get(key: "key", keychain: keychain), object)
+            XCTAssertNoThrow(try keychainBridge.set(object, forKey: "key", in: keychain))
+            XCTAssertEqual(try keychainBridge.get(key: "key", from: keychain), object)
         }
     }
 
@@ -148,7 +148,7 @@ class KeychainBridgeArhivableTests: XCTestCase {
         let keychain = Keychain(service: keychainService)
         let keychainBridge = KeychainBridgeArchivable<ArchivableMock>()
 
-        XCTAssertNil(try keychainBridge.get(key: "key", keychain: keychain))
+        XCTAssertNil(try keychainBridge.get(key: "key", from: keychain))
     }
 
     func test_getArchivable_itemFailedToDecode() throws {
@@ -156,10 +156,10 @@ class KeychainBridgeArhivableTests: XCTestCase {
         let keychainBridge = KeychainBridgeArchivable<ArchivableMock>()
         let keychainBridge2 = KeychainBridgeArchivable<ArchivableMock2>()
 
-        try keychainBridge.save(key: "key", value: ArchivableMock(intProperty: 10), keychain: keychain)
+        try keychainBridge.set(ArchivableMock(intProperty: 10), forKey: "key", in: keychain)
 
-        XCTAssertThrowsError(try keychainBridge2.get(key: "key", keychain: keychain))
-        XCTAssertThrowsError(try keychainBridge2.get(key: "key", keychain: keychain)) { (error) in
+        XCTAssertThrowsError(try keychainBridge2.get(key: "key", from: keychain))
+        XCTAssertThrowsError(try keychainBridge2.get(key: "key", from: keychain)) { (error) in
             XCTAssertEqual(error as? KeychainError, KeychainError.invalidDataCast)
         }
     }
