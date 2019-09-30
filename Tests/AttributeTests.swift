@@ -26,7 +26,6 @@ import XCTest
 @testable import SwiftyKeychainKit
 
 class AttributeTests: XCTestCase {
-
     func testItemClass() {
         let value = ItemClass.genericPassword
         XCTAssertEqual(Attribute.class(value).rawValue.key, String(kSecClass))

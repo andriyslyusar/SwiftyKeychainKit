@@ -112,12 +112,12 @@ public enum AuthenticationType {
 
 /**
     Extend this class and add your user defaults keys as static constants so you can use the shortcut dot notation
-    (e.g. `KeychainKeys[.yourKey]`)
+    (e.g. `Keychain[.yourKey]`)
 
     Example:
     ```
     extension KeychainKeys {
-        static let someKey = KeychainKey<String>(key: "key")
+        static let yourKey = KeychainKey<String>(key: "key")
     }
     ```
 */
@@ -208,7 +208,7 @@ public struct Keychain {
 
     /// Get value for provided key from Keycina, return default value in case `value == nil` and not error rised
     /// - Parameter key: Key for value
-    /// - Parameter defaultProvider: Default return value
+    /// - Parameter defaultProvider: Value retrun by default than value is nil
     public func get<T: KeychainSerializable>(_ key: KeychainKey<T>,
                                              default defaultProvider: @autoclosure () -> T.T) throws -> T.T {
         do {

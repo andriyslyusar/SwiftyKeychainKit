@@ -1,7 +1,7 @@
 //
-// KeychainSerializable.swift
+// Keychain+Codable.swift
 //
-// Created by Andriy Slyusar on 2019-08-23.
+// Created by Andriy Slyusar on 2019-09-29.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,37 +23,24 @@
 //
 
 import Foundation
+import Quick
+@testable import SwiftyKeychainKit
 
-public protocol KeychainSerializable {
-    associatedtype T
+class KeychainCodableSpec: QuickSpec, SerializableSpec {
+    typealias Serializable = CodableValue
 
-    static var bridge: KeychainBridge<T> { get }
+    var value: CodableValue = CodableValue(intProperty: 10)
+    var updateValue: CodableValue = CodableValue(intProperty: 20)
+    var defaultValue: CodableValue = CodableValue(intProperty: 30)
+
+    override func spec() {
+        describe("Codable value") {
+            self.testGenericPassword()
+            self.testInternetPassword()
+        }
+    }
 }
 
-extension Int: KeychainSerializable {
-    public static var bridge: KeychainBridge<Int> { return KeychainBridgeInt() }
-}
-
-extension String: KeychainSerializable {
-    public static var bridge: KeychainBridge<String> { return KeychainBridgeString() }
-}
-
-extension Double: KeychainSerializable {
-    public static var bridge: KeychainBridge<Double> { return KeychainBridgeDouble() }
-}
-
-extension Bool: KeychainSerializable {
-    public static var bridge: KeychainBridge<Bool> { return KeychainBridgeBool() }
-}
-
-extension Data: KeychainSerializable {
-    public static var bridge: KeychainBridge<Data> { return KeychainBridgeData() }
-}
-
-extension KeychainSerializable where Self: Codable {
-    public static var bridge: KeychainBridge<Self> { return KeychainBridgeCodable() }
-}
-
-extension KeychainSerializable where Self: NSCoding {
-    public static var bridge: KeychainBridge<Self> { return KeychainBridgeArchivable() }
+struct CodableValue: Codable, Equatable, KeychainSerializable {
+    let intProperty: Int
 }

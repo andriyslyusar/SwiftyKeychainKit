@@ -1,7 +1,7 @@
 //
-// KeychainSerializable.swift
+// Attribute+Equatable.swift
 //
-// Created by Andriy Slyusar on 2019-08-23.
+// Created by Andriy Slyusar on 2019-09-30.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,37 +23,36 @@
 //
 
 import Foundation
+@testable import SwiftyKeychainKit
 
-public protocol KeychainSerializable {
-    associatedtype T
+extension Attribute: Equatable {}
 
-    static var bridge: KeychainBridge<T> { get }
+public func ==(lhs: Attribute, rhs: Attribute) -> Bool {
+    switch (lhs, rhs) {
+    case (.`class`(let a), .`class`(let b)):
+        return a == b
+    case (.service(let a), .service(let b)):
+        return a == b
+    case (.account(let a), .account(let b)):
+        return a == b
+    case (.valueData(let a), .valueData(let b)):
+        return a == b
+     case (.accessible(let a), .accessible(let b)):
+        return a == b
+    case (.isReturnData(let a), .isReturnData(let b)):
+        return a == b
+    case (.matchLimit(let a), .matchLimit(let b)):
+        return a == b
+    case (.accessGroup(let a), .accessGroup(let b)):
+        return a == b
+    case (.synchronizable(let a), .synchronizable(let b)):
+        return a == b
+    case (.server(let a), .server(let b)):
+        return a == b
+    case (.port(let a), .port(let b)):
+        return a == b
+    default:
+      return false
+    }
 }
 
-extension Int: KeychainSerializable {
-    public static var bridge: KeychainBridge<Int> { return KeychainBridgeInt() }
-}
-
-extension String: KeychainSerializable {
-    public static var bridge: KeychainBridge<String> { return KeychainBridgeString() }
-}
-
-extension Double: KeychainSerializable {
-    public static var bridge: KeychainBridge<Double> { return KeychainBridgeDouble() }
-}
-
-extension Bool: KeychainSerializable {
-    public static var bridge: KeychainBridge<Bool> { return KeychainBridgeBool() }
-}
-
-extension Data: KeychainSerializable {
-    public static var bridge: KeychainBridge<Data> { return KeychainBridgeData() }
-}
-
-extension KeychainSerializable where Self: Codable {
-    public static var bridge: KeychainBridge<Self> { return KeychainBridgeCodable() }
-}
-
-extension KeychainSerializable where Self: NSCoding {
-    public static var bridge: KeychainBridge<Self> { return KeychainBridgeArchivable() }
-}
