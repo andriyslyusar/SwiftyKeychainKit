@@ -1,4 +1,7 @@
 # SwiftyKeychainKit
+![Platforms](https://img.shields.io/badge/platforms-ios%20-lightgrey.svg)
+[![CocoaPods compatible](https://img.shields.io/badge/CocoaPods-compatible-4BC51D.svg?style=flat)](#cocoapods)
+![Swift version](https://img.shields.io/badge/swift-5.0%20%7C%205.1-orange.svg)
 
 SwiftyKeychainKit is a simple Swift wrapper for Keychain Services API with the benefits of static typing. Define your keys in one place, use value types easily, and get extra safety and convenient compile-time checks for free.
 
@@ -15,33 +18,103 @@ let keychain = Keychain(service: "com.swifty.keychain")
 let accessTokenKey = KeychainKey<String>(key: "accessToken")
 
 // Save or modify value
-try? keychain.save("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", key: accessTokenKey)
+try? keychain.save("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", for : accessTokenKey)
 
 // Get value 
-let value = try? keychain.get(key: accessTokenKey)
+let value = try keychain.get(accessTokenKey)
 
 // Remove value 
-try? keychain.remove(key: accessTokenKey)
+try keychain.remove(accessTokenKey)
 
 // Remove all values 
-try? keychain.removeAll()
+try keychain.removeAll()
+```
+
+### Instantiation
+
+```swift
+// Generic password
+let keychain = Keychain(service: "com.swifty.keychainkit")
+
+// Internet password
+let keychain = Keychain(server: URL(string: "https://www.google.com")!, protocolType: .https)
+```
+
+### Define keys 
+
+For extra convenience, define your keys by extending `KeychainKeys` class and adding static properties:
+
+```swift
+extension KeychainKeys {
+    static let username = KeychainKey<String>(key: "username")
+    static let age = KeychainKey<Int>(key: "age")
+}
+```
+
+and later in the code use shortcut dot syntax:
+
+```swift
+// save
+try? keychain.save("John Snow", for: .username)
+
+// get
+let username = try keychain.get(.username)
+```
+
+### Geting values
+
+You can use `subscripts` and `dynamicCallable` syntax sugar to get value as `Result<ValueType, KeychainError>`
+
+```swift
+let username = try keychain[.username].get()
+
+// or 
+
+if case .success(let age) = keychain[.age] {
+    ...
+}
+```
+
+```swift
+let username = try keychain(.username).get()
+
+// or 
+
+if case .success(let age) = keychain(.age) {
+    ...
+}
+```
+
+Both `subscripts` and `dynamicCallable` syntaxt available only for geting values. Currently Swift language limitation do not allow implement setter with error handling.
+
+### Default values
+
+You can provide default value for get method and it will used than **keychain key is nil** and **no error throw**.
+
+```swift
+try keychain.get(.username, default: "Daenerys Targaryen")
+
+// or
+
+try keychain[.age, default: 18].get() 
 ```
 
 ## Supported types
 - [x] Int  
 - [x] String  
-- [ ] Double  
-- [ ] Bool  
-- [ ] Data  
+- [x] Double  
+- [x] Bool  
+- [x] Data  
 - [ ] Date  
 - [ ] URL  
 
 and more:
 - [x] Codable  
 - [x] NSCoding  
-- [ ] RawRepresentable  
 
 ## Supported attributes
+
+**Common**
 - [x] kSecAttrAccessGroup 
 - [x] kSecAttrAccessible 
 - [ ] kSecAttrCreationDate
@@ -54,7 +127,7 @@ and more:
 - [ ] kSecAttrIsInvisible
 - [ ] kSecAttrIsNegative
 - [x] kSecAttrAccount
-- [ ] kSecAttrSynchronizable
+- [x] kSecAttrSynchronizable
 
 **Generic password**
 - [ ] kSecAttrAccessControl
@@ -62,35 +135,51 @@ and more:
 - [ ] kSecAttrGeneric
 
 **Internet password**
-- [ ] kSecAttrSecurityDomain
-- [ ] kSecAttrServer
-- [ ] kSecAttrProtocol
-- [ ] kSecAttrAuthenticationType
-- [ ] kSecAttrPort
-- [ ] kSecAttrPath
+- [x] kSecAttrSecurityDomain
+- [x] kSecAttrServer
+- [x] kSecAttrProtocol
+- [x] kSecAttrAuthenticationType
+- [x] kSecAttrPort
+- [x] kSecAttrPath
+
+## Supporting more types
+TBD
 
 ## Requirement
 
-Swift ?
+**Swift** version **5.0**
 
-Platform | Availability
+Platform     | Availability
 ------------ | -------------
-iOS | ?
-macOS | ?
-tvOS | ? 
-watchOS | ?
+iOS          | >= 12
+macOS        | -
+tvOS         | - 
+watchOS      | -
 
 ### Installation
-### CocoaPods
-TBD  
+#### CocoaPods
+If you're using CocoaPods, just add this line to your Podfile:
 
-### Swift Package Manager
+```ruby
+pod 'SwiftyKeychainKit', '1.0.0-beta.1'
+```
+
+Install by running this command in your terminal:
+
+```sh
+pod install
+```
+
+Then import the library in all files where you use it:
+
+```swift
+import SwiftyKeychainKit
+```  
+
+#### Swift Package Manager
 TBD
 
-### Carthage
-TBD
-
-## Supporting more types
+#### Carthage
 TBD
 
 ## Acknowledgement 

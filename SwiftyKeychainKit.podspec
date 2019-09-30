@@ -2,7 +2,7 @@ Pod::Spec.new do |spec|
   # ―――  Spec Metadata  ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
   spec.name         = "SwiftyKeychainKit"
-  spec.version      = "0.1.0"
+  spec.version      = "1.0.0-beta.1"
   spec.summary      = "SwiftyKeychainKit is a simple Swift wrapper for Keychain Services API with the benefits of static typing."
   spec.description  = <<-DESC
                         SwiftyKeychainKit is a simple Swift wrapper for Keychain Services API with the benefits of static typing. 
