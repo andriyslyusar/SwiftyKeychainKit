@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0547CDA22348B77900729CA1 /* Keychain+Float.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0547CDA12348B77900729CA1 /* Keychain+Float.swift */; };
 		055848D123105F4600FE1AD8 /* KeychainSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D023105F4600FE1AD8 /* KeychainSerializable.swift */; };
 		055848D32310633900FE1AD8 /* KeychainBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D22310633900FE1AD8 /* KeychainBridge.swift */; };
 		055848D523106B0400FE1AD8 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D423106B0400FE1AD8 /* Keychain.swift */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0547CDA12348B77900729CA1 /* Keychain+Float.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Keychain+Float.swift"; sourceTree = "<group>"; };
 		055848D023105F4600FE1AD8 /* KeychainSerializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSerializable.swift; sourceTree = "<group>"; };
 		055848D22310633900FE1AD8 /* KeychainBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainBridge.swift; sourceTree = "<group>"; };
 		055848D423106B0400FE1AD8 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
@@ -127,8 +129,9 @@
 				057F4DA323411B3C00B05E4E /* Keychain+Double.swift */,
 				057F4DA523411C1800B05E4E /* Keychain+Bool.swift */,
 				057F4DA723411CDF00B05E4E /* Keychain+Data.swift */,
-				057F4DA92341202C00B05E4E /* Keychain+Codable.swift */,
 				057F4DAB23412B3800B05E4E /* Keychain+Archivable.swift */,
+				0547CDA12348B77900729CA1 /* Keychain+Float.swift */,
+				057F4DA92341202C00B05E4E /* Keychain+Codable.swift */,
 			);
 			path = SerializableTypes;
 			sourceTree = "<group>";
@@ -369,6 +372,7 @@
 				057F4DAC23412B3800B05E4E /* Keychain+Archivable.swift in Sources */,
 				057F4DA223411A9300B05E4E /* Keychain+Int.swift in Sources */,
 				05DB40F8232D2E6500ED3C31 /* AttributeTests.swift in Sources */,
+				0547CDA22348B77900729CA1 /* Keychain+Float.swift in Sources */,
 				057B6609234270020092312D /* Attribute+Equatable.swift in Sources */,
 				057F4DA423411B3C00B05E4E /* Keychain+Double.swift in Sources */,
 				057F4DA823411CDF00B05E4E /* Keychain+Data.swift in Sources */,

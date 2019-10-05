@@ -38,15 +38,115 @@ protocol SerializableSpec {
 
 extension SerializableSpec where Serializable.T: Equatable, Serializable.T == Serializable {
     func testGenericPassword() {
-        testKeychainOperation(keychain: Keychain(service: "com.swifty.keychainkit"))
+        describe("persist as generic password") {
+            context("when keychain has default attributes") {
+                testKeychainOperation(keychain: Keychain(service: keychainService))
+            }
+
+    //        context("when keychain has access group") {
+    //            testKeychainOperation(keychain: Keychain(service: "com.swifty.keychainkit", accessGroup: keychainAccessGroup))
+    //        }
+
+            context("when keychain is synchronizable") {
+                testKeychainOperation(keychain: Keychain(service: keychainService, synchronizable: true))
+            }
+
+            context("when keychain has label") {
+                var keychain = Keychain(service: keychainService)
+                keychain.label = keychainLabel
+
+                testKeychainOperation(keychain: keychain)
+            }
+
+            context("when keychain has comment") {
+                var keychain = Keychain(service: keychainService)
+                keychain.comment = keychainComment
+
+                testKeychainOperation(keychain: keychain)
+            }
+
+            context("when keychain has description") {
+                var keychain = Keychain(service: keychainService)
+                keychain.attrDescription = keychainDescription
+
+                testKeychainOperation(keychain: keychain)
+            }
+
+            context("when keychain has isInvisible attribute") {
+                var keychain = Keychain(service: keychainService)
+                keychain.isInvisible = true
+
+                testKeychainOperation(keychain: keychain)
+            }
+
+            context("when keychain has isNegative attribute") {
+                var keychain = Keychain(service: keychainService)
+                keychain.isNegative = true
+
+                testKeychainOperation(keychain: keychain)
+            }
+        }
     }
 
     func testInternetPassword() {
-        testKeychainOperation(keychain: Keychain(server: URL(string: "https://www.google.com")!, protocolType: .https))
+        describe("persist as internet password") {
+            context("when keychain has default attributes") {
+                testKeychainOperation(keychain: Keychain(server: keychainUrl, protocolType: .https))
+            }
+
+//            context("when keychain has access group") {
+//                testKeychainOperation(keychain: Keychain(server: keychainUrl,
+//                                                         protocolType: .https,
+//                                                         accessGroup: keychainAccessGroup))
+//            }
+
+            context("when keychain has access group attribute") {
+                testKeychainOperation(keychain: Keychain(server: keychainUrl, protocolType: .https, securityDomain: keychainSecurityDomain))
+            }
+
+            context("when keychain is synchronizable attribute") {
+                testKeychainOperation(keychain: Keychain(server: keychainUrl, protocolType: .https, synchronizable: true))
+            }
+
+            context("when keychain has label attribute") {
+                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+                keychain.label = keychainLabel
+
+                testKeychainOperation(keychain: keychain)
+            }
+
+            context("when keychain has comment attribute") {
+                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+                keychain.comment = keychainComment
+
+                testKeychainOperation(keychain: keychain)
+            }
+
+            context("when keychain has description attribute") {
+                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+                keychain.attrDescription = keychainDescription
+
+                testKeychainOperation(keychain: keychain)
+            }
+
+            context("when keychain has isInvisible attribute") {
+                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+                keychain.isInvisible = true
+
+                testKeychainOperation(keychain: keychain)
+            }
+
+            context("when keychain has isNegative attribute") {
+                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+                keychain.isNegative = true
+
+                testKeychainOperation(keychain: keychain)
+            }
+        }
     }
 
     private func testKeychainOperation(keychain: Keychain) {
-        describe("optinal value") {
+        describe("its perfom all operations") {
             let key = KeychainKey<Serializable>(key: "key")
             let anotherKey = KeychainKey<Serializable>(key: "anotherKey")
 

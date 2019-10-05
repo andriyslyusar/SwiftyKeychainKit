@@ -148,7 +148,12 @@ public struct Keychain {
 
     public var synchronizable: Bool = false
 
-    /// Attributes `Host`, `Path` and `Port` extracted from URL. Exclusive Internet Password attribuite.
+    /// Extracted from URL attributes:
+    /// * `Server` - the server's domain name or IP address,
+    /// * `Path` - the path component of the URL,
+    /// * `Port` - thg Internet port number
+    ///
+    /// Exclusive Internet Password attribuite.
     public var server: URL?
 
     /// Only Internet Password attribuite
@@ -160,8 +165,27 @@ public struct Keychain {
     /// Only Internet Password attribuite
     public var securityDomain: String?
 
-    /// Only Internet Password attribuite
-    public var path: String?
+    public var label: String?
+
+    public var comment: String?
+
+    public var attrDescription: String?
+
+    /// Indicating the item's visibility
+    ///
+    /// iOS does not have a general-purpose way to view keychain items, so this propery make sense only with sync
+    /// to a Mac via iCloud Keychain, than you might want to make it invisible there.
+    ///
+    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisinvisible)
+    public var isInvisible: Bool?
+
+    /// Indicating whether the item has a valid password
+    ///
+    /// This is useful if your application doesn't want a password for some particular service to be stored in the keychain,
+    /// but prefers that it always be entered by the user.
+    ///
+    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisnegative)
+    public var isNegative: Bool?
 
     /// Construct Generic Password Keychain
     public init(service: String,
@@ -353,6 +377,26 @@ extension Keychain {
             .synchronizable(.init(boolValue: synchronizable))
         ])
 
+        if let label = label {
+            attributes.append(.label(label))
+        }
+
+        if let comment = comment {
+            attributes.append(.comment(comment))
+        }
+
+        if let description = attrDescription {
+            attributes.append(.attrDescription(description))
+        }
+
+        if let isInvisible = isInvisible {
+            attributes.append(.isInvisible(isInvisible))
+        }
+
+        if let isNegative = isNegative {
+            attributes.append(.isNegative(isNegative))
+        }
+
         return attributes
     }
 }
@@ -394,6 +438,11 @@ enum Attribute {
     case authenticationType(AuthenticationType)
     case securityDomain(String)
     case path(String)
+    case label(String)
+    case comment(String)
+    case attrDescription(String)
+    case isInvisible(Bool)
+    case isNegative(Bool)
 
     var rawValue: Element {
         switch self {
@@ -428,6 +477,16 @@ enum Attribute {
             return Element(key: kSecAttrSecurityDomain, value: value)
         case .path(let value):
             return Element(key: kSecAttrPath, value: value)
+        case .label(let value):
+            return Element(key: kSecAttrLabel, value: value)
+        case .comment(let value):
+            return Element(key: kSecAttrComment, value: value)
+        case .attrDescription(let value):
+            return Element(key: kSecAttrDescription, value: value)
+        case .isInvisible(let value):
+            return Element(key: kSecAttrIsInvisible, value: NSNumber(value: value))
+        case .isNegative(let value):
+            return Element(key: kSecAttrIsNegative, value: NSNumber(value: value))
         }
     }
 

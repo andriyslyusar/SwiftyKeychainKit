@@ -83,6 +83,17 @@ class KeychainBridgeDouble: KeychainBridge<Double> {
     }
 }
 
+class KeychainBridgeFloat: KeychainBridge<Float> {
+    override public func set(_ value: Float, forKey key: String, in keychain: Keychain) throws {
+        try persist(value: Data(from: value), key: key, keychain: keychain)
+    }
+
+    override public func get(key: String, from keychain: Keychain) throws -> Float? {
+        guard let data = try find(key: key, keychain: keychain) else { return nil }
+        return data.convert(type: Float.self)
+    }
+}
+
 class KeychainBridgeBool: KeychainBridge<Bool> {
     override public func set(_ value: Bool, forKey key: String, in keychain: Keychain) throws {
         let bytes: [UInt8] = value ? [1] : [0]

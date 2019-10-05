@@ -103,10 +103,9 @@ try keychain[.age, default: 18].get()
 - [x] Int  
 - [x] String  
 - [x] Double  
+- [x] Float
 - [x] Bool  
 - [x] Data  
-- [ ] Date  
-- [ ] URL  
 
 and more:
 - [x] Codable  
@@ -119,13 +118,13 @@ and more:
 - [x] kSecAttrAccessible 
 - [ ] kSecAttrCreationDate
 - [ ] kSecAttrModificationDate
-- [ ] kSecAttrDescription
-- [ ] kSecAttrComment
+- [x] kSecAttrDescription
+- [x] kSecAttrComment
 - [ ] kSecAttrCreator
 - [ ] kSecAttrType
-- [ ] kSecAttrLabel
-- [ ] kSecAttrIsInvisible
-- [ ] kSecAttrIsNegative
+- [x] kSecAttrLabel
+- [x] kSecAttrIsInvisible
+- [x] kSecAttrIsNegative
 - [x] kSecAttrAccount
 - [x] kSecAttrSynchronizable
 

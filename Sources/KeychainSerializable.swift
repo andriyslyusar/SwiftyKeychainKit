@@ -42,6 +42,10 @@ extension Double: KeychainSerializable {
     public static var bridge: KeychainBridge<Double> { return KeychainBridgeDouble() }
 }
 
+extension Float: KeychainSerializable {
+    public static var bridge: KeychainBridge<Float> { return KeychainBridgeFloat() }
+}
+
 extension Bool: KeychainSerializable {
     public static var bridge: KeychainBridge<Bool> { return KeychainBridgeBool() }
 }

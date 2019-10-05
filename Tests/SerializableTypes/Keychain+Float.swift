@@ -1,7 +1,7 @@
 //
-// Constants.swift
+// Keychain+Float.swift
 //
-// Created by Andriy Slyusar on 2019-09-30.
+// Created by Andriy Slyusar on 2019-10-05.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,19 @@
 //
 
 import Foundation
+import Quick
 
-let keychainAccessGroup = "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost"
+class KeychainFloatSpec: QuickSpec, SerializableSpec {
+    typealias Serializable = Float
 
-let keychainService = "com.swifty.keychainkit"
+    var value: Float = 0.12345678
+    var updateValue: Float = 1.12345678
+    var defaultValue: Float =  2.12345678
 
-let keychainSecurityDomain = "securityDomain"
-
-let keychainUrl = URL(string:"https://github.com:8080/andriyslyusar/SwiftyKeychainKit")!
-
-let keychainLabel = "Keychain label"
-
-let keychainComment = "Keychain comment"
-
-let keychainDescription = "Keychain description"
+    override func spec() {
+        describe("Float value") {
+            self.testGenericPassword()
+            self.testInternetPassword()
+        }
+    }
+}

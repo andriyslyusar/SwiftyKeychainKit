@@ -28,9 +28,9 @@ import Quick
 class KeychainDoubleSpec: QuickSpec, SerializableSpec {
     typealias Serializable = Double
 
-    var value: Double = 10.0
-    var updateValue: Double = 20.0
-    var defaultValue: Double =  40.0
+    var value: Double = 0.123456789123456789
+    var updateValue: Double = 1.123456789123456789
+    var defaultValue: Double =  2.123456789123456789
 
     override func spec() {
         describe("Double value") {
