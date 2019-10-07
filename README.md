@@ -116,8 +116,6 @@ and more:
 **Common**
 - [x] kSecAttrAccessGroup 
 - [x] kSecAttrAccessible 
-- [ ] kSecAttrCreationDate
-- [ ] kSecAttrModificationDate
 - [x] kSecAttrDescription
 - [x] kSecAttrComment
 - [ ] kSecAttrCreator
@@ -157,26 +155,20 @@ watchOS      | -
 
 ### Installation
 #### CocoaPods
-If you're using CocoaPods, just add this line to your Podfile:
-
 ```ruby
 pod 'SwiftyKeychainKit', '1.0.0-beta.1'
 ```
 
-Install by running this command in your terminal:
-
-```sh
-pod install
-```
-
-Then import the library in all files where you use it:
-
-```swift
-import SwiftyKeychainKit
-```  
-
 #### Swift Package Manager
-TBD
+```swift
+import PackageDescription
+
+let package = Package(
+    dependencies: [
+        .Package(url: "https://github.com/andriyslyusar/SwiftyKeychainKit.git", .revision("8e3f4019de0f0f12e7246e783a7cb3a264698a69"))
+    ]
+)
+```
 
 #### Carthage
 TBD

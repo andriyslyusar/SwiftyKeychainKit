@@ -112,6 +112,21 @@
 			path = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		0547CDC82349ED3E00729CA1 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				057B660723426FE90092312D /* Helpers */,
+				057F4D90233FCE1F00B05E4E /* SerializableTypes */,
+				057F4D95233FD00800B05E4E /* SerializableSpec.swift */,
+				05F90F992323DAD600E53A8B /* KeychainTests.swift */,
+				05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */,
+				05DB40F9232D491200ED3C31 /* KeychainEnumsSpec.swift */,
+				05DB4101232E5C9A00ED3C31 /* KeychainErrorTests.swift */,
+				057B6605234133870092312D /* KeychainSpec.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
 		057B660723426FE90092312D /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -148,16 +163,9 @@
 		059D47A923219D4D000328C9 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				057B660723426FE90092312D /* Helpers */,
-				057F4D90233FCE1F00B05E4E /* SerializableTypes */,
 				053D28C423300CAF0052175C /* Supporting Files */,
+				0547CDC82349ED3E00729CA1 /* Sources */,
 				05DB410323300A0800ED3C31 /* TestsHost */,
-				057F4D95233FD00800B05E4E /* SerializableSpec.swift */,
-				05F90F992323DAD600E53A8B /* KeychainTests.swift */,
-				05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */,
-				05DB40F9232D491200ED3C31 /* KeychainEnumsSpec.swift */,
-				05DB4101232E5C9A00ED3C31 /* KeychainErrorTests.swift */,
-				057B6605234133870092312D /* KeychainSpec.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";

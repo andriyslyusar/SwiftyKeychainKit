@@ -126,7 +126,7 @@ open class KeychainKeys {}
 open class KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
     public let key: String
 
-    init(key: String) {
+    public init(key: String) {
         self.key = key
     }
 }
