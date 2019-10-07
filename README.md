@@ -158,21 +158,21 @@ watchOS      | -
 ### Installation
 #### CocoaPods
 ```ruby
-pod 'SwiftyKeychainKit', '1.0.0-beta.1'
+pod 'SwiftyKeychainKit', '1.0.0-beta.2'
 ```
 
 #### Swift Package Manager
 ```swift
 let package = Package(
     dependencies: [
-        .Package(url: "https://github.com/andriyslyusar/SwiftyKeychainKit.git", .exact("1.0.0-beta.1"))
+        .Package(url: "https://github.com/andriyslyusar/SwiftyKeychainKit.git", .exact("1.0.0-beta.2"))
     ]
 )
 ```
 
 #### Carthage
 ```ruby
-github "andriyslyusar/SwiftyKeychainKit" "1.0.0-beta.1"
+github "andriyslyusar/SwiftyKeychainKit" "1.0.0-beta.2"
 ```
 
 ## Acknowledgement 
