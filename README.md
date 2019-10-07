@@ -1,6 +1,8 @@
 # SwiftyKeychainKit
 ![Platforms](https://img.shields.io/badge/platforms-ios%20-lightgrey.svg)
 [![CocoaPods compatible](https://img.shields.io/badge/CocoaPods-compatible-4BC51D.svg?style=flat)](#cocoapods)
+[![SPM compatible](https://img.shields.io/badge/SPM-compatible-4BC51D.svg?style=flat)](#swift-package-manager)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](#carthage)
 ![Swift version](https://img.shields.io/badge/swift-5.0%20%7C%205.1-orange.svg)
 
 SwiftyKeychainKit is a simple Swift wrapper for Keychain Services API with the benefits of static typing. Define your keys in one place, use value types easily, and get extra safety and convenient compile-time checks for free.
@@ -161,21 +163,21 @@ pod 'SwiftyKeychainKit', '1.0.0-beta.1'
 
 #### Swift Package Manager
 ```swift
-import PackageDescription
-
 let package = Package(
     dependencies: [
-        .Package(url: "https://github.com/andriyslyusar/SwiftyKeychainKit.git", .revision("8e3f4019de0f0f12e7246e783a7cb3a264698a69"))
+        .Package(url: "https://github.com/andriyslyusar/SwiftyKeychainKit.git", .exact("1.0.0-beta.1"))
     ]
 )
 ```
 
 #### Carthage
-TBD
+```ruby
+github "andriyslyusar/SwiftyKeychainKit" "1.0.0-beta.1"
+```
 
 ## Acknowledgement 
 * [SwiftyUserDefaults](https://github.com/sunshinejr/SwiftyUserDefaults) - API design inspiration
-* [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) - API wrapper knowledge source.
+* [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) - API wrapper knowledge source
 
 ## Author
 Andriy Slyusar  
