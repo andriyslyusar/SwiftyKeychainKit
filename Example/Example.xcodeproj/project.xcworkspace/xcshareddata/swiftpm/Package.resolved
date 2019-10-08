@@ -5,9 +5,9 @@
         "package": "SwiftyKeychainKit",
         "repositoryURL": "https://github.com/andriyslyusar/SwiftyKeychainKit.git",
         "state": {
-          "branch": "master",
-          "revision": "f00fe9b9888a30426ffffb776aeb7e68b5c605ee",
-          "version": null
+          "branch": null,
+          "revision": "4d07ad0b2ec3c43df5ef762d59af22e47b9d1bd2",
+          "version": "1.0.0-beta.2"
         }
       }
     ]

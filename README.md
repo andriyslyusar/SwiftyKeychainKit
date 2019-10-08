@@ -102,19 +102,54 @@ try keychain[.age, default: 18].get()
 ```
 
 ## Supported types
-- [x] Int  
-- [x] String  
-- [x] Double  
-- [x] Float
-- [x] Bool  
-- [x] Data  
+- Int
+- String
+- Double
+- Float
+- Bool
+- Data
 
-and more:
-- [x] Codable  
-- [x] NSCoding  
+### Codable
+```swift
+struct MyStruct: Codable, KeychainSerializable { ... }
+```
+
+### NSCoding
+```swift
+class MyClass: NSObject, NSCoding, KeychainSerializable { ... }
+```
+
+### Custom types
+In order to save/get your own custom type that we don't support, you need to confirm it `KeychainSerializable` and implement `KeychainBridge` for this type.
+
+As an example saving `Array<String>` using `JSONSerialization`:
+
+```swift 
+extension Array: KeychainSerializable where Element == String  {
+    public static var bridge: KeychainBridge<[String]> { return KeychainBridgeStringArray() }
+}
+```
+
+```swift
+class KeychainBridgeStringArray: KeychainBridge<[String]> {
+    public override func set(_ value: [String], forKey key: String, in keychain: Keychain) throws {
+        guard let data = try? JSONSerialization.data(withJSONObject: value, options: []) else {
+            fatalError()
+        }
+        try? persist(value: data, key: key, keychain: keychain)
+    }
+
+    public override func get(key: String, from keychain: Keychain) throws -> [String]? {
+        guard let data = try? find(key: key, keychain: keychain) else {
+            return nil
+        }
+
+        return (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String]
+    }
+}
+```
 
 ## Supported attributes
-
 **Common**
 - [x] kSecAttrAccessGroup 
 - [x] kSecAttrAccessible 
@@ -141,8 +176,6 @@ and more:
 - [x] kSecAttrPort
 - [x] kSecAttrPath
 
-## Supporting more types
-TBD
 
 ## Requirement
 
@@ -150,12 +183,12 @@ TBD
 
 Platform     | Availability
 ------------ | -------------
-iOS          | >= 12
+iOS          | >= 8.0
 macOS        | -
 tvOS         | - 
 watchOS      | -
 
-### Installation
+## Installation
 #### CocoaPods
 ```ruby
 pod 'SwiftyKeychainKit', '1.0.0-beta.2'

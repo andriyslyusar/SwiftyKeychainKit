@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftyKeychainKit",
     platforms: [
-        .iOS(.v11)
+        .iOS(.v8)
     ],
     products: [
         .library(name: "SwiftyKeychainKit", targets: ["SwiftyKeychainKit"]),
