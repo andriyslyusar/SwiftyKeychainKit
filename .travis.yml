@@ -1,0 +1,18 @@
+language: swift
+osx_image: xcode11
+
+# cache:
+#   edge: true
+#   directories:
+#     - Carthage
+#     - .build
+
+# env:
+#   global:
+#   - LC_CTYPE=en_US.UTF-8
+#   - LANG=en_US.UTF-8
+#   - PROJECT=SwiftyKeychainKit.xcodeproj
+
+before_install:
+  - brew bundle
+  - carthage update
