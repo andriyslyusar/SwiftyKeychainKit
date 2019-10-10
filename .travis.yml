@@ -8,7 +8,7 @@ cache:
 
 before_install:
   - brew bundle
-  - carthage update --cache-builds
+  - carthage bootstrap --cache-builds
 
 script:
   - xcodebuild clean test -project SwiftyKeychainKit.xcodeproj -scheme SwiftyKeychainKit -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11,OS=13.1' | xcpretty
