@@ -1,11 +1,11 @@
 language: swift
 osx_image: xcode11
 
-# cache:
-#   edge: true
-#   directories:
-#     - Carthage
-#     - .build
+cache:
+  edge: true
+  directories:
+    - Carthage
+    - .build
 
 # env:
 #   global:
@@ -16,3 +16,6 @@ osx_image: xcode11
 before_install:
   - brew bundle
   - carthage update
+
+script:
+  - xcodebuild -project SwiftyKeychainKit.xcodeproj -scheme SwiftyKeychainKit -destination 'platform=iOS Simulator,name=iPhone 11,OS=13.1' test | xcpretty
