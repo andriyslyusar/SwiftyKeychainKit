@@ -51,40 +51,40 @@ extension SerializableSpec where Serializable.T: Equatable, Serializable.T == Se
                 testKeychainOperation(keychain: Keychain(service: keychainService, synchronizable: true))
             }
 
-            context("when keychain has label") {
-                var keychain = Keychain(service: keychainService)
-                keychain.label = keychainLabel
+//            context("when keychain has label") {
+//                var keychain = Keychain(service: keychainService)
+//                keychain.label = keychainLabel
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
 
-                testKeychainOperation(keychain: keychain)
-            }
-
-            context("when keychain has comment") {
-                var keychain = Keychain(service: keychainService)
-                keychain.comment = keychainComment
-
-                testKeychainOperation(keychain: keychain)
-            }
-
-            context("when keychain has description") {
-                var keychain = Keychain(service: keychainService)
-                keychain.attrDescription = keychainDescription
-
-                testKeychainOperation(keychain: keychain)
-            }
-
-            context("when keychain has isInvisible attribute") {
-                var keychain = Keychain(service: keychainService)
-                keychain.isInvisible = true
-
-                testKeychainOperation(keychain: keychain)
-            }
-
-            context("when keychain has isNegative attribute") {
-                var keychain = Keychain(service: keychainService)
-                keychain.isNegative = true
-
-                testKeychainOperation(keychain: keychain)
-            }
+//            context("when keychain has comment") {
+//                var keychain = Keychain(service: keychainService)
+//                keychain.comment = keychainComment
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
+//
+//            context("when keychain has description") {
+//                var keychain = Keychain(service: keychainService)
+//                keychain.attrDescription = keychainDescription
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
+//
+//            context("when keychain has isInvisible attribute") {
+//                var keychain = Keychain(service: keychainService)
+//                keychain.isInvisible = true
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
+//
+//            context("when keychain has isNegative attribute") {
+//                var keychain = Keychain(service: keychainService)
+//                keychain.isNegative = true
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
         }
     }
 
@@ -108,40 +108,40 @@ extension SerializableSpec where Serializable.T: Equatable, Serializable.T == Se
                 testKeychainOperation(keychain: Keychain(server: keychainUrl, protocolType: .https, synchronizable: true))
             }
 
-            context("when keychain has label attribute") {
-                var keychain = Keychain(server: keychainUrl, protocolType: .https)
-                keychain.label = keychainLabel
+//            context("when keychain has label attribute") {
+//                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+//                keychain.label = keychainLabel
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
 
-                testKeychainOperation(keychain: keychain)
-            }
-
-            context("when keychain has comment attribute") {
-                var keychain = Keychain(server: keychainUrl, protocolType: .https)
-                keychain.comment = keychainComment
-
-                testKeychainOperation(keychain: keychain)
-            }
-
-            context("when keychain has description attribute") {
-                var keychain = Keychain(server: keychainUrl, protocolType: .https)
-                keychain.attrDescription = keychainDescription
-
-                testKeychainOperation(keychain: keychain)
-            }
-
-            context("when keychain has isInvisible attribute") {
-                var keychain = Keychain(server: keychainUrl, protocolType: .https)
-                keychain.isInvisible = true
-
-                testKeychainOperation(keychain: keychain)
-            }
-
-            context("when keychain has isNegative attribute") {
-                var keychain = Keychain(server: keychainUrl, protocolType: .https)
-                keychain.isNegative = true
-
-                testKeychainOperation(keychain: keychain)
-            }
+//            context("when keychain has comment attribute") {
+//                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+//                keychain.comment = keychainComment
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
+//
+//            context("when keychain has description attribute") {
+//                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+//                keychain.attrDescription = keychainDescription
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
+//
+//            context("when keychain has isInvisible attribute") {
+//                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+//                keychain.isInvisible = true
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
+//
+//            context("when keychain has isNegative attribute") {
+//                var keychain = Keychain(server: keychainUrl, protocolType: .https)
+//                keychain.isNegative = true
+//
+//                testKeychainOperation(keychain: keychain)
+//            }
         }
     }
 

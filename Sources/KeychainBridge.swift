@@ -26,7 +26,7 @@ import Foundation
 import Security
 
 open class KeychainBridge<T> {
-    public func set(_ value: T, forKey key: String, in keychain: Keychain) throws {
+    public func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
         fatalError()
     }
 
@@ -47,8 +47,8 @@ open class KeychainBridge<T> {
 }
 
 open class KeychainBridgeInt: KeychainBridge<Int> {
-    override public func set(_ value: Int, forKey key: String, in keychain: Keychain) throws {
-        try persist(value: Data(from: value), key: key, keychain: keychain)
+    override public func set(_ value: Int, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+        try persist(value: Data(from: value), key: key, attributes: attributes, keychain: keychain)
     }
 
     override public func get(key: String, from keychain: Keychain) throws -> Int? {
@@ -58,12 +58,12 @@ open class KeychainBridgeInt: KeychainBridge<Int> {
 }
 
 class KeychainBridgeString: KeychainBridge<String> {
-    override public func set(_ value: String, forKey key: String, in keychain: Keychain) throws {
+    override public func set(_ value: String, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
         guard let data = value.data(using: .utf8) else {
             throw KeychainError.conversionError
         }
 
-        try persist(value: data, key: key, keychain: keychain)
+        try persist(value: data, key: key, attributes: attributes, keychain: keychain)
     }
 
     override public func get(key: String, from keychain: Keychain) throws -> String? {
@@ -73,8 +73,8 @@ class KeychainBridgeString: KeychainBridge<String> {
 }
 
 class KeychainBridgeDouble: KeychainBridge<Double> {
-    override public func set(_ value: Double, forKey key: String, in keychain: Keychain) throws {
-        try persist(value: Data(from: value), key: key, keychain: keychain)
+    override public func set(_ value: Double, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+        try persist(value: Data(from: value), key: key, attributes: attributes, keychain: keychain)
     }
 
     override public func get(key: String, from keychain: Keychain) throws -> Double? {
@@ -84,8 +84,8 @@ class KeychainBridgeDouble: KeychainBridge<Double> {
 }
 
 class KeychainBridgeFloat: KeychainBridge<Float> {
-    override public func set(_ value: Float, forKey key: String, in keychain: Keychain) throws {
-        try persist(value: Data(from: value), key: key, keychain: keychain)
+    override public func set(_ value: Float, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+        try persist(value: Data(from: value), key: key, attributes: attributes, keychain: keychain)
     }
 
     override public func get(key: String, from keychain: Keychain) throws -> Float? {
@@ -95,10 +95,10 @@ class KeychainBridgeFloat: KeychainBridge<Float> {
 }
 
 class KeychainBridgeBool: KeychainBridge<Bool> {
-    override public func set(_ value: Bool, forKey key: String, in keychain: Keychain) throws {
+    override public func set(_ value: Bool, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
         let bytes: [UInt8] = value ? [1] : [0]
         let data = Data(bytes)
-        try persist(value: data, key: key, keychain: keychain)
+        try persist(value: data, key: key, attributes: attributes, keychain: keychain)
     }
 
     override public func get(key: String, from keychain: Keychain) throws -> Bool? {
@@ -111,8 +111,8 @@ class KeychainBridgeBool: KeychainBridge<Bool> {
 }
 
 class KeychainBridgeData: KeychainBridge<Data> {
-    override public func set(_ value: Data, forKey key: String, in keychain: Keychain) throws {
-        try persist(value: value, key: key, keychain: keychain)
+    override public func set(_ value: Data, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+        try persist(value: value, key: key, attributes: attributes, keychain: keychain)
     }
 
     override public func get(key: String, from keychain: Keychain) throws -> Data? {
@@ -121,8 +121,8 @@ class KeychainBridgeData: KeychainBridge<Data> {
 }
 
 class KeychainBridgeCodable<T: Codable>: KeychainBridge<T> {
-    override public func set(_ value: T, forKey key: String, in keychain: Keychain) throws {
-        try persist(value: try JSONEncoder().encode(value), key: key, keychain: keychain)
+    override public func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+        try persist(value: try JSONEncoder().encode(value), key: key, attributes: attributes, keychain: keychain)
     }
 
     override public func get(key: String, from keychain: Keychain) throws -> T? {
@@ -132,10 +132,10 @@ class KeychainBridgeCodable<T: Codable>: KeychainBridge<T> {
 }
 
 class KeychainBridgeArchivable<T: NSCoding>: KeychainBridge<T> {
-    override public func set(_ value: T, forKey key: String, in keychain: Keychain) throws {
+    override public func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
         // TODO: iOS 13 deprecated +archivedDataWithRootObject:requiringSecureCoding:error:
         let data = NSKeyedArchiver.archivedData(withRootObject: value)
-        try persist(value: data, key: key, keychain: keychain)
+        try persist(value: data, key: key, attributes: attributes, keychain: keychain)
     }
 
     override public func get(key: String, from keychain: Keychain) throws -> T? {
@@ -151,7 +151,7 @@ class KeychainBridgeArchivable<T: NSCoding>: KeychainBridge<T> {
 }
 
 public extension KeychainBridge {
-    func persist(value: Data, key: String, keychain: Keychain) throws {
+    func persist(value: Data, key: String, attributes: KeychainKeys.Attributes, keychain: Keychain) throws {
         let query: [Attribute] = keychain.searchQuery([
             .account(key)
         ])
@@ -161,7 +161,7 @@ public extension KeychainBridge {
         switch status {
         // Keychain already contains key -> update existing item
         case errSecSuccess:
-            let attributes = keychain.updateRequestAttributes(value: value)
+            let attributes = keychain.updateRequestAttributes(value: value, keyAttributes: attributes)
 
             let status = Keychain.itemUpdate(query, attributes)
             if status != errSecSuccess {
@@ -170,7 +170,7 @@ public extension KeychainBridge {
 
         // Keychain doesn't contain key -> add new item
         case errSecItemNotFound:
-            let attributes = keychain.addRequestAttributes(value: value, key: key)
+            let attributes = keychain.addRequestAttributes(value: value, key: key, keyAttributes: attributes)
 
             let status = Keychain.itemAdd(attributes)
             if status != errSecSuccess {

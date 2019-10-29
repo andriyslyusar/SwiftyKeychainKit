@@ -46,11 +46,11 @@ extension Array: KeychainSerializable where Element == String  {
 }
 
 class KeychainBridgeStringArray: KeychainBridge<[String]> {
-    public override func set(_ value: [String], forKey key: String, in keychain: Keychain) throws {
+    public override func set(_ value: [String], forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
         guard let data = try? JSONSerialization.data(withJSONObject: value, options: []) else {
             fatalError()
         }
-        try? persist(value: data, key: key, keychain: keychain)
+        try? persist(value: data, key: key, attributes: attributes, keychain: keychain)
     }
 
     public override func get(key: String, from keychain: Keychain) throws -> [String]? {

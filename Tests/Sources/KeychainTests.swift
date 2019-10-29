@@ -31,7 +31,7 @@ class KeychainTests: XCTestCase {
                                 accessible: .whenUnlocked,
                                 synchronizable: false)
 
-        let attributes =  keychain.updateRequestAttributes(value: Data())
+        let attributes =  keychain.updateRequestAttributes(value: Data(), keyAttributes: KeychainKey.Attributes())
 
         XCTAssertTrue(attributes.contains { $0 == Attribute.valueData(Data()) })
         XCTAssertTrue(attributes.contains { $0 == Attribute.accessible(.whenUnlocked) })
@@ -44,7 +44,7 @@ class KeychainTests: XCTestCase {
                                 accessible: .whenUnlocked,
                                 synchronizable: false)
 
-        let attributes = keychain.addRequestAttributes(value: Data(), key: "account")
+        let attributes = keychain.addRequestAttributes(value: Data(), key: "account", keyAttributes: KeychainKey.Attributes())
 
 //        XCTAssertEqual(attributes.count, 4)
 
