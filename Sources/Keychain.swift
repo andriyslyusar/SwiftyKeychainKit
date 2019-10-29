@@ -118,6 +118,8 @@ public enum AuthenticationType {
     ```
     extension KeychainKeys {
         static let yourKey = KeychainKey<String>(key: "key")
+
+        static let anotherKey = KeychainKey<String>(key: "secret", label: "Keychain key label", comment: "Keychain key comment")
     }
     ```
 */
@@ -128,6 +130,13 @@ open class KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
 
     public let attributes: Attributes
 
+    /// Initialise Keychain key with attributes
+    /// - Parameter key: Primary item key
+    /// - Parameter label: The user-visible label for this item
+    /// - Parameter comment: The comment associated with the item
+    /// - Parameter description: The item's description
+    /// - Parameter isInvisible: Indicating the item's visibility
+    /// - Parameter isNegative: Indicating whether the item has a valid password
     public init(key: String,
                 label: String? = nil,
                 comment: String? = nil,
