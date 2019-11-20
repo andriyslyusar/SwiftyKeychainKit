@@ -26,11 +26,11 @@ import Foundation
 import Security
 
 open class KeychainBridge<T> {
-    public func set(_ value: T, forKey key: String, in keychain: Keychain) throws {
+    open func set(_ value: T, forKey key: String, in keychain: Keychain) throws {
         fatalError()
     }
 
-    public func get(key: String, from keychain: Keychain) throws -> T? {
+    open func get(key: String, from keychain: Keychain) throws -> T? {
         fatalError()
     }
 
@@ -44,6 +44,8 @@ open class KeychainBridge<T> {
             throw KeychainError(status: status)
         }
     }
+
+    public init() {}
 }
 
 open class KeychainBridgeInt: KeychainBridge<Int> {
