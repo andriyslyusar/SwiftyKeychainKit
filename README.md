@@ -60,8 +60,7 @@ extension KeychainKeys {
 and later in the code use shortcut dot syntax:
 
 ```swift
-// 
-
+// set
 try? keychain.set("John Snow", for: .username)
 
 // get
