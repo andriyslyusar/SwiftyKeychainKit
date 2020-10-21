@@ -23,8 +23,8 @@ SwiftyKeychainKit is a simple Swift wrapper for Keychain Services API with the b
 let keychain = Keychain(service: "com.swifty.keychain")
 let accessTokenKey = KeychainKey<String>(key: "accessToken")
 
-// Save or modify value
-try? keychain.save("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", for : accessTokenKey)
+// set or modify value
+try? keychain.set("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", for : accessTokenKey)
 
 // Get value 
 let value = try keychain.get(accessTokenKey)
@@ -60,8 +60,9 @@ extension KeychainKeys {
 and later in the code use shortcut dot syntax:
 
 ```swift
-// save
-try? keychain.save("John Snow", for: .username)
+// 
+
+try? keychain.set("John Snow", for: .username)
 
 // get
 let username = try keychain.get(.username)
@@ -124,7 +125,7 @@ class MyClass: NSObject, NSCoding, KeychainSerializable { ... }
 ```
 
 ### Custom types
-In order to save/get your own custom type that we don't support, you need to confirm it `KeychainSerializable` and implement `KeychainBridge` for this type.
+In order to set/get your own custom type that we don't support, you need to confirm it `KeychainSerializable` and implement `KeychainBridge` for this type.
 
 As an example saving `Array<String>` using `JSONSerialization`:
 
