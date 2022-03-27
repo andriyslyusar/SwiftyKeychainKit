@@ -1,10 +1,10 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.5
 import PackageDescription
 
 let package = Package(
     name: "SwiftyKeychainKit",
     platforms: [
-        .iOS(.v8)
+        .iOS(.v10), .macOS(.v10_10), .watchOS(.v4), .macCatalyst(.v13), .tvOS(.v10)
     ],
     products: [
         .library(name: "SwiftyKeychainKit", targets: ["SwiftyKeychainKit"]),
