@@ -1,7 +1,7 @@
 //
-// Keychain.swift
+// KeychainKeyTests.swift
 //
-// Created by Andriy Slyusar on 2019-09-29.
+// Created by Andriy Slyusar on 2022-10-29.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,19 +23,25 @@
 //
 
 import Foundation
-import Quick
+import XCTest
+@testable import SwiftyKeychainKit
 
-class KeychainDoubleSpec: QuickSpec, SerializableSpec {
-    typealias Serializable = Double
+class KeychainKeyTests: XCTestCase {
+    func testInitilizer() {
+        let key = KeychainKey<Int>(
+            key: "key",
+            label: "label",
+            comment: "comment",
+            description: "description",
+            isInvisible: true,
+            isNegative: false
+        )
 
-    var value: Double = 0.123456789123456789
-    var updateValue: Double = 1.123456789123456789
-    var defaultValue: Double =  2.123456789123456789
-
-    override func spec() {
-        describe("Double value") {
-            self.testGenericPassword()
-            self.testInternetPassword()
-        }
+        XCTAssertEqual(key.key, "key")
+        XCTAssertEqual(key.attributes.label, "label")
+        XCTAssertEqual(key.attributes.comment, "comment")
+        XCTAssertEqual(key.attributes.aDescription, "description")
+        XCTAssertEqual(key.attributes.isInvisible, true)
+        XCTAssertEqual(key.attributes.isNegative, false)
     }
 }

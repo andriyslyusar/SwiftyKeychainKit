@@ -1,7 +1,7 @@
 //
-// Keychain+Data.swift
+// KeychainTests.Double.swift
 //
-// Created by Andriy Slyusar on 2019-09-29.
+// Created by Andriy Slyusar on 2022-10-27.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,19 +23,20 @@
 //
 
 import Foundation
-import Quick
 
-class KeychainDataSpec: QuickSpec, SerializableSpec {
-    typealias Serializable = Data
+class KeychainDoubleTests: AbstractKeychainTests<Double> {
+    override var value1: Double! {
+        get { 0.123456789123456789 }
+        set {}
+    }
 
-    var value: Data = "secret".data(using: .utf8)!
-    var updateValue: Data = "update secret".data(using: .utf8)!
-    var defaultValue: Data = "default secret".data(using: .utf8)!
+    override var value2: Double! {
+        get { 1.123456789123456789 }
+        set {}
+    }
 
-    override func spec() {
-        describe("Data value") {
-            self.testGenericPassword()
-            self.testInternetPassword()
-        }
+    override var value3: Double! {
+        get { 2.123456789123456789 }
+        set {}
     }
 }

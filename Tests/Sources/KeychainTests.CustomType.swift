@@ -1,7 +1,7 @@
 //
-// Keychain+CustomType.swift
+// KeychainTests.CustomType.swift
 //
-// Created by Andriy Slyusar on 2019-10-08.
+// Created by Andriy Slyusar on 2022-10-27.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,25 +23,26 @@
 //
 
 import Foundation
-import Quick
 @testable import SwiftyKeychainKit
 
-class KeychainCustomTypeSpec: QuickSpec, SerializableSpec {
-    typealias Serializable = [String]
+class KeychainCustomTypeTests: AbstractKeychainTests<[String]> {
+    override var value1: [String]! {
+        get { ["1", "2"] }
+        set {}
+    }
 
-    var value: [String] = ["1", "2"]
-    var updateValue: [String] = ["1", "2", "3"]
-    var defaultValue: [String] = ["1", "2", "3", "4"]
+    override var value2: [String]! {
+        get { ["1", "2", "3"] }
+        set {}
+    }
 
-    override func spec() {
-        describe("Data value") {
-            self.testGenericPassword()
-            self.testInternetPassword()
-        }
+    override var value3: [String]! {
+        get {  ["1", "2", "3", "4"] }
+        set {}
     }
 }
 
-extension Array: KeychainSerializable where Element == String  {
+extension [String]: KeychainSerializable  {
     public static var bridge: KeychainBridge<[String]> { return KeychainBridgeStringArray() }
 }
 

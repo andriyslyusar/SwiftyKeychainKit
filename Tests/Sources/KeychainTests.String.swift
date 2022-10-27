@@ -1,7 +1,7 @@
 //
-// Keychain+Float.swift
+// KeychainTests.String.swift
 //
-// Created by Andriy Slyusar on 2019-10-05.
+// Created by Andriy Slyusar on 2022-10-27.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,19 +23,20 @@
 //
 
 import Foundation
-import Quick
 
-class KeychainFloatSpec: QuickSpec, SerializableSpec {
-    typealias Serializable = Float
+class KeychainStringTests: AbstractKeychainTests<String> {
+    override var value1: String! {
+        get { "value1" }
+        set {}
+    }
 
-    var value: Float = 0.12345678
-    var updateValue: Float = 1.12345678
-    var defaultValue: Float =  2.12345678
+    override var value2: String! {
+        get { "value2" }
+        set {}
+    }
 
-    override func spec() {
-        describe("Float value") {
-            self.testGenericPassword()
-            self.testInternetPassword()
-        }
+    override var value3: String! {
+        get { "value3" }
+        set {}
     }
 }

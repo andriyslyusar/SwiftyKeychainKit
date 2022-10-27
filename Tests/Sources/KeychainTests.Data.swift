@@ -1,7 +1,7 @@
 //
-// Keychain+Bool.swift
+// KeychainTests.Data.swift
 //
-// Created by Andriy Slyusar on 2019-09-29.
+// Created by Andriy Slyusar on 2022-10-27.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,19 +23,20 @@
 //
 
 import Foundation
-import Quick
 
-class KeychainBoolSpec: QuickSpec, SerializableSpec {
-    typealias Serializable = Bool
+class KeychainDataTests: AbstractKeychainTests<Data> {
+    override var value1: Data! {
+        get { "value1".data(using: .utf8)! }
+        set {}
+    }
 
-    var value: Bool = true
-    var updateValue: Bool = false
-    var defaultValue: Bool = false
+    override var value2: Data! {
+        get { "value2".data(using: .utf8)! }
+        set {}
+    }
 
-    override func spec() {
-        describe("Bool value") {
-            self.testGenericPassword()
-            self.testInternetPassword()
-        }
+    override var value3: Data! {
+        get { "value3".data(using: .utf8)! }
+        set {}
     }
 }
