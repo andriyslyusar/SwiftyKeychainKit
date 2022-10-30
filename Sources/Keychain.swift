@@ -118,6 +118,8 @@ public enum AuthenticationType {
     ```
     extension KeychainKeys {
         static let yourKey = KeychainKey<String>(key: "key")
+
+        static let anotherKey = KeychainKey<String>(key: "secret", label: "Keychain key label", comment: "Keychain key comment")
     }
     ```
 */
@@ -126,8 +128,76 @@ open class KeychainKeys {}
 open class KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
     public let key: String
 
-    public init(key: String) {
+    public let attributes: Attributes
+
+    /// Initialise Keychain key with attributes
+    /// - Parameter key: Primary item key
+    /// - Parameter label: The user-visible label for this item
+    /// - Parameter comment: The comment associated with the item
+    /// - Parameter description: The item's description
+    /// - Parameter isInvisible: Indicating the item's visibility
+    /// - Parameter isNegative: Indicating whether the item has a valid password
+    public init(key: String,
+                label: String? = nil,
+                comment: String? = nil,
+                description: String? = nil,
+                isInvisible: Bool? = nil,
+                isNegative: Bool? = nil) {
+
         self.key = key
+        self.attributes = Attributes(label: label,
+                                     comment: comment,
+                                     description: description,
+                                     isInvisible: isInvisible,
+                                     isNegative: isNegative)
+    }
+}
+
+public extension KeychainKeys {
+    struct Attributes {
+        /// The user-visible label for this item
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrlabel)
+        var label: String?
+
+        /// The comment associated with the item
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcomment)
+        var comment: String?
+
+        /// The item's description
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcomment)
+        var aDescription: String?
+
+        /// Indicating the item's visibility
+        ///
+        /// iOS does not have a general-purpose way to view keychain items, so this propery make sense only with sync
+        /// to a Mac via iCloud Keychain, than you might want to make it invisible there.
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisinvisible)
+        var isInvisible: Bool?
+
+        /// Indicating whether the item has a valid password
+        ///
+        /// This is useful if your application doesn't want a password for some particular service to be stored in the keychain,
+        /// but prefers that it always be entered by the user.
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisnegative)
+        var isNegative: Bool?
+
+        init(label: String? = nil,
+             comment: String? = nil,
+             description: String? = nil,
+             isInvisible: Bool? = nil,
+             isNegative: Bool? = nil) {
+
+            self.label = label
+            self.comment = comment
+            self.aDescription = description
+            self.isInvisible = isInvisible
+            self.isNegative = isNegative
+        }
     }
 }
 
@@ -156,36 +226,14 @@ public struct Keychain {
     /// Exclusive Internet Password attribuite.
     public var server: URL?
 
-    /// Only Internet Password attribuite
+    /// Exclusive Internet Password attribuite
     public var protocolType: ProtocolType?
 
-    /// Only Internet Password attribuite
+    /// Exclusive Internet Password attribuite
     public var authenticationType: AuthenticationType?
 
-    /// Only Internet Password attribuite
+    /// Exclusive Internet Password attribuite
     public var securityDomain: String?
-
-    public var label: String?
-
-    public var comment: String?
-
-    public var attrDescription: String?
-
-    /// Indicating the item's visibility
-    ///
-    /// iOS does not have a general-purpose way to view keychain items, so this propery make sense only with sync
-    /// to a Mac via iCloud Keychain, than you might want to make it invisible there.
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisinvisible)
-    public var isInvisible: Bool?
-
-    /// Indicating whether the item has a valid password
-    ///
-    /// This is useful if your application doesn't want a password for some particular service to be stored in the keychain,
-    /// but prefers that it always be entered by the user.
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisnegative)
-    public var isNegative: Bool?
 
     /// Construct Generic Password Keychain
     public init(service: String,
@@ -221,7 +269,7 @@ public struct Keychain {
     /// - Parameter value: Persisting value
     /// - Parameter key: Key for value
     public func set<T: KeychainSerializable>(_ value: T.T, for key: KeychainKey<T>) throws {
-        try T.bridge.set(value, forKey: key.key, in: self)
+        try T.bridge.set(value, forKey: key.key, with: key.attributes, in: self)
     }
 
     /// Get value for provided key from Keycina,
@@ -357,18 +405,18 @@ extension Keychain {
     }
 
     /// Use this method to build attributes to add a new keychain entry
-    func addRequestAttributes(value: Data, key: String) -> Attributes {
+    func addRequestAttributes(value: Data, key: String, keyAttributes: KeychainKeys.Attributes) -> Attributes {
         var attributes = searchQuery()
 
         attributes.append(.account(key))
-        attributes += updateRequestAttributes(value: value)
+        attributes += updateRequestAttributes(value: value, keyAttributes: keyAttributes)
 
         return attributes
     }
 
     /// Use this method to build attributes to update a new keychain entry
     /// Keychain SecItemUpdate do not allow search query parameters and account to pass as attributes
-    func updateRequestAttributes(value: Data) -> Attributes {
+    func updateRequestAttributes(value: Data, keyAttributes: KeychainKeys.Attributes) -> Attributes {
         var attributes = Attributes()
 
         attributes.append(contentsOf: [
@@ -377,23 +425,23 @@ extension Keychain {
             .synchronizable(.init(boolValue: synchronizable))
         ])
 
-        if let label = label {
+        if let label = keyAttributes.label {
             attributes.append(.label(label))
         }
 
-        if let comment = comment {
+        if let comment = keyAttributes.comment {
             attributes.append(.comment(comment))
         }
 
-        if let description = attrDescription {
+        if let description = keyAttributes.aDescription {
             attributes.append(.attrDescription(description))
         }
 
-        if let isInvisible = isInvisible {
+        if let isInvisible = keyAttributes.isInvisible {
             attributes.append(.isInvisible(isInvisible))
         }
 
-        if let isNegative = isNegative {
+        if let isNegative = keyAttributes.isNegative {
             attributes.append(.isNegative(isNegative))
         }
 

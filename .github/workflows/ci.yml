@@ -1,0 +1,11 @@
+name: CI
+on:
+  - push
+  - pull_request
+
+jobs:
+  test:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+      - run: xcodebuild clean test -project SwiftyKeychainKit.xcodeproj -scheme SwiftyKeychainKit -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.0' | xcpretty

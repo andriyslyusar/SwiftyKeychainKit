@@ -26,34 +26,98 @@ import XCTest
 @testable import SwiftyKeychainKit
 
 class KeychainTests: XCTestCase {
-    func test_updateRequestAttributes_returnDefaultAttributes() {
-        let keychain = Keychain(service: "",
-                                accessible: .whenUnlocked,
-                                synchronizable: false)
+    // MARK: - Initializers
 
-        let attributes =  keychain.updateRequestAttributes(value: Data())
+    func testGenericPasswordDefaultInitializer() {
+        let keychain = Keychain(service: "com.swifty.keychainkit")
 
-        XCTAssertTrue(attributes.contains { $0 == Attribute.valueData(Data()) })
-        XCTAssertTrue(attributes.contains { $0 == Attribute.accessible(.whenUnlocked) })
-        XCTAssertTrue(attributes.contains { $0 == Attribute.synchronizable(.init(boolValue: false)) })
-        XCTAssertEqual(attributes.count, 3)
+        XCTAssertEqual(keychain.service, "com.swifty.keychainkit")
+        XCTAssertEqual(keychain.itemClass, .genericPassword)
+        XCTAssertEqual(keychain.accessible, .whenUnlocked)
+        XCTAssertNil(keychain.accessGroup)
+        XCTAssertFalse(keychain.synchronizable)
     }
 
-    func test_addRequestAttributes_returnDefaultAttributes() {
-        let keychain = Keychain(service: "",
-                                accessible: .whenUnlocked,
-                                synchronizable: false)
+    func testGenericPasswordInitializer() {
+        let keychain = Keychain(
+            service: "com.swifty.keychainkit",
+            accessible: .accessibleAlways,
+            accessGroup: "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost",
+            synchronizable: true
+        )
 
-        let attributes = keychain.addRequestAttributes(value: Data(), key: "account")
-
-//        XCTAssertEqual(attributes.count, 4)
-
-        // attributes from updateRequestAttributes
-        XCTAssertTrue(attributes.contains { $0 == Attribute.valueData(Data()) })
-        XCTAssertTrue(attributes.contains { $0 == Attribute.accessible(.whenUnlocked) })
-        XCTAssertTrue(attributes.contains { $0 == Attribute.synchronizable(.init(boolValue: false)) })
-
-        // attributes from addRequestAttributes
-        XCTAssertTrue(attributes.contains { $0 == Attribute.account("account") })
+        XCTAssertEqual(keychain.service, "com.swifty.keychainkit")
+        XCTAssertEqual(keychain.itemClass, .genericPassword)
+        XCTAssertEqual(keychain.accessible, .accessibleAlways)
+        XCTAssertEqual(keychain.accessGroup, "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost")
+        XCTAssertTrue(keychain.synchronizable)
     }
+
+    func testInternetPasswordDefaultInitializer() {
+        let keychain = Keychain(
+            server: URL(string: "https://github.com")!,
+            protocolType: .https,
+            authenticationType: .httpBasic,
+            accessible: .afterFirstUnlock,
+            accessGroup: "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost",
+            synchronizable: true,
+            securityDomain: "securityDomain"
+        )
+
+        XCTAssertEqual(keychain.itemClass, .internetPassword)
+        XCTAssertEqual(keychain.server, URL(string: "https://github.com")!)
+        XCTAssertEqual(keychain.protocolType, .https)
+        XCTAssertEqual(keychain.authenticationType, .httpBasic)
+        XCTAssertEqual(keychain.accessible, .afterFirstUnlock)
+        XCTAssertEqual(keychain.accessGroup, "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost")
+        XCTAssertTrue(keychain.synchronizable)
+        XCTAssertEqual(keychain.securityDomain, "securityDomain")
+    }
+
+    func testInternetPasswordInitializer() {
+        let keychain = Keychain(server: URL(string: "https://github.com")!, protocolType: .https)
+
+        XCTAssertEqual(keychain.itemClass, .internetPassword)
+        XCTAssertEqual(keychain.server, URL(string: "https://github.com")!)
+        XCTAssertEqual(keychain.protocolType, .https)
+        XCTAssertEqual(keychain.authenticationType, .default)
+        XCTAssertEqual(keychain.accessible, .whenUnlocked)
+        XCTAssertNil(keychain.accessGroup)
+        XCTAssertFalse(keychain.synchronizable)
+        XCTAssertNil(keychain.securityDomain)
+    }
+
+    // MARK: - Attrubute builders
+
+    //    func test_updateRequestAttributes_returnDefaultAttributes() {
+    //        let keychain = Keychain(service: "",
+    //                                accessible: .whenUnlocked,
+    //                                synchronizable: false)
+    //
+    //        let attributes =  keychain.updateRequestAttributes(value: Data(), keyAttributes: KeychainKey.Attributes())
+    //
+    //        XCTAssertTrue(attributes.contains { $0 == Attribute.valueData(Data()) })
+    //        XCTAssertTrue(attributes.contains { $0 == Attribute.accessible(.whenUnlocked) })
+    //        XCTAssertTrue(attributes.contains { $0 == Attribute.synchronizable(.init(boolValue: false)) })
+    //        XCTAssertEqual(attributes.count, 3)
+    //    }
+    //
+    //    func test_addRequestAttributes_returnDefaultAttributes() {
+    //        let keychain = Keychain(service: "",
+    //                                accessible: .whenUnlocked,
+    //                                synchronizable: false)
+    //
+    //        let attributes = keychain.addRequestAttributes(value: Data(), key: "account", keyAttributes: KeychainKey.Attributes())
+    //
+    ////        XCTAssertEqual(attributes.count, 4)
+    //
+    //        // attributes from updateRequestAttributes
+    //        XCTAssertTrue(attributes.contains { $0 == Attribute.valueData(Data()) })
+    //        XCTAssertTrue(attributes.contains { $0 == Attribute.accessible(.whenUnlocked) })
+    //        XCTAssertTrue(attributes.contains { $0 == Attribute.synchronizable(.init(boolValue: false)) })
+    //
+    //        // attributes from addRequestAttributes
+    //        XCTAssertTrue(attributes.contains { $0 == Attribute.account("account") })
+    //    }
 }
+

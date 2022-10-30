@@ -1,7 +1,7 @@
 //
-// Keychain+Int.swift
+// KeychainTests.Float.swift
 //
-// Created by Andriy Slyusar on 2019-09-29.
+// Created by Andriy Slyusar on 2022-10-27.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,19 +23,20 @@
 //
 
 import Foundation
-import Quick
 
-class KeychainIntSpec: QuickSpec, SerializableSpec {
-    typealias Serializable = Int
+class KeychainFloatTests: AbstractKeychainTests<Float> {
+    override var value1: Float! {
+        get { 0.12345678 }
+        set {}
+    }
 
-    var value: Int = 10
-    var updateValue: Int = 20
-    var defaultValue: Int = 30
+    override var value2: Float! {
+        get { 1.12345678 }
+        set {}
+    }
 
-    override func spec() {
-        describe("Int value") {
-            self.testGenericPassword()
-            self.testInternetPassword()
-        }
+    override var value3: Float! {
+        get { 2.12345678 }
+        set {}
     }
 }

@@ -1,7 +1,7 @@
 //
-// File.swift
+// KeychainTests.Archivable.swift
 //
-// Created by Andriy Slyusar on 2019-09-29.
+// Created by Andriy Slyusar on 2022-10-27.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +23,27 @@
 //
 
 import Foundation
-import Quick
 @testable import SwiftyKeychainKit
 
-class KeychainArchivableSpec: QuickSpec, SerializableSpec {
-    typealias Serializable = ArchivableValue
+class KeychainArchivableTests: AbstractKeychainTests<ArchivableObject> {
+    override var value1: ArchivableObject! {
+        get { ArchivableObject(intProperty: 1) }
+        set {}
+    }
 
-    var value: ArchivableValue = ArchivableValue(intProperty: 10)
-    var updateValue: ArchivableValue = ArchivableValue(intProperty: 20)
-    var defaultValue: ArchivableValue = ArchivableValue(intProperty: 30)
+    override var value2: ArchivableObject! {
+        get { ArchivableObject(intProperty: 2) }
+        set {}
+    }
 
-    override func spec() {
-        describe("Archivable value") {
-            self.testGenericPassword()
-            self.testInternetPassword()
-        }
+    override var value3: ArchivableObject! {
+        get { ArchivableObject(intProperty: 3) }
+        set {}
     }
 }
 
-
 @objc(ArchivableValue)
-class ArchivableValue: NSObject, NSCoding, KeychainSerializable {
+class ArchivableObject: NSObject, NSCoding, KeychainSerializable {
     var intProperty: Int
 
     init(intProperty: Int) {
@@ -60,35 +60,9 @@ class ArchivableValue: NSObject, NSCoding, KeychainSerializable {
     }
 
     override func isEqual(_ object: Any?) -> Bool {
-        guard let otherPerson = object as? ArchivableValue else {
+        guard let archivableObject = object as? ArchivableObject else {
             return false
         }
-        return self.intProperty == otherPerson.intProperty
+        return self.intProperty == archivableObject.intProperty
     }
 }
-
-//@objc(ArchivableMock2)
-//private class ArchivableMock2: NSObject, NSCoding {
-//    var stringProperty: String
-//
-//    init(stringProperty: String) {
-//        self.stringProperty = stringProperty
-//
-//        super.init()
-//    }
-//
-//    func encode(with aCoder: NSCoder) {
-//        aCoder.encode(stringProperty, forKey: "stringProperty")
-//    }
-//
-//    required init?(coder aDecoder: NSCoder) {
-//        stringProperty = aDecoder.decodeObject(forKey: "stringProperty") as! String
-//    }
-//
-//    override func isEqual(_ object: Any?) -> Bool {
-//        guard let otherPerson = object as? ArchivableMock2 else {
-//            return false
-//        }
-//        return self.stringProperty == otherPerson.stringProperty
-//    }
-//}

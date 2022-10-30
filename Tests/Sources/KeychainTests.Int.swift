@@ -1,7 +1,7 @@
 //
-// Keychain+Codable.swift
+// KeychainTests.Int.swift
 //
-// Created by Andriy Slyusar on 2019-09-29.
+// Created by Andriy Slyusar on 2022-10-27.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,24 +23,20 @@
 //
 
 import Foundation
-import Quick
-@testable import SwiftyKeychainKit
 
-class KeychainCodableSpec: QuickSpec, SerializableSpec {
-    typealias Serializable = CodableValue
-
-    var value: CodableValue = CodableValue(intProperty: 10)
-    var updateValue: CodableValue = CodableValue(intProperty: 20)
-    var defaultValue: CodableValue = CodableValue(intProperty: 30)
-
-    override func spec() {
-        describe("Codable value") {
-            self.testGenericPassword()
-            self.testInternetPassword()
-        }
+class KeychainIntTests: AbstractKeychainTests<Int> {
+    override var value1: Int! {
+        get { 1 }
+        set {}
     }
-}
 
-struct CodableValue: Codable, Equatable, KeychainSerializable {
-    let intProperty: Int
+    override var value2: Int! {
+        get { 2 }
+        set {}
+    }
+
+    override var value3: Int! {
+        get { 3 }
+        set {}
+    }
 }

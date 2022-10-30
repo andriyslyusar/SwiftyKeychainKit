@@ -1,7 +1,7 @@
 //
-// Constants.swift
+// KeychainTests.Bool.swift
 //
-// Created by Andriy Slyusar on 2019-09-30.
+// Created by Andriy Slyusar on 2022-10-27.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,16 +24,19 @@
 
 import Foundation
 
-let keychainAccessGroup = "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost"
+class KeychainBoolTests: AbstractKeychainTests<Bool> {
+    override var value1: Bool! {
+        get { true }
+        set {}
+    }
 
-let keychainService = "com.swifty.keychainkit"
+    override var value2: Bool! {
+        get { false}
+        set {}
+    }
 
-let keychainSecurityDomain = "securityDomain"
-
-let keychainUrl = URL(string:"https://github.com:8080/andriyslyusar/SwiftyKeychainKit")!
-
-let keychainLabel = "Keychain label"
-
-let keychainComment = "Keychain comment"
-
-let keychainDescription = "Keychain description"
+    override var value3: Bool! {
+        get { false }
+        set {}
+    }
+}

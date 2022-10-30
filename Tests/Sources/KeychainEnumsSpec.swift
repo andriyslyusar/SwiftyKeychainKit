@@ -23,31 +23,22 @@
 //
 
 import XCTest
-import Nimble
-import Quick
 @testable import SwiftyKeychainKit
 
+class KeychainEnums: XCTestCase {
+    func testItemClass() {
+        XCTAssertEqual(ItemClass.genericPassword.rawValue, kSecClassGenericPassword)
+        XCTAssertEqual(ItemClass.internetPassword.rawValue, kSecClassInternetPassword)
+    }
 
-class KeychainEnumsSpec: QuickSpec {
-    override func spec() {
-        describe("Item Class enum") {
-            it("it has correct raw values") {
-                expect(ItemClass.genericPassword.rawValue) == kSecClassGenericPassword
-                expect(ItemClass.internetPassword.rawValue) == kSecClassInternetPassword
-            }
-        }
-
-        describe("AccessibilityLevel enum") {
-            it("it has correct raw values") {
-                expect(AccessibilityLevel.whenPasscodeSetThisDeviceOnly.rawValue) == kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
-                expect(AccessibilityLevel.whenPasscodeSetThisDeviceOnly.rawValue) == kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
-                expect(AccessibilityLevel.unlockedThisDeviceOnly.rawValue) == kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-                expect(AccessibilityLevel.whenUnlocked.rawValue) == kSecAttrAccessibleWhenUnlocked
-                expect(AccessibilityLevel.afterFirstUnlockThisDeviceOnly.rawValue) == kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-                expect(AccessibilityLevel.afterFirstUnlock.rawValue) == kSecAttrAccessibleAfterFirstUnlock
-                expect(AccessibilityLevel.alwaysThisDeviceOnly.rawValue) == kSecAttrAccessibleAlwaysThisDeviceOnly
-                expect(AccessibilityLevel.accessibleAlways.rawValue) == kSecAttrAccessibleAlways
-            }
-        }
+    func testAccessibilityLevel() {
+        XCTAssertEqual(AccessibilityLevel.whenPasscodeSetThisDeviceOnly.rawValue, kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly)
+        XCTAssertEqual(AccessibilityLevel.whenPasscodeSetThisDeviceOnly.rawValue, kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly)
+        XCTAssertEqual(AccessibilityLevel.unlockedThisDeviceOnly.rawValue, kSecAttrAccessibleWhenUnlockedThisDeviceOnly)
+        XCTAssertEqual(AccessibilityLevel.whenUnlocked.rawValue, kSecAttrAccessibleWhenUnlocked)
+        XCTAssertEqual(AccessibilityLevel.afterFirstUnlockThisDeviceOnly.rawValue, kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly)
+        XCTAssertEqual(AccessibilityLevel.afterFirstUnlock.rawValue, kSecAttrAccessibleAfterFirstUnlock)
+        XCTAssertEqual(AccessibilityLevel.alwaysThisDeviceOnly.rawValue, kSecAttrAccessibleAlwaysThisDeviceOnly)
+        XCTAssertEqual(AccessibilityLevel.accessibleAlways.rawValue, kSecAttrAccessibleAlways)
     }
 }
