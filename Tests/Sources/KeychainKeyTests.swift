@@ -34,7 +34,8 @@ class KeychainKeyTests: XCTestCase {
             comment: "comment",
             description: "description",
             isInvisible: true,
-            isNegative: false
+            isNegative: false,
+            generic: "generic".data(using: .utf8)!
         )
 
         XCTAssertEqual(key.key, "key")
@@ -43,5 +44,6 @@ class KeychainKeyTests: XCTestCase {
         XCTAssertEqual(key.attributes.aDescription, "description")
         XCTAssertEqual(key.attributes.isInvisible, true)
         XCTAssertEqual(key.attributes.isNegative, false)
+        XCTAssertEqual(key.attributes.generic, "generic".data(using: .utf8)!)
     }
 }

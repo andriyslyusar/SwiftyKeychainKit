@@ -25,91 +25,6 @@
 import Foundation
 import Security
 
-public enum ItemClass {
-    /// The value that indicates a Generic password item.
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecclassgenericpassword)
-    case genericPassword
-
-    /// The value that indicates an Internet password item.
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecclassinternetpassword)
-    case internetPassword
-}
-
-public enum AccessibilityLevel {
-    /// The data in the keychain can only be accessed when the device is unlocked.
-    /// Only available if a passcode is set on the device
-    ///
-    ///  For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattraccessiblewhenpasscodesetthisdeviceonly)
-    case whenPasscodeSetThisDeviceOnly
-    
-    /// The data in the keychain item can be accessed only while the device is unlocked by the user.
-    case unlockedThisDeviceOnly
-    
-    /// The data in the keychain item can be accessed only while the device is unlocked by the user.
-    case whenUnlocked
-    
-    /// The data in the keychain item cannot be accessed after a restart until the device has been unlocked once by the user.
-    case afterFirstUnlockThisDeviceOnly
-    
-    /// The data in the keychain item cannot be accessed after a restart until the device has been unlocked once by the user.
-    case afterFirstUnlock
-    
-    /// The data in the keychain item can always be accessed regardless of whether the device is locked.
-    @available(iOS, deprecated: 12.0, message: "This is not recommended for application use. Items with this attribute do not migrate to a new device. Thus, after restoring from a backup of a different device, these items will not be present.")
-    case alwaysThisDeviceOnly
-    
-    /// The data in the keychain item can always be accessed regardless of whether the device is locked.
-    @available(iOS, deprecated: 12.0, message: "This is not recommended for application use. Items with this attribute migrate to a new device when using encrypted backups.")
-    case accessibleAlways
-}
-
-public enum ProtocolType {
-    case ftp
-    case ftpAccount
-    case http
-    case irc
-    case nntp
-    case pop3
-    case smtp
-    case socks
-    case imap
-    case ldap
-    case appleTalk
-    case afp
-    case telnet
-    case ssh
-    case ftps
-    case https
-    case httpProxy
-    case httpsProxy
-    case ftpProxy
-    case smb
-    case rtsp
-    case rtspProxy
-    case daap
-    case eppc
-    case ipp
-    case nntps
-    case ldaps
-    case telnetS
-    case imaps
-    case ircs
-    case pop3S
-}
-
-public enum AuthenticationType {
-    case ntlm
-    case msn
-    case dpa
-    case rpa
-    case httpBasic
-    case httpDigest
-    case htmlForm
-    case `default`
-}
-
 /**
     Extend this class and add your user defaults keys as static constants so you can use the shortcut dot notation
     (e.g. `Keychain[.yourKey]`)
@@ -137,19 +52,25 @@ open class KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
     /// - Parameter description: The item's description
     /// - Parameter isInvisible: Indicating the item's visibility
     /// - Parameter isNegative: Indicating whether the item has a valid password
-    public init(key: String,
-                label: String? = nil,
-                comment: String? = nil,
-                description: String? = nil,
-                isInvisible: Bool? = nil,
-                isNegative: Bool? = nil) {
-
+    /// - Parameter generic: The item's user-defined attribute
+    public init(
+        key: String,
+        label: String? = nil,
+        comment: String? = nil,
+        description: String? = nil,
+        isInvisible: Bool? = nil,
+        isNegative: Bool? = nil,
+        generic: Data? = nil
+    ) {
         self.key = key
-        self.attributes = Attributes(label: label,
-                                     comment: comment,
-                                     description: description,
-                                     isInvisible: isInvisible,
-                                     isNegative: isNegative)
+        self.attributes = Attributes(
+            label: label,
+            comment: comment,
+            description: description,
+            isInvisible: isInvisible,
+            isNegative: isNegative,
+            generic: generic
+        )
     }
 }
 
@@ -186,17 +107,28 @@ public extension KeychainKeys {
         /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisnegative)
         var isNegative: Bool?
 
-        init(label: String? = nil,
-             comment: String? = nil,
-             description: String? = nil,
-             isInvisible: Bool? = nil,
-             isNegative: Bool? = nil) {
+        /// The item's user-defined attribute. Items of class GenericPassword have this attribute.
+        ///
+        /// This is a misterious attribute, by mistake use as primary key on Keychain Service release by developers
+        /// https://useyourloaf.com/blog/keychain-duplicate-item-when-adding-password/
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrgeneric)
+        var generic: Data?
 
+        init(
+            label: String? = nil,
+            comment: String? = nil,
+            description: String? = nil,
+            isInvisible: Bool? = nil,
+            isNegative: Bool? = nil,
+            generic: Data? = nil
+        ) {
             self.label = label
             self.comment = comment
             self.aDescription = description
             self.isInvisible = isInvisible
             self.isNegative = isNegative
+            self.generic = generic
         }
     }
 }
@@ -236,10 +168,12 @@ public struct Keychain {
     public var securityDomain: String?
 
     /// Construct Generic Password Keychain
-    public init(service: String,
-                accessible: AccessibilityLevel = .whenUnlocked,
-                accessGroup: String? = nil,
-                synchronizable: Bool = false) {
+    public init(
+        service: String,
+        accessible: AccessibilityLevel = .whenUnlocked,
+        accessGroup: String? = nil,
+        synchronizable: Bool = false
+    ) {
         self.itemClass = .genericPassword
         self.service = service
         self.accessible = accessible
@@ -248,13 +182,15 @@ public struct Keychain {
     }
 
     /// Construct Internet Password Keychain
-    public init(server: URL,
-                protocolType: ProtocolType,
-                authenticationType: AuthenticationType = .default,
-                accessible: AccessibilityLevel = .whenUnlocked,
-                accessGroup: String? = nil,
-                synchronizable: Bool = false,
-                securityDomain: String? = nil) {
+    public init(
+        server: URL,
+        protocolType: ProtocolType,
+        authenticationType: AuthenticationType = .default,
+        accessible: AccessibilityLevel = .whenUnlocked,
+        accessGroup: String? = nil,
+        synchronizable: Bool = false,
+        securityDomain: String? = nil
+    ) {
         self.itemClass = .internetPassword
         self.server = server
         self.protocolType = protocolType
@@ -301,7 +237,9 @@ public struct Keychain {
 
     /// Remove all keys from specific keychain
     public func removeAll() throws {
-        let status = Keychain.itemDelete(searchQuery())
+        let attributesToSearch: [IAttribute] = searchRequestAttributes
+
+        let status = SecItemDelete(attributesToSearch.compose())
         if status != errSecSuccess && status != errSecItemNotFound {
             throw KeychainError(status: status)
         }
@@ -357,194 +295,112 @@ public struct Keychain {
             return .failure(KeychainError(error))
         }
     }
+
+//    public subscript(attributes key: String) -> Attributes? {
+//        get {
+//            return try? get(key) { $0 }
+//        }
+//    }
 }
 
 extension Keychain {
-    func searchQuery(_ extraAttributes: Attributes = Attributes()) -> Attributes {
-        var query: Attributes = [
-            .class(itemClass),
-            .synchronizable(.any)
-        ]
+    /// Build keychain search request attributes
+    var searchRequestAttributes: [KeychainAttribute] {
+        var attributes = [KeychainAttribute]([.class(itemClass), .synchronizable(.any)])
 
         switch itemClass {
-        case .genericPassword:
-            guard let service = service else {
-                fatalError("`Service` property is mandatory for saving generic password keychaion item")
-            }
-            query.append(.service(service))
+            case .genericPassword:
+                guard let service = service else {
+                    fatalError("`Service` property is mandatory for saving generic password keychaion item")
+                }
+                attributes.append(.service(service))
 
-            // TODO: Access group is not supported on any simulators.
-            if let accessGroup = accessGroup {
-                query.append(.accessGroup(accessGroup))
-            }
-        case .internetPassword:
-            guard let host = server?.host,
-                let protocolType = protocolType,
-                let authenticationType = authenticationType else {
-                fatalError("`Server`, `ProtocolType`, `AuthenticationType` properties are mandatory for saving interner password keychaion item")
-            }
+                // TODO: Access group is not supported on any simulators.
+                if let accessGroup {
+                    attributes.append(.accessGroup(accessGroup))
+                }
 
-            query.append(.server(host))
-            query.append(.protocolType(protocolType))
-            query.append(.authenticationType(authenticationType))
+            case .internetPassword:
+                guard
+                    let host = server?.host,
+                    let protocolType = protocolType,
+                    let authenticationType = authenticationType
+                else {
+                    fatalError("`Server`, `ProtocolType`, `AuthenticationType` properties are mandatory for saving interner password keychaion item")
+                }
 
-            if let port = server?.port {
-                query.append(.port(port))
-            }
+                attributes.append(.server(host))
+                attributes.append(.protocolType(protocolType))
+                attributes.append(.authenticationType(authenticationType))
 
-            if let path = server?.path {
-                query.append(.path(path))
-            }
+                if let port = server?.port {
+                    attributes.append(.port(port))
+                }
 
-            if let securityDomain = securityDomain {
-                query.append(.securityDomain(securityDomain))
-            }
+                if let path = server?.path {
+                    attributes.append(.path(path))
+                }
+
+                if let securityDomain = securityDomain {
+                    attributes.append(.securityDomain(securityDomain))
+                }
         }
-
-        return query + extraAttributes
-    }
-
-    /// Use this method to build attributes to add a new keychain entry
-    func addRequestAttributes(value: Data, key: String, keyAttributes: KeychainKeys.Attributes) -> Attributes {
-        var attributes = searchQuery()
-
-        attributes.append(.account(key))
-        attributes += updateRequestAttributes(value: value, keyAttributes: keyAttributes)
 
         return attributes
     }
 
-    /// Use this method to build attributes to update a new keychain entry
-    /// Keychain SecItemUpdate do not allow search query parameters and account to pass as attributes
-    func updateRequestAttributes(value: Data, keyAttributes: KeychainKeys.Attributes) -> Attributes {
-        var attributes = Attributes()
+    var updateRequestAttributes: [KeychainAttribute] {
+        [.accessible(accessible), .synchronizable(.init(boolValue: synchronizable))]
+    }
+}
 
-        attributes.append(contentsOf: [
-            .valueData(value),
-            .accessible(accessible),
-            .synchronizable(.init(boolValue: synchronizable))
-        ])
+extension KeychainKeys.Attributes {
+    func updateRequestAttributes(itemClass: ItemClass) -> [IAttribute] {
+        var attributes = [KeychainKeyAttribute]()
 
-        if let label = keyAttributes.label {
+        if let label {
             attributes.append(.label(label))
         }
 
-        if let comment = keyAttributes.comment {
+        if let comment {
             attributes.append(.comment(comment))
         }
 
-        if let description = keyAttributes.aDescription {
-            attributes.append(.attrDescription(description))
+        if let aDescription {
+            attributes.append(.attrDescription(aDescription))
         }
 
-        if let isInvisible = keyAttributes.isInvisible {
+        if let isInvisible {
             attributes.append(.isInvisible(isInvisible))
         }
 
-        if let isNegative = keyAttributes.isNegative {
+        if let isNegative {
             attributes.append(.isNegative(isNegative))
+        }
+
+        if case .genericPassword = itemClass, let generic {
+            attributes.append(.generic(generic))
         }
 
         return attributes
     }
 }
 
-extension Keychain {
-    // TODO: Maybe use global function instead
-    static func itemDelete(_ query: Attributes) -> OSStatus {
-        return SecItemDelete(query.compose())
-    }
+typealias Attributes = Array<IAttribute>
 
-    static func itemAdd(_ query: Attributes) -> OSStatus {
-        return SecItemAdd(query.compose(), nil)
-    }
+protocol IAttribute {
+    typealias Element = (key: CFString, value: Any)
 
-    static func itemUpdate(_ query: Attributes, _ attributes: Attributes) -> OSStatus {
-        return SecItemUpdate(query.compose(), attributes.compose())
-    }
-
-    static func itemFetch(_ query: Attributes) -> OSStatus {
-        return SecItemCopyMatching(query.compose(), nil)
-    }
+    var element: Element { get }
 }
 
-typealias Attributes = Array<Attribute>
-
-enum Attribute {
-    case `class`(ItemClass)
-    case service(String)
-    case account(String)
-    case valueData(Data)
-    case accessible(AccessibilityLevel)
-    case isReturnData(Bool)
+enum SearchResultAttribute: IAttribute {
     case matchLimit(MatchLimit)
-    case accessGroup(String)
-    case synchronizable(Synchronizable)
-    case server(String)
-    case port(Int)
-    case protocolType(ProtocolType)
-    case authenticationType(AuthenticationType)
-    case securityDomain(String)
-    case path(String)
-    case label(String)
-    case comment(String)
-    case attrDescription(String)
-    case isInvisible(Bool)
-    case isNegative(Bool)
 
-    var rawValue: Element {
+    var element: Element {
         switch self {
-        case .class(let value):
-            return Element(key: kSecClass, value: value.rawValue)
-        case .service(let value):
-            return Element(key: kSecAttrService, value: value)
-        case .account(let value):
-            return Element(key: kSecAttrAccount, value: value)
-        case .valueData(let data):
-            return Element(key: kSecValueData, value: data)
-        case .accessible(let level):
-            return Element(key: kSecAttrAccessible, value: level.rawValue)
-        case .isReturnData(let isReturn):
-            let value = isReturn ? kCFBooleanTrue : kCFBooleanFalse
-            return Element(key: kSecReturnData, value: value as Any)
-        case .matchLimit(let value):
-            return Element(key: kSecMatchLimit, value: value.rawValue)
-        case .accessGroup(let value):
-            return Element(key: kSecAttrAccessGroup, value: value)
-        case .synchronizable(let value):
-            return Element(key: kSecAttrSynchronizable, value: value.rawValue)
-        case .server(let value):
-            return Element(key: kSecAttrServer, value: value)
-        case .port(let value):
-            return Element(key: kSecAttrPort, value: value)
-        case .protocolType(let value):
-            return Element(key: kSecAttrAuthenticationType, value: value.rawValue)
-        case .authenticationType(let value):
-            return Element(key: kSecAttrAuthenticationType, value: value.rawValue)
-        case .securityDomain(let value):
-            return Element(key: kSecAttrSecurityDomain, value: value)
-        case .path(let value):
-            return Element(key: kSecAttrPath, value: value)
-        case .label(let value):
-            return Element(key: kSecAttrLabel, value: value)
-        case .comment(let value):
-            return Element(key: kSecAttrComment, value: value)
-        case .attrDescription(let value):
-            return Element(key: kSecAttrDescription, value: value)
-        case .isInvisible(let value):
-            return Element(key: kSecAttrIsInvisible, value: NSNumber(value: value))
-        case .isNegative(let value):
-            return Element(key: kSecAttrIsNegative, value: NSNumber(value: value))
-        }
-    }
-
-    struct Element {
-        let key: String
-        let value: Any
-
-        init(key: CFString, value: Any) {
-            self.key = String(key)
-            self.value = value
+            case .matchLimit(let matchLimit):
+                return (key: kSecMatchLimit, value: matchLimit.rawValue)
         }
     }
 
@@ -554,28 +410,117 @@ enum Attribute {
 
         var rawValue: CFString {
             switch self {
-            case .one:
-                return kSecMatchLimitOne
-            case .all:
-                return kSecMatchLimitAll
+                case .one:
+                    return kSecMatchLimitOne
+                case .all:
+                    return kSecMatchLimitAll
             }
+        }
+    }
+}
+
+enum ReturnResultAttribute: IAttribute {
+    case returnData(Bool)
+    case returnAttributes(Bool)
+
+    var element: Element {
+        switch self {
+            case .returnData(let value):
+                return (key: kSecReturnData, value: value)
+            case .returnAttributes(let value):
+                return (key: kSecReturnAttributes, value: value)
+        }
+    }
+}
+
+enum KeychainKeyAttribute: IAttribute {
+    case valueData(Data)
+    case account(String)
+    case label(String)
+    case comment(String)
+    case attrDescription(String)
+    case isInvisible(Bool)
+    case isNegative(Bool)
+    case generic(Data)
+
+    var element: Element {
+        switch self {
+            case .valueData(let data):
+                return (key: kSecValueData, value: data)
+            case .account(let value):
+                return (key: kSecAttrAccount, value: value)
+            case .label(let value):
+                return (key: kSecAttrLabel, value: value)
+            case .comment(let value):
+                return (key: kSecAttrComment, value: value)
+            case .attrDescription(let value):
+                return (key: kSecAttrDescription, value: value)
+            case .isInvisible(let value):
+                return (key: kSecAttrIsInvisible, value: NSNumber(value: value))
+            case .isNegative(let value):
+                return (key: kSecAttrIsNegative, value: NSNumber(value: value))
+            case .generic(let value):
+                return (key: kSecAttrGeneric, value: value)
+        }
+    }
+}
+
+enum KeychainAttribute: IAttribute {
+    case `class`(ItemClass)
+    case service(String)
+    case accessible(AccessibilityLevel)
+    case accessGroup(String)
+    case synchronizable(Synchronizable)
+    case server(String)
+    case port(Int)
+    case protocolType(ProtocolType)
+    case authenticationType(AuthenticationType)
+    case securityDomain(String)
+    case path(String)
+
+    var element: Element {
+        switch self {
+            case .class(let value):
+                return (key: kSecClass, value: value.rawValue)
+            case .service(let value):
+                return (key: kSecAttrService, value: value)
+            case .accessible(let level):
+                return (key: kSecAttrAccessible, value: level.rawValue)
+            case .accessGroup(let value):
+                return (key: kSecAttrAccessGroup, value: value)
+            case .synchronizable(let value):
+                return (key: kSecAttrSynchronizable, value: value.rawValue)
+            case .server(let value):
+                return (key: kSecAttrServer, value: value)
+            case .port(let value):
+                return (key: kSecAttrPort, value: value)
+            case .protocolType(let value):
+                return (key: kSecAttrAuthenticationType, value: value.rawValue)
+            case .authenticationType(let value):
+                return (key: kSecAttrAuthenticationType, value: value.rawValue)
+            case .securityDomain(let value):
+                return (key: kSecAttrSecurityDomain, value: value)
+            case .path(let value):
+                return (key: kSecAttrPath, value: value)
         }
     }
 
     enum Synchronizable {
         /// Query for both synchronizable and non-synchronizable results
         case any
+        /// Query for synchronizable results
         case yes
+        /// Query for non-synchronizable results
         case no
 
         var rawValue: AnyObject {
             switch self {
-            case .any:
-                return kSecAttrSynchronizableAny
-            case .yes:
-                return kCFBooleanTrue
-            case .no:
-                return kCFBooleanFalse
+                case .any:
+                    return kSecAttrSynchronizableAny
+                case .yes:
+                    return kCFBooleanTrue
+                case .no:
+                    return kCFBooleanFalse
             }
         }
 
@@ -585,34 +530,119 @@ enum Attribute {
     }
 }
 
+public enum ItemClass {
+    /// The value that indicates a Generic password item.
+    ///
+    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecclassgenericpassword)
+    case genericPassword
+
+    /// The value that indicates an Internet password item.
+    ///
+    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecclassinternetpassword)
+    case internetPassword
+}
+
+public enum AccessibilityLevel {
+    /// The data in the keychain can only be accessed when the device is unlocked.
+    /// Only available if a passcode is set on the device
+    ///
+    ///  For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattraccessiblewhenpasscodesetthisdeviceonly)
+    case whenPasscodeSetThisDeviceOnly
+
+    /// The data in the keychain item can be accessed only while the device is unlocked by the user.
+    case unlockedThisDeviceOnly
+
+    /// The data in the keychain item can be accessed only while the device is unlocked by the user.
+    case whenUnlocked
+
+    /// The data in the keychain item cannot be accessed after a restart until the device has been unlocked once by the user.
+    case afterFirstUnlockThisDeviceOnly
+
+    /// The data in the keychain item cannot be accessed after a restart until the device has been unlocked once by the user.
+    case afterFirstUnlock
+
+    /// The data in the keychain item can always be accessed regardless of whether the device is locked.
+    @available(iOS, deprecated: 12.0, message: "This is not recommended for application use. Items with this attribute do not migrate to a new device. Thus, after restoring from a backup of a different device, these items will not be present.")
+    case alwaysThisDeviceOnly
+
+    /// The data in the keychain item can always be accessed regardless of whether the device is locked.
+    @available(iOS, deprecated: 12.0, message: "This is not recommended for application use. Items with this attribute migrate to a new device when using encrypted backups.")
+    case accessibleAlways
+}
+
+public enum ProtocolType {
+    case ftp
+    case ftpAccount
+    case http
+    case irc
+    case nntp
+    case pop3
+    case smtp
+    case socks
+    case imap
+    case ldap
+    case appleTalk
+    case afp
+    case telnet
+    case ssh
+    case ftps
+    case https
+    case httpProxy
+    case httpsProxy
+    case ftpProxy
+    case smb
+    case rtsp
+    case rtspProxy
+    case daap
+    case eppc
+    case ipp
+    case nntps
+    case ldaps
+    case telnetS
+    case imaps
+    case ircs
+    case pop3S
+}
+
+public enum AuthenticationType {
+    case ntlm
+    case msn
+    case dpa
+    case rpa
+    case httpBasic
+    case httpDigest
+    case htmlForm
+    case `default`
+}
+
 extension ItemClass {
     var rawValue: CFString {
         switch self {
-        case .genericPassword:
-            return kSecClassGenericPassword
-        case .internetPassword:
-            return kSecClassInternetPassword
-        }
+            case .genericPassword:
+                return kSecClassGenericPassword
+            case .internetPassword:
+                return kSecClassInternetPassword
+            }
     }
 }
 
 extension AccessibilityLevel {
     var rawValue: CFString {
         switch self {
-        case .whenPasscodeSetThisDeviceOnly:
-            return kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
-        case .unlockedThisDeviceOnly:
-            return kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-        case .whenUnlocked:
-            return kSecAttrAccessibleWhenUnlocked
-        case .afterFirstUnlockThisDeviceOnly:
-            return kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-        case .afterFirstUnlock:
-            return kSecAttrAccessibleAfterFirstUnlock
-        case .alwaysThisDeviceOnly:
-            return kSecAttrAccessibleAlwaysThisDeviceOnly
-        case .accessibleAlways:
-            return kSecAttrAccessibleAlways
+            case .whenPasscodeSetThisDeviceOnly:
+                return kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
+            case .unlockedThisDeviceOnly:
+                return kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            case .whenUnlocked:
+                return kSecAttrAccessibleWhenUnlocked
+            case .afterFirstUnlockThisDeviceOnly:
+                return kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            case .afterFirstUnlock:
+                return kSecAttrAccessibleAfterFirstUnlock
+            case .alwaysThisDeviceOnly:
+                return kSecAttrAccessibleAlwaysThisDeviceOnly
+            case .accessibleAlways:
+                return kSecAttrAccessibleAlways
         }
     }
 }
@@ -620,135 +650,135 @@ extension AccessibilityLevel {
 extension ProtocolType {
     var rawValue: String {
         switch self {
-        case .ftp:
-            return String(kSecAttrProtocolFTP)
-        case .ftpAccount:
-            return String(kSecAttrProtocolFTPAccount)
-        case .http:
-            return String(kSecAttrProtocolHTTP)
-        case .irc:
-            return String(kSecAttrProtocolIRC)
-        case .nntp:
-            return String(kSecAttrProtocolNNTP)
-        case .pop3:
-            return String(kSecAttrProtocolPOP3)
-        case .smtp:
-            return String(kSecAttrProtocolSMTP)
-        case .socks:
-            return String(kSecAttrProtocolSOCKS)
-        case .imap:
-            return String(kSecAttrProtocolIMAP)
-        case .ldap:
-            return String(kSecAttrProtocolLDAP)
-        case .appleTalk:
-            return String(kSecAttrProtocolAppleTalk)
-        case .afp:
-            return String(kSecAttrProtocolAFP)
-        case .telnet:
-            return String(kSecAttrProtocolTelnet)
-        case .ssh:
-            return String(kSecAttrProtocolSSH)
-        case .ftps:
-            return String(kSecAttrProtocolFTPS)
-        case .https:
-            return String(kSecAttrProtocolHTTPS)
-        case .httpProxy:
-            return String(kSecAttrProtocolHTTPProxy)
-        case .httpsProxy:
-            return String(kSecAttrProtocolHTTPSProxy)
-        case .ftpProxy:
-            return String(kSecAttrProtocolFTPProxy)
-        case .smb:
-            return String(kSecAttrProtocolSMB)
-        case .rtsp:
-            return String(kSecAttrProtocolRTSP)
-        case .rtspProxy:
-            return String(kSecAttrProtocolRTSPProxy)
-        case .daap:
-            return String(kSecAttrProtocolDAAP)
-        case .eppc:
-            return String(kSecAttrProtocolEPPC)
-        case .ipp:
-            return String(kSecAttrProtocolIPP)
-        case .nntps:
-            return String(kSecAttrProtocolNNTPS)
-        case .ldaps:
-            return String(kSecAttrProtocolLDAPS)
-        case .telnetS:
-            return String(kSecAttrProtocolTelnetS)
-        case .imaps:
-            return String(kSecAttrProtocolIMAPS)
-        case .ircs:
-            return String(kSecAttrProtocolIRCS)
-        case .pop3S:
-            return String(kSecAttrProtocolPOP3S)
+            case .ftp:
+                return String(kSecAttrProtocolFTP)
+            case .ftpAccount:
+                return String(kSecAttrProtocolFTPAccount)
+            case .http:
+                return String(kSecAttrProtocolHTTP)
+            case .irc:
+                return String(kSecAttrProtocolIRC)
+            case .nntp:
+                return String(kSecAttrProtocolNNTP)
+            case .pop3:
+                return String(kSecAttrProtocolPOP3)
+            case .smtp:
+                return String(kSecAttrProtocolSMTP)
+            case .socks:
+                return String(kSecAttrProtocolSOCKS)
+            case .imap:
+                return String(kSecAttrProtocolIMAP)
+            case .ldap:
+                return String(kSecAttrProtocolLDAP)
+            case .appleTalk:
+                return String(kSecAttrProtocolAppleTalk)
+            case .afp:
+                return String(kSecAttrProtocolAFP)
+            case .telnet:
+                return String(kSecAttrProtocolTelnet)
+            case .ssh:
+                return String(kSecAttrProtocolSSH)
+            case .ftps:
+                return String(kSecAttrProtocolFTPS)
+            case .https:
+                return String(kSecAttrProtocolHTTPS)
+            case .httpProxy:
+                return String(kSecAttrProtocolHTTPProxy)
+            case .httpsProxy:
+                return String(kSecAttrProtocolHTTPSProxy)
+            case .ftpProxy:
+                return String(kSecAttrProtocolFTPProxy)
+            case .smb:
+                return String(kSecAttrProtocolSMB)
+            case .rtsp:
+                return String(kSecAttrProtocolRTSP)
+            case .rtspProxy:
+                return String(kSecAttrProtocolRTSPProxy)
+            case .daap:
+                return String(kSecAttrProtocolDAAP)
+            case .eppc:
+                return String(kSecAttrProtocolEPPC)
+            case .ipp:
+                return String(kSecAttrProtocolIPP)
+            case .nntps:
+                return String(kSecAttrProtocolNNTPS)
+            case .ldaps:
+                return String(kSecAttrProtocolLDAPS)
+            case .telnetS:
+                return String(kSecAttrProtocolTelnetS)
+            case .imaps:
+                return String(kSecAttrProtocolIMAPS)
+            case .ircs:
+                return String(kSecAttrProtocolIRCS)
+            case .pop3S:
+                return String(kSecAttrProtocolPOP3S)
         }
     }
 
     public var description: String {
         switch self {
-        case .ftp:
-            return "FTP"
-        case .ftpAccount:
-            return "FTPAccount"
-        case .http:
-            return "HTTP"
-        case .irc:
-            return "IRC"
-        case .nntp:
-            return "NNTP"
-        case .pop3:
-            return "POP3"
-        case .smtp:
-            return "SMTP"
-        case .socks:
-            return "SOCKS"
-        case .imap:
-            return "IMAP"
-        case .ldap:
-            return "LDAP"
-        case .appleTalk:
-            return "AppleTalk"
-        case .afp:
-            return "AFP"
-        case .telnet:
-            return "Telnet"
-        case .ssh:
-            return "SSH"
-        case .ftps:
-            return "FTPS"
-        case .https:
-            return "HTTPS"
-        case .httpProxy:
-            return "HTTPProxy"
-        case .httpsProxy:
-            return "HTTPSProxy"
-        case .ftpProxy:
-            return "FTPProxy"
-        case .smb:
-            return "SMB"
-        case .rtsp:
-            return "RTSP"
-        case .rtspProxy:
-            return "RTSPProxy"
-        case .daap:
-            return "DAAP"
-        case .eppc:
-            return "EPPC"
-        case .ipp:
-            return "IPP"
-        case .nntps:
-            return "NNTPS"
-        case .ldaps:
-            return "LDAPS"
-        case .telnetS:
-            return "TelnetS"
-        case .imaps:
-            return "IMAPS"
-        case .ircs:
-            return "IRCS"
-        case .pop3S:
-            return "POP3S"
+            case .ftp:
+                return "FTP"
+            case .ftpAccount:
+                return "FTPAccount"
+            case .http:
+                return "HTTP"
+            case .irc:
+                return "IRC"
+            case .nntp:
+                return "NNTP"
+            case .pop3:
+                return "POP3"
+            case .smtp:
+                return "SMTP"
+            case .socks:
+                return "SOCKS"
+            case .imap:
+                return "IMAP"
+            case .ldap:
+                return "LDAP"
+            case .appleTalk:
+                return "AppleTalk"
+            case .afp:
+                return "AFP"
+            case .telnet:
+                return "Telnet"
+            case .ssh:
+                return "SSH"
+            case .ftps:
+                return "FTPS"
+            case .https:
+                return "HTTPS"
+            case .httpProxy:
+                return "HTTPProxy"
+            case .httpsProxy:
+                return "HTTPSProxy"
+            case .ftpProxy:
+                return "FTPProxy"
+            case .smb:
+                return "SMB"
+            case .rtsp:
+                return "RTSP"
+            case .rtspProxy:
+                return "RTSPProxy"
+            case .daap:
+                return "DAAP"
+            case .eppc:
+                return "EPPC"
+            case .ipp:
+                return "IPP"
+            case .nntps:
+                return "NNTPS"
+            case .ldaps:
+                return "LDAPS"
+            case .telnetS:
+                return "TelnetS"
+            case .imaps:
+                return "IMAPS"
+            case .ircs:
+                return "IRCS"
+            case .pop3S:
+                return "POP3S"
         }
     }
 }
@@ -756,52 +786,49 @@ extension ProtocolType {
 extension AuthenticationType {
     var rawValue: String {
         switch self {
-        case .ntlm:
-            return String(kSecAttrAuthenticationTypeNTLM)
-        case .msn:
-            return String(kSecAttrAuthenticationTypeMSN)
-        case .dpa:
-            return String(kSecAttrAuthenticationTypeDPA)
-        case .rpa:
-            return String(kSecAttrAuthenticationTypeRPA)
-        case .httpBasic:
-            return String(kSecAttrAuthenticationTypeHTTPBasic)
-        case .httpDigest:
-            return String(kSecAttrAuthenticationTypeHTTPDigest)
-        case .htmlForm:
-            return String(kSecAttrAuthenticationTypeHTMLForm)
-        case .`default`:
-            return String(kSecAttrAuthenticationTypeDefault)
+            case .ntlm:
+                return String(kSecAttrAuthenticationTypeNTLM)
+            case .msn:
+                return String(kSecAttrAuthenticationTypeMSN)
+            case .dpa:
+                return String(kSecAttrAuthenticationTypeDPA)
+            case .rpa:
+                return String(kSecAttrAuthenticationTypeRPA)
+            case .httpBasic:
+                return String(kSecAttrAuthenticationTypeHTTPBasic)
+            case .httpDigest:
+                return String(kSecAttrAuthenticationTypeHTTPDigest)
+            case .htmlForm:
+                return String(kSecAttrAuthenticationTypeHTMLForm)
+            case .`default`:
+                return String(kSecAttrAuthenticationTypeDefault)
         }
     }
 
     public var description: String {
         switch self {
-        case .ntlm:
-            return "NTLM"
-        case .msn:
-            return "MSN"
-        case .dpa:
-            return "DPA"
-        case .rpa:
-            return "RPA"
-        case .httpBasic:
-            return "HTTPBasic"
-        case .httpDigest:
-            return "HTTPDigest"
-        case .htmlForm:
-            return "HTMLForm"
-        case .`default`:
-            return "Default"
+            case .ntlm:
+                return "NTLM"
+            case .msn:
+                return "MSN"
+            case .dpa:
+                return "DPA"
+            case .rpa:
+                return "RPA"
+            case .httpBasic:
+                return "HTTPBasic"
+            case .httpDigest:
+                return "HTTPDigest"
+            case .htmlForm:
+                return "HTMLForm"
+            case .`default`:
+                return "Default"
         }
     }
 }
 
-extension Array where Element == Attribute {
+extension [IAttribute] {
     func compose() -> CFDictionary {
-        return self
-            .map { $0.rawValue }
-            .reduce(into: [String: Any]()) { $0[$1.key] = $1.value }
-            as CFDictionary
+        return self.map(\.element).reduce(into: [CFString: Any]()) { $0[$1.key] = $1.value } as CFDictionary
     }
 }
