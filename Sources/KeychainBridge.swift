@@ -26,15 +26,22 @@ import Foundation
 import Security
 
 open class KeychainBridge<T> {
-    open func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        fatalError()
+    open func encode(_ value: T) throws -> Data { fatalError() }
+
+    open func decode(_ data: Data) throws -> T? { fatalError() }
+
+    public init() {}
+
+    func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+        try persist(value: encode(value), key: key, attributes: attributes, keychain: keychain)
     }
 
-    open func get(key: String, from keychain: Keychain) throws -> T? {
-        fatalError()
+    func get(key: String, from keychain: Keychain) throws -> T? {
+        guard let data = try find(key: key, keychain: keychain) else { return nil }
+        return try decode(data)
     }
 
-    public func remove(key: String, from keychain: Keychain) throws {
+    func remove(key: String, from keychain: Keychain) throws {
         let attributesToSearch: [IAttribute] = keychain.searchRequestAttributes
             + [KeychainKeyAttribute.account(key)]
 
@@ -43,111 +50,97 @@ open class KeychainBridge<T> {
             throw KeychainError(status: status)
         }
     }
-
-    public init() {}
 }
 
 open class KeychainBridgeInt: KeychainBridge<Int> {
-    override public func set(_ value: Int, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: Data(from: value), key: key, attributes: attributes, keychain: keychain)
+    override open func encode(_ value: Int) throws -> Data {
+        Data(from: value)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Int? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return data.convert(type: Int.self)
+    override open func decode(_ data: Data) throws -> Int? {
+        data.convert(type: Int.self)
     }
 }
 
 class KeychainBridgeString: KeychainBridge<String> {
-    override public func set(_ value: String, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+    override open func encode(_ value: String) throws -> Data {
         guard let data = value.data(using: .utf8) else {
             throw KeychainError.conversionError
         }
-
-        try persist(value: data, key: key, attributes: attributes, keychain: keychain)
+        return data
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> String? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return String(data: data, encoding: .utf8)
+    override open func decode(_ data: Data) throws -> String? {
+        String(data: data, encoding: .utf8)
     }
 }
 
 class KeychainBridgeDouble: KeychainBridge<Double> {
-    override public func set(_ value: Double, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: Data(from: value), key: key, attributes: attributes, keychain: keychain)
+    override open func encode(_ value: Double) throws -> Data {
+        Data(from: value)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Double? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return data.convert(type: Double.self)
+    override open func decode(_ data: Data) throws -> Double? {
+        data.convert(type: Double.self)
     }
 }
 
 class KeychainBridgeFloat: KeychainBridge<Float> {
-    override public func set(_ value: Float, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: Data(from: value), key: key, attributes: attributes, keychain: keychain)
+    override open func encode(_ value: Float) throws -> Data {
+        Data(from: value)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Float? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return data.convert(type: Float.self)
+    override open func decode(_ data: Data) throws -> Float? {
+        data.convert(type: Float.self)
     }
 }
 
 class KeychainBridgeBool: KeychainBridge<Bool> {
-    override public func set(_ value: Bool, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+    override open func encode(_ value: Bool) throws -> Data {
         let bytes: [UInt8] = value ? [1] : [0]
-        let data = Data(bytes)
-        try persist(value: data, key: key, attributes: attributes, keychain: keychain)
+        return Data(bytes)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Bool? {
-        guard let data = try find(key: key, keychain: keychain), let firstBit = data.first else {
+    override open func decode(_ data: Data) throws -> Bool? {
+        guard let firstBit = data.first else {
             return nil
         }
-
         return firstBit == 1
     }
 }
 
 class KeychainBridgeData: KeychainBridge<Data> {
-    override public func set(_ value: Data, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: value, key: key, attributes: attributes, keychain: keychain)
+    override open func encode(_ value: Data) throws -> Data {
+        value
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Data? {
-        return try find(key: key, keychain: keychain)
+    override open func decode(_ data: Data) throws -> Data? {
+        data
     }
 }
 
 class KeychainBridgeCodable<T: Codable>: KeychainBridge<T> {
-    override public func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: try JSONEncoder().encode(value), key: key, attributes: attributes, keychain: keychain)
+    override open func encode(_ value: T) throws -> Data {
+        try JSONEncoder().encode(value)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> T? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return try JSONDecoder().decode(T.self, from: data)
+    override open func decode(_ data: Data) throws -> T? {
+        try JSONDecoder().decode(T.self, from: data)
     }
 }
 
 class KeychainBridgeArchivable<T: NSCoding>: KeychainBridge<T> {
-    override public func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+    override open func encode(_ value: T) throws -> Data {
         // TODO: iOS 13 deprecated +archivedDataWithRootObject:requiringSecureCoding:error:
-        let data = NSKeyedArchiver.archivedData(withRootObject: value)
-        try persist(value: data, key: key, attributes: attributes, keychain: keychain)
+        NSKeyedArchiver.archivedData(withRootObject: value)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> T? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-
+    override open func decode(_ data: Data) throws -> T? {
         // TODO: iOS 13 deprecated +unarchivedObjectOfClass:fromData:error:
-        guard let object = NSKeyedUnarchiver.unarchiveObject(with: data) as? T else {
+        guard let value = NSKeyedUnarchiver.unarchiveObject(with: data) as? T else {
             throw KeychainError.invalidDataCast
         }
-
-        return object
+        return value
     }
 }
 
