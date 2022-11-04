@@ -39,11 +39,11 @@ class KeychainKeyTests: XCTestCase {
         )
 
         XCTAssertEqual(key.key, "key")
-        XCTAssertEqual(key.attributes.label, "label")
-        XCTAssertEqual(key.attributes.comment, "comment")
-        XCTAssertEqual(key.attributes.aDescription, "description")
-        XCTAssertEqual(key.attributes.isInvisible, true)
-        XCTAssertEqual(key.attributes.isNegative, false)
-        XCTAssertEqual(key.attributes.generic, "generic".data(using: .utf8)!)
+        XCTAssertEqual(key.label, "label")
+        XCTAssertEqual(key.comment, "comment")
+        XCTAssertEqual(key.aDescription, "description")
+        XCTAssertEqual(key.isInvisible, true)
+        XCTAssertEqual(key.isNegative, false)
+        XCTAssertEqual(key.generic, "generic".data(using: .utf8)!)
     }
 }
