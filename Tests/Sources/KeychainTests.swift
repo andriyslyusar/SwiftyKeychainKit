@@ -87,37 +87,85 @@ class KeychainTests: XCTestCase {
         XCTAssertNil(keychain.securityDomain)
     }
 
-    // MARK: - Attrubute builders
+    func testGetGenericPasswordAttributes() throws {
+        let keychain = Keychain(
+            service: "com.swifty.keychainkit",
+            accessible: .accessibleAlways,
+//            accessGroup: "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost",
+            synchronizable: false
+        )
 
-    //    func test_updateRequestAttributes_returnDefaultAttributes() {
-    //        let keychain = Keychain(service: "",
-    //                                accessible: .whenUnlocked,
-    //                                synchronizable: false)
-    //
-    //        let attributes =  keychain.updateRequestAttributes(value: Data(), keyAttributes: KeychainKey.Attributes())
-    //
-    //        XCTAssertTrue(attributes.contains { $0 == Attribute.valueData(Data()) })
-    //        XCTAssertTrue(attributes.contains { $0 == Attribute.accessible(.whenUnlocked) })
-    //        XCTAssertTrue(attributes.contains { $0 == Attribute.synchronizable(.init(boolValue: false)) })
-    //        XCTAssertEqual(attributes.count, 3)
-    //    }
-    //
-    //    func test_addRequestAttributes_returnDefaultAttributes() {
-    //        let keychain = Keychain(service: "",
-    //                                accessible: .whenUnlocked,
-    //                                synchronizable: false)
-    //
-    //        let attributes = keychain.addRequestAttributes(value: Data(), key: "account", keyAttributes: KeychainKey.Attributes())
-    //
-    ////        XCTAssertEqual(attributes.count, 4)
-    //
-    //        // attributes from updateRequestAttributes
-    //        XCTAssertTrue(attributes.contains { $0 == Attribute.valueData(Data()) })
-    //        XCTAssertTrue(attributes.contains { $0 == Attribute.accessible(.whenUnlocked) })
-    //        XCTAssertTrue(attributes.contains { $0 == Attribute.synchronizable(.init(boolValue: false)) })
-    //
-    //        // attributes from addRequestAttributes
-    //        XCTAssertTrue(attributes.contains { $0 == Attribute.account("account") })
-    //    }
+        let key = KeychainKey<String>(
+            key: "key",
+            label: "label",
+            comment: "comment",
+            description: "description",
+            isInvisible: true,
+            isNegative: false,
+            generic: "generic".data(using: .utf8)!
+        )
+
+        do {
+            try? keychain.set("value", for: key)
+
+            let attributes = try keychain.attributes(key)
+
+            XCTAssertEqual(attributes.class, .genericPassword)
+            XCTAssertEqual(attributes.service, "com.swifty.keychainkit")
+            XCTAssertEqual(attributes.accessible, .accessibleAlways)
+            XCTAssertEqual(attributes.synchronizable, false)
+            XCTAssertEqual(attributes.label, "label")
+            XCTAssertEqual(attributes.comment, "comment")
+            XCTAssertEqual(attributes.attrDescription, "description")
+            XCTAssertEqual(attributes.isInvisible, true)
+            XCTAssertEqual(attributes.isNegative, false)
+            XCTAssertEqual(attributes.generic, "generic".data(using: .utf8)!)
+            // TODO: Investigate why accessGroup has a default value
+            XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
+        }
+    }
+
+    func testGetInternetPasswordAttributes() throws {
+        let keychain = Keychain(
+            server: URL(string: "https://github.com")!,
+            protocolType: .https,
+            authenticationType: .httpBasic,
+            accessible: .afterFirstUnlock,
+//            accessGroup: "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost",
+            synchronizable: true,
+            securityDomain: "securityDomain"
+        )
+
+        let key = KeychainKey<String>(
+            key: "key",
+            label: "label",
+            comment: "comment",
+            description: "description",
+            isInvisible: true,
+            isNegative: false,
+            generic: "generic".data(using: .utf8)!
+        )
+
+        do {
+            try? keychain.set("value", for: key)
+
+            let attributes = try keychain.attributes(key)
+
+            XCTAssertEqual(attributes.class, .internetPassword)
+            XCTAssertEqual(attributes.server, "github.com")
+            XCTAssertEqual(attributes.protocolType, .https)
+            XCTAssertEqual(attributes.authenticationType, .httpBasic)
+            XCTAssertEqual(attributes.accessible, .afterFirstUnlock)
+            XCTAssertEqual(attributes.synchronizable, true)
+            XCTAssertEqual(attributes.securityDomain, "securityDomain")
+            XCTAssertEqual(attributes.label, "label")
+            XCTAssertEqual(attributes.comment, "comment")
+            XCTAssertEqual(attributes.attrDescription, "description")
+            XCTAssertEqual(attributes.isInvisible, true)
+            XCTAssertEqual(attributes.isNegative, false)
+            XCTAssertNil(attributes.generic)
+            // TODO: Investigate why accessGroup has a default value
+            XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
+        }
+    }
 }
-

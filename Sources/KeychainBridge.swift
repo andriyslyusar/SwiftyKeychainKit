@@ -26,193 +26,232 @@ import Foundation
 import Security
 
 open class KeychainBridge<T> {
-    open func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        fatalError()
-    }
+    /// TBD
+    open func encode(_ value: T) throws -> Data { fatalError() }
 
-    open func get(key: String, from keychain: Keychain) throws -> T? {
-        fatalError()
-    }
-
-    public func remove(key: String, from keychain: Keychain) throws {
-        let query = keychain.searchQuery([
-            .account(key)
-        ])
-
-        let status = Keychain.itemDelete(query)
-        if status != errSecSuccess && status != errSecItemNotFound {
-            throw KeychainError(status: status)
-        }
-    }
+    /// TBD
+    open func decode(_ data: Data) throws -> T? { fatalError() }
 
     public init() {}
 }
 
-open class KeychainBridgeInt: KeychainBridge<Int> {
-    override public func set(_ value: Int, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: Data(from: value), key: key, attributes: attributes, keychain: keychain)
+extension KeychainBridge {
+    func set<S: KeychainSerializable>(_ value: T, forKey keychainKey: KeychainKey<S>, in keychain: Keychain) throws {
+        let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
+            + [KeychainAttribute.account(keychainKey.key)]
+
+        let status = keychainItemFetch(attributesToSearch)
+        switch status {
+                // Keychain already contains key -> update existing item
+            case errSecSuccess:
+                let attributesToUpdate = keychainKey.updateRequestAttributes(itemClass: keychain.itemClass)
+                + keychain.updateRequestAttributes
+                + [KeychainAttribute.valueData(try encode(value))]
+
+                let status = keychainItemUpdate(
+                    attributesToSearch: attributesToSearch,
+                    attributesToUpdate: attributesToUpdate
+                )
+                if status != errSecSuccess {
+                    throw KeychainError(status: status)
+                }
+
+                // Keychain doesn't contain key -> add new item
+            case errSecItemNotFound:
+                let attributesToAdd = keychain.searchRequestAttributes
+                + keychain.updateRequestAttributes
+                + keychainKey.updateRequestAttributes(itemClass: keychain.itemClass)
+                + [KeychainAttribute.account(keychainKey.key), KeychainAttribute.valueData(try encode(value))]
+
+                let status = keychainItemAdd(attributesToAdd)
+                if status != errSecSuccess {
+                    throw KeychainError(status: status)
+                }
+
+                // This error can happen when your app is launched in the background while the device is locked
+                // (for example, in response to an actionable push notification or a Core Location geofence event),
+                // the application may crash as a result of accessing a locked keychain entry.
+                //
+                // TODO: Maybe introduce `force` property to allow remove and save key with different permissions
+            case errSecInteractionNotAllowed:
+                throw KeychainError(status: status)
+
+            default:
+                throw KeychainError(status: status)
+        }
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Int? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return data.convert(type: Int.self)
+    func get(key: String, from keychain: Keychain) throws -> T? {
+        let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
+            + [KeychainAttribute.account(key)]
+            + [SearchResultAttribute.matchLimit(.one)]
+            + [ReturnResultAttribute.returnData(true)]
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(attributesToSearch.compose(), &result)
+        switch status {
+            case errSecSuccess:
+                guard let data = result as? Data else {
+                    throw KeychainError.unexpectedError
+                }
+                return try decode(data)
+            case errSecItemNotFound:
+                return nil
+            default:
+                throw KeychainError(status: status)
+        }
+    }
+
+    func attributes(key: String, from keychain: Keychain) throws -> [KeychainAttribute] {
+        let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
+            + [KeychainAttribute.account(key)]
+            + [SearchResultAttribute.matchLimit(.one)]
+            + [
+                ReturnResultAttribute.returnAttributes(true),
+                ReturnResultAttribute.returnRef(true),
+                ReturnResultAttribute.returnPersistentRef(true),
+            ]
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(attributesToSearch.compose(), &result)
+        switch status {
+            case errSecSuccess:
+                guard let data = result as? [String: Any] else {
+                    throw KeychainError.unexpectedError
+                }
+
+                let attrs: [KeychainAttribute] = data.compactMap { KeychainAttribute(key: $0, value: $1) }
+
+                return attrs
+
+            default:
+                throw KeychainError(status: status)
+        }
+    }
+
+    func remove(key: String, from keychain: Keychain) throws {
+        let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
+            + [KeychainAttribute.account(key)]
+
+        let status = keychainItemDelete(attributesToSearch)
+        if status != errSecSuccess && status != errSecItemNotFound {
+            throw KeychainError(status: status)
+        }
+    }
+}
+
+class KeychainBridgeInt: KeychainBridge<Int> {
+    override open func encode(_ value: Int) throws -> Data {
+        Data(from: value)
+    }
+
+    override open func decode(_ data: Data) throws -> Int? {
+        data.convert(type: Int.self)
     }
 }
 
 class KeychainBridgeString: KeychainBridge<String> {
-    override public func set(_ value: String, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+    override open func encode(_ value: String) throws -> Data {
         guard let data = value.data(using: .utf8) else {
             throw KeychainError.conversionError
         }
-
-        try persist(value: data, key: key, attributes: attributes, keychain: keychain)
+        return data
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> String? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return String(data: data, encoding: .utf8)
+    override open func decode(_ data: Data) throws -> String? {
+        String(data: data, encoding: .utf8)
     }
 }
 
 class KeychainBridgeDouble: KeychainBridge<Double> {
-    override public func set(_ value: Double, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: Data(from: value), key: key, attributes: attributes, keychain: keychain)
+    override open func encode(_ value: Double) throws -> Data {
+        Data(from: value)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Double? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return data.convert(type: Double.self)
+    override open func decode(_ data: Data) throws -> Double? {
+        data.convert(type: Double.self)
     }
 }
 
 class KeychainBridgeFloat: KeychainBridge<Float> {
-    override public func set(_ value: Float, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: Data(from: value), key: key, attributes: attributes, keychain: keychain)
+    override open func encode(_ value: Float) throws -> Data {
+        Data(from: value)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Float? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return data.convert(type: Float.self)
+    override open func decode(_ data: Data) throws -> Float? {
+        data.convert(type: Float.self)
     }
 }
 
 class KeychainBridgeBool: KeychainBridge<Bool> {
-    override public func set(_ value: Bool, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+    override open func encode(_ value: Bool) throws -> Data {
         let bytes: [UInt8] = value ? [1] : [0]
-        let data = Data(bytes)
-        try persist(value: data, key: key, attributes: attributes, keychain: keychain)
+        return Data(bytes)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Bool? {
-        guard let data = try find(key: key, keychain: keychain), let firstBit = data.first else {
+    override open func decode(_ data: Data) throws -> Bool? {
+        guard let firstBit = data.first else {
             return nil
         }
-
         return firstBit == 1
     }
 }
 
 class KeychainBridgeData: KeychainBridge<Data> {
-    override public func set(_ value: Data, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: value, key: key, attributes: attributes, keychain: keychain)
+    override open func encode(_ value: Data) throws -> Data {
+        value
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> Data? {
-        return try find(key: key, keychain: keychain)
+    override open func decode(_ data: Data) throws -> Data? {
+        data
     }
 }
 
 class KeychainBridgeCodable<T: Codable>: KeychainBridge<T> {
-    override public func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
-        try persist(value: try JSONEncoder().encode(value), key: key, attributes: attributes, keychain: keychain)
+    override open func encode(_ value: T) throws -> Data {
+        try JSONEncoder().encode(value)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> T? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-        return try JSONDecoder().decode(T.self, from: data)
+    override open func decode(_ data: Data) throws -> T? {
+        try JSONDecoder().decode(T.self, from: data)
     }
 }
 
 class KeychainBridgeArchivable<T: NSCoding>: KeychainBridge<T> {
-    override public func set(_ value: T, forKey key: String, with attributes: KeychainKeys.Attributes, in keychain: Keychain) throws {
+    override open func encode(_ value: T) throws -> Data {
         // TODO: iOS 13 deprecated +archivedDataWithRootObject:requiringSecureCoding:error:
-        let data = NSKeyedArchiver.archivedData(withRootObject: value)
-        try persist(value: data, key: key, attributes: attributes, keychain: keychain)
+        NSKeyedArchiver.archivedData(withRootObject: value)
     }
 
-    override public func get(key: String, from keychain: Keychain) throws -> T? {
-        guard let data = try find(key: key, keychain: keychain) else { return nil }
-
+    override open func decode(_ data: Data) throws -> T? {
         // TODO: iOS 13 deprecated +unarchivedObjectOfClass:fromData:error:
-        guard let object = NSKeyedUnarchiver.unarchiveObject(with: data) as? T else {
+        guard let value = NSKeyedUnarchiver.unarchiveObject(with: data) as? T else {
             throw KeychainError.invalidDataCast
         }
-
-        return object
+        return value
     }
 }
 
-public extension KeychainBridge {
-    func persist(value: Data, key: String, attributes: KeychainKeys.Attributes, keychain: Keychain) throws {
-        let query: [Attribute] = keychain.searchQuery([
-            .account(key)
-        ])
+func keychainItemDelete(_ attributes: [Attribute]) -> OSStatus {
+    return SecItemDelete(attributes.compose())
+}
 
-        let status = Keychain.itemFetch(query)
+func keychainItemAdd(_ attributes: [Attribute]) -> OSStatus {
+    return SecItemAdd(attributes.compose(), nil)
+}
 
-        switch status {
-        // Keychain already contains key -> update existing item
-        case errSecSuccess:
-            let attributes = keychain.updateRequestAttributes(value: value, keyAttributes: attributes)
+/// Modifies items that match a search query.
+/// Keychain SecItemUpdate do not allow search query parameters and account to pass as `attributesToUpdate`
+/// - Parameters:
+///   - query: Attributes collection that describes the search for the keychain items you want to update.
+///   - attributes: Attributes collection containing the attributes whose values should be changed, along with the new values.
+/// - Returns: A result code
+func keychainItemUpdate(attributesToSearch: [Attribute], attributesToUpdate: [Attribute]) -> OSStatus {
+    return SecItemUpdate(attributesToSearch.compose(), attributesToUpdate.compose())
+}
 
-            let status = Keychain.itemUpdate(query, attributes)
-            if status != errSecSuccess {
-                throw KeychainError(status: status)
-            }
-
-        // Keychain doesn't contain key -> add new item
-        case errSecItemNotFound:
-            let attributes = keychain.addRequestAttributes(value: value, key: key, keyAttributes: attributes)
-
-            let status = Keychain.itemAdd(attributes)
-            if status != errSecSuccess {
-                throw KeychainError(status: status)
-            }
-
-        // This error can happen when your app is launched in the background while the device is locked
-        // (for example, in response to an actionable push notification or a Core Location geofence event),
-        // the application may crash as a result of accessing a locked keychain entry.
-        //
-        // TODO: Maybe introduce `force` property to allow remove and save key with different permissions
-        case errSecInteractionNotAllowed:
-            throw KeychainError(status: status)
-
-        default:
-            throw KeychainError(status: status)
-        }
-    }
-
-    func find(key: String, keychain: Keychain) throws -> Data? {
-        let query: Attributes = keychain.searchQuery([
-            .account(key),
-            .isReturnData(true),
-            .matchLimit(.one)
-        ])
-
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query.compose(), &result)
-        switch status {
-        case errSecSuccess:
-            guard let data = result as? Data else {
-                throw KeychainError.unexpectedError
-            }
-            return data
-        case errSecItemNotFound:
-            return nil
-        default:
-            throw KeychainError(status: status)
-        }
-    }
+func keychainItemFetch(_ attributes: [Attribute]) -> OSStatus {
+    return SecItemCopyMatching(attributes.compose(), nil)
 }
 
 /// https://stackoverflow.com/a/38024025/2845836
@@ -227,5 +266,98 @@ extension Data {
         guard count >= MemoryLayout.size(ofValue: value) else { return nil }
         _ = Swift.withUnsafeMutableBytes(of: &value, { copyBytes(to: $0)} )
         return value
+    }
+}
+
+extension [Attribute] {
+    func compose() -> CFDictionary {
+        return self.map(\.element).reduce(into: [CFString: Any]()) { $0[$1.key] = $1.value } as CFDictionary
+    }
+}
+
+extension Keychain {
+    /// Build keychain search request attributes
+    var searchRequestAttributes: [Attribute] {
+        var attributes = [Attribute]()
+        attributes.append(KeychainAttribute.class(itemClass))
+        attributes.append(SynchronizableAnyAttribute())
+
+        switch itemClass {
+            case .genericPassword:
+                guard let service = service else {
+                    // TODO: Replace fatal error with throw error instead
+                    fatalError("`Service` property is mandatory for saving generic password keychaion item")
+                }
+                attributes.append(KeychainAttribute.service(service))
+
+                // TODO: Access group is not supported on any simulators.
+                if let accessGroup {
+                    attributes.append(KeychainAttribute.accessGroup(accessGroup))
+                }
+
+            case .internetPassword:
+                guard
+                    let host = server?.host,
+                    let protocolType = protocolType,
+                    let authenticationType = authenticationType
+                else {
+                    // TODO: Replace fatal error with throw error instead
+                    fatalError("`Server`, `ProtocolType`, `AuthenticationType` properties are mandatory for saving interner password keychaion item")
+                }
+
+                attributes.append(KeychainAttribute.server(host))
+                attributes.append(KeychainAttribute.protocolType(protocolType))
+                attributes.append(KeychainAttribute.authenticationType(authenticationType))
+
+                if let port = server?.port {
+                    attributes.append(KeychainAttribute.port(port))
+                }
+
+                if let path = server?.path {
+                    attributes.append(KeychainAttribute.path(path))
+                }
+
+                if let securityDomain = securityDomain {
+                    attributes.append(KeychainAttribute.securityDomain(securityDomain))
+                }
+        }
+
+        return attributes
+    }
+
+    var updateRequestAttributes: [KeychainAttribute] {
+        [.accessible(accessible), .synchronizable(synchronizable)]
+    }
+}
+
+extension KeychainKey {
+    func updateRequestAttributes(itemClass: ItemClass) -> [Attribute] {
+        var attributes = [KeychainAttribute]()
+
+        if let label {
+            attributes.append(.label(label))
+        }
+
+        if let comment {
+            attributes.append(.comment(comment))
+        }
+
+        if let aDescription {
+            attributes.append(.attrDescription(aDescription))
+        }
+
+        if let isInvisible {
+            attributes.append(.isInvisible(isInvisible))
+        }
+
+        if let isNegative {
+            attributes.append(.isNegative(isNegative))
+        }
+
+        if case .genericPassword = itemClass, let generic {
+            attributes.append(.generic(generic))
+        }
+
+        return attributes
     }
 }

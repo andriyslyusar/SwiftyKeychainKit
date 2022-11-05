@@ -34,6 +34,7 @@ class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T.T: Equa
     var value2: T.T!
     var value3: T.T!
 
+//    [7]    (null)    "agrp" : "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost"
     let keychainAccessGroup = "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost"
 
     override func setUp() {
@@ -76,6 +77,51 @@ class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T.T: Equa
             XCTAssertNoThrow(try keychain.remove(key2))
 
             XCTAssertNil(try! keychain.get(key1))
+            XCTAssertNil(try! keychain.get(key2))
+        }
+    }
+
+    func testGenericPassword1() {
+        let aKey1 = KeychainKey<T>(
+            key: "key",
+            label: "label",
+            comment: "comment",
+            description: "description",
+            isInvisible: true,
+            isNegative: false,
+            generic: "generic".data(using: .utf8)!
+        )
+
+        // Add Keychain items
+        do {
+            let keychain = Keychain(service: "com.swifty.keychainkit")
+
+            XCTAssertNoThrow(try keychain.set(value1, for: aKey1))
+            XCTAssertNoThrow(try keychain.set(value2, for: key2))
+
+            XCTAssertEqual(try! keychain.get(aKey1), value1)
+            XCTAssertEqual(try! keychain.get(key2), value2)
+        }
+
+        // Update Keychain items
+        do {
+            let keychain = Keychain(service: "com.swifty.keychainkit")
+
+            XCTAssertNoThrow(try keychain.set(value2, for: aKey1))
+            XCTAssertNoThrow(try keychain.set(value1, for: key2))
+
+            XCTAssertEqual(try! keychain.get(aKey1), value2)
+            XCTAssertEqual(try! keychain.get(key2), value1)
+        }
+
+        // Remove Keychain items
+        do {
+            let keychain = Keychain(service: "com.swifty.keychainkit")
+
+            XCTAssertNoThrow(try keychain.remove(aKey1))
+            XCTAssertNoThrow(try keychain.remove(key2))
+
+            XCTAssertNil(try! keychain.get(aKey1))
             XCTAssertNil(try! keychain.get(key2))
         }
     }
