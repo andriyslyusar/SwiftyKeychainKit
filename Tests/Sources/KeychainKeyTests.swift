@@ -27,23 +27,64 @@ import XCTest
 @testable import SwiftyKeychainKit
 
 class KeychainKeyTests: XCTestCase {
-    func testInitilizer() {
-        let key = KeychainKey<Int>(
+    func testGenericPasswordInitilizer() {
+        let key = KeychainKey<Int>.genericPassword(
             key: "key",
+            service: "com.swifty.keychainkit",
+            accessible: .afterFirstUnlock,
+            synchronizable: true,
             label: "label",
             comment: "comment",
             description: "description",
             isInvisible: true,
-            isNegative: false,
-            generic: "generic".data(using: .utf8)!
+            isNegative: true,
+            generic: "data".data(using: .utf8)!
         )
 
         XCTAssertEqual(key.key, "key")
+        XCTAssertEqual(key.accessible, .afterFirstUnlock)
+        XCTAssertEqual(key.synchronizable, true)
         XCTAssertEqual(key.label, "label")
         XCTAssertEqual(key.comment, "comment")
-        XCTAssertEqual(key.aDescription, "description")
+        XCTAssertEqual(key.descr, "description")
         XCTAssertEqual(key.isInvisible, true)
-        XCTAssertEqual(key.isNegative, false)
-        XCTAssertEqual(key.generic, "generic".data(using: .utf8)!)
+        XCTAssertEqual(key.isNegative, true)
+
+        if case let .genericPassword(attrs) = key {
+            XCTAssertEqual(attrs.service, "com.swifty.keychainkit")
+            XCTAssertEqual(attrs.generic, "data".data(using: .utf8)!)
+        }
+    }
+
+    func testInternetPasswordInitilizer() {
+        let key = KeychainKey<Int>.internetPassword(
+            key: "key",
+            accessible: .afterFirstUnlock,
+            synchronizable: true,
+            url: URL(string: "https://github.com:8080/SwiftyKeychainKit")!,
+            scheme: .https,
+            authenticationType: .httpBasic,
+            securityDomain: "securityDomain",
+            label: "label",
+            comment: "comment",
+            description: "description",
+            isInvisible: true,
+            isNegative: true
+        )
+
+        XCTAssertEqual(key.key, "key")
+        XCTAssertEqual(key.accessible, .afterFirstUnlock)
+        XCTAssertEqual(key.synchronizable, true)
+        XCTAssertEqual(key.label, "label")
+        XCTAssertEqual(key.comment, "comment")
+        XCTAssertEqual(key.descr, "description")
+        XCTAssertEqual(key.isInvisible, true)
+        XCTAssertEqual(key.isNegative, true)
+
+        if case let .internetPassword(attrs) = key {
+            XCTAssertEqual(attrs.url, URL(string: "https://github.com:8080/SwiftyKeychainKit")!)
+            XCTAssertEqual(attrs.authenticationType, .httpBasic)
+            XCTAssertEqual(attrs.securityDomain, "securityDomain")
+        }
     }
 }

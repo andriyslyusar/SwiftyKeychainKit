@@ -26,77 +26,55 @@ import XCTest
 @testable import SwiftyKeychainKit
 
 class KeychainTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+
+        do { try Keychain().removeAll() } catch {}
+        do { try Keychain(accessGroup: "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost").removeAll() } catch {}
+    }
+
     // MARK: - Initializers
 
-    func testGenericPasswordDefaultInitializer() {
-        let keychain = Keychain(service: "com.swifty.keychainkit")
+    func testInitializer() {
+        do {
+            let keychain = Keychain()
+            XCTAssertNil(keychain.accessGroup)
+        }
 
-        XCTAssertEqual(keychain.service, "com.swifty.keychainkit")
-        XCTAssertEqual(keychain.itemClass, .genericPassword)
-        XCTAssertEqual(keychain.accessible, .whenUnlocked)
-        XCTAssertNil(keychain.accessGroup)
-        XCTAssertFalse(keychain.synchronizable)
+        do {
+            let keychain = Keychain(accessGroup: "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
+            XCTAssertEqual(keychain.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
+        }
     }
 
-    func testGenericPasswordInitializer() {
+    func testGetAttributesForGenericPasswordWithDefaultInitilisers() throws {
+        let keychain = Keychain()
+        let key = KeychainKey<String>.genericPassword(key: "key", service: "com.swifty.keychainkit")
+
+        try? keychain.set("value", for: key)
+        let attributes = try keychain.attributes(key)
+
+        XCTAssertEqual(attributes.class, .genericPassword)
+        XCTAssertEqual(attributes.service, "com.swifty.keychainkit")
+        XCTAssertEqual(attributes.accessible, .whenUnlocked)
+        XCTAssertEqual(attributes.synchronizable, false)
+        XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
+        XCTAssertNil(attributes.label)
+        XCTAssertNil(attributes.comment)
+        XCTAssertNil(attributes.attrDescription)
+        XCTAssertNil(attributes.isInvisible)
+        XCTAssertNil(attributes.isNegative)
+        XCTAssertNil(attributes.generic)
+    }
+
+    func testGetAttributesForGenericPassword() throws {
         let keychain = Keychain(
-            service: "com.swifty.keychainkit",
-            accessible: .accessibleAlways,
-            accessGroup: "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost",
-            synchronizable: true
+            accessGroup: "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost"
         )
-
-        XCTAssertEqual(keychain.service, "com.swifty.keychainkit")
-        XCTAssertEqual(keychain.itemClass, .genericPassword)
-        XCTAssertEqual(keychain.accessible, .accessibleAlways)
-        XCTAssertEqual(keychain.accessGroup, "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost")
-        XCTAssertTrue(keychain.synchronizable)
-    }
-
-    func testInternetPasswordDefaultInitializer() {
-        let keychain = Keychain(
-            server: URL(string: "https://github.com")!,
-            protocolType: .https,
-            authenticationType: .httpBasic,
-            accessible: .afterFirstUnlock,
-            accessGroup: "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost",
-            synchronizable: true,
-            securityDomain: "securityDomain"
-        )
-
-        XCTAssertEqual(keychain.itemClass, .internetPassword)
-        XCTAssertEqual(keychain.server, URL(string: "https://github.com")!)
-        XCTAssertEqual(keychain.protocolType, .https)
-        XCTAssertEqual(keychain.authenticationType, .httpBasic)
-        XCTAssertEqual(keychain.accessible, .afterFirstUnlock)
-        XCTAssertEqual(keychain.accessGroup, "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost")
-        XCTAssertTrue(keychain.synchronizable)
-        XCTAssertEqual(keychain.securityDomain, "securityDomain")
-    }
-
-    func testInternetPasswordInitializer() {
-        let keychain = Keychain(server: URL(string: "https://github.com")!, protocolType: .https)
-
-        XCTAssertEqual(keychain.itemClass, .internetPassword)
-        XCTAssertEqual(keychain.server, URL(string: "https://github.com")!)
-        XCTAssertEqual(keychain.protocolType, .https)
-        XCTAssertEqual(keychain.authenticationType, .default)
-        XCTAssertEqual(keychain.accessible, .whenUnlocked)
-        XCTAssertNil(keychain.accessGroup)
-        XCTAssertFalse(keychain.synchronizable)
-        XCTAssertNil(keychain.securityDomain)
-    }
-
-    func testGetGenericPasswordAttributes() throws {
-        let keychain = Keychain(
-            service: "com.swifty.keychainkit",
-            accessible: .accessibleAlways,
-//            accessGroup: "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost",
-            synchronizable: false
-        )
-
-        let key = KeychainKey<String>(
+        let key = KeychainKey<String>.genericPassword(
             key: "key",
+            service: "com.swifty.keychainkit",
+            accessible: .accessibleAlways,
             label: "label",
             comment: "comment",
             description: "description",
@@ -105,67 +83,93 @@ class KeychainTests: XCTestCase {
             generic: "generic".data(using: .utf8)!
         )
 
-        do {
-            try? keychain.set("value", for: key)
+        try keychain.set("value", for: key)
+        let attributes = try keychain.attributes(key)
 
-            let attributes = try keychain.attributes(key)
+        XCTAssertEqual(attributes.class, .genericPassword)
+        XCTAssertEqual(attributes.service, "com.swifty.keychainkit")
+        XCTAssertEqual(attributes.accessible, .accessibleAlways)
+        XCTAssertEqual(attributes.synchronizable, false)
+        XCTAssertEqual(attributes.label, "label")
+        XCTAssertEqual(attributes.comment, "comment")
+        XCTAssertEqual(attributes.attrDescription, "description")
+        XCTAssertEqual(attributes.isInvisible, true)
+        XCTAssertEqual(attributes.isNegative, false)
+        XCTAssertEqual(attributes.generic, "generic".data(using: .utf8)!)
+        XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
+    }
 
-            XCTAssertEqual(attributes.class, .genericPassword)
-            XCTAssertEqual(attributes.service, "com.swifty.keychainkit")
-            XCTAssertEqual(attributes.accessible, .accessibleAlways)
-            XCTAssertEqual(attributes.synchronizable, false)
-            XCTAssertEqual(attributes.label, "label")
-            XCTAssertEqual(attributes.comment, "comment")
-            XCTAssertEqual(attributes.attrDescription, "description")
-            XCTAssertEqual(attributes.isInvisible, true)
-            XCTAssertEqual(attributes.isNegative, false)
-            XCTAssertEqual(attributes.generic, "generic".data(using: .utf8)!)
-            // TODO: Investigate why accessGroup has a default value
-            XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
-        }
+    func testGetAttributesForInternetPasswordWithDefaultInitilisers() throws {
+        let keychain = Keychain()
+        let key = KeychainKey<String>.internetPassword(
+            key: "key",
+            url: URL(string: "https://github.com:8080/SwiftyKeychainKit")!,
+            scheme: .https,
+            authenticationType: .httpBasic
+        )
+
+        try keychain.set("value", for: key)
+        let attributes = try keychain.attributes(key)
+
+        XCTAssertEqual(attributes.class, .internetPassword)
+        XCTAssertEqual(attributes.server, "github.com")
+        XCTAssertEqual(attributes.protocolType, .https)
+        XCTAssertEqual(attributes.port, 8080)
+        XCTAssertEqual(attributes.path, "/SwiftyKeychainKit")
+        XCTAssertEqual(attributes.authenticationType, .httpBasic)
+        XCTAssertEqual(attributes.accessible, .whenUnlocked)
+        XCTAssertEqual(attributes.synchronizable, false)
+        XCTAssertEqual(attributes.securityDomain, "")
+        XCTAssertNil(attributes.label)
+        XCTAssertNil(attributes.comment)
+        XCTAssertNil(attributes.attrDescription)
+        XCTAssertNil(attributes.isInvisible)
+        XCTAssertNil(attributes.isNegative)
+        XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
+
+        // Check General password specific attributes
+        XCTAssertNil(attributes.generic)
     }
 
     func testGetInternetPasswordAttributes() throws {
         let keychain = Keychain(
-            server: URL(string: "https://github.com")!,
-            protocolType: .https,
-            authenticationType: .httpBasic,
-            accessible: .afterFirstUnlock,
-//            accessGroup: "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost",
-            synchronizable: true,
-            securityDomain: "securityDomain"
+            accessGroup: "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost"
         )
-
-        let key = KeychainKey<String>(
+        let key = KeychainKey<String>.internetPassword(
             key: "key",
+            accessible: .afterFirstUnlock,
+            synchronizable: true,
+            url: URL(string: "https://github.com:8080/SwiftyKeychainKit")!,
+            scheme: .https,
+            authenticationType: .httpBasic,
+            securityDomain: "securityDomain",
             label: "label",
             comment: "comment",
             description: "description",
             isInvisible: true,
-            isNegative: false,
-            generic: "generic".data(using: .utf8)!
+            isNegative: false
         )
 
-        do {
-            try? keychain.set("value", for: key)
+        try keychain.set("value", for: key)
+        let attributes = try keychain.attributes(key)
 
-            let attributes = try keychain.attributes(key)
+        XCTAssertEqual(attributes.class, .internetPassword)
+        XCTAssertEqual(attributes.server, "github.com")
+        XCTAssertEqual(attributes.protocolType, .https)
+        XCTAssertEqual(attributes.port, 8080)
+        XCTAssertEqual(attributes.path, "/SwiftyKeychainKit")
+        XCTAssertEqual(attributes.authenticationType, .httpBasic)
+        XCTAssertEqual(attributes.accessible, .afterFirstUnlock)
+        XCTAssertEqual(attributes.synchronizable, true)
+        XCTAssertEqual(attributes.securityDomain, "securityDomain")
+        XCTAssertEqual(attributes.label, "label")
+        XCTAssertEqual(attributes.comment, "comment")
+        XCTAssertEqual(attributes.attrDescription, "description")
+        XCTAssertEqual(attributes.isInvisible, true)
+        XCTAssertEqual(attributes.isNegative, false)
+        XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
 
-            XCTAssertEqual(attributes.class, .internetPassword)
-            XCTAssertEqual(attributes.server, "github.com")
-            XCTAssertEqual(attributes.protocolType, .https)
-            XCTAssertEqual(attributes.authenticationType, .httpBasic)
-            XCTAssertEqual(attributes.accessible, .afterFirstUnlock)
-            XCTAssertEqual(attributes.synchronizable, true)
-            XCTAssertEqual(attributes.securityDomain, "securityDomain")
-            XCTAssertEqual(attributes.label, "label")
-            XCTAssertEqual(attributes.comment, "comment")
-            XCTAssertEqual(attributes.attrDescription, "description")
-            XCTAssertEqual(attributes.isInvisible, true)
-            XCTAssertEqual(attributes.isNegative, false)
-            XCTAssertNil(attributes.generic)
-            // TODO: Investigate why accessGroup has a default value
-            XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
-        }
+        // Check General password specific attributes
+        XCTAssertNil(attributes.generic)
     }
 }

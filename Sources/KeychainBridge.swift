@@ -36,16 +36,16 @@ open class KeychainBridge<T> {
 }
 
 extension KeychainBridge {
-    func set<S: KeychainSerializable>(_ value: T, forKey keychainKey: KeychainKey<S>, in keychain: Keychain) throws {
+    func set<S: KeychainSerializable>(_ value: T, forKey key: KeychainKey<S>, in keychain: Keychain) throws {
         let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
-            + [KeychainAttribute.account(keychainKey.key)]
+            + key.searchRequestAttributes
+            + [KeychainAttribute.account(key.key)]
 
         let status = keychainItemFetch(attributesToSearch)
         switch status {
-                // Keychain already contains key -> update existing item
+            // Keychain already contains key -> update existing item
             case errSecSuccess:
-                let attributesToUpdate = keychainKey.updateRequestAttributes(itemClass: keychain.itemClass)
-                + keychain.updateRequestAttributes
+                let attributesToUpdate = key.updateRequestAttributes
                 + [KeychainAttribute.valueData(try encode(value))]
 
                 let status = keychainItemUpdate(
@@ -56,23 +56,23 @@ extension KeychainBridge {
                     throw KeychainError(status: status)
                 }
 
-                // Keychain doesn't contain key -> add new item
+            // Keychain doesn't contain key -> add new item
             case errSecItemNotFound:
                 let attributesToAdd = keychain.searchRequestAttributes
-                + keychain.updateRequestAttributes
-                + keychainKey.updateRequestAttributes(itemClass: keychain.itemClass)
-                + [KeychainAttribute.account(keychainKey.key), KeychainAttribute.valueData(try encode(value))]
+                + key.searchRequestAttributes
+                + key.updateRequestAttributes
+                + [KeychainAttribute.account(key.key), KeychainAttribute.valueData(try encode(value))]
 
                 let status = keychainItemAdd(attributesToAdd)
                 if status != errSecSuccess {
                     throw KeychainError(status: status)
                 }
 
-                // This error can happen when your app is launched in the background while the device is locked
-                // (for example, in response to an actionable push notification or a Core Location geofence event),
-                // the application may crash as a result of accessing a locked keychain entry.
-                //
-                // TODO: Maybe introduce `force` property to allow remove and save key with different permissions
+            // This error can happen when your app is launched in the background while the device is locked
+            // (for example, in response to an actionable push notification or a Core Location geofence event),
+            // the application may crash as a result of accessing a locked keychain entry.
+            //
+            // TODO: Maybe introduce `force` property to allow remove and save key with different permissions
             case errSecInteractionNotAllowed:
                 throw KeychainError(status: status)
 
@@ -81,9 +81,10 @@ extension KeychainBridge {
         }
     }
 
-    func get(key: String, from keychain: Keychain) throws -> T? {
+    func get<S: KeychainSerializable>(key: KeychainKey<S>, from keychain: Keychain) throws -> T? {
         let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
-            + [KeychainAttribute.account(key)]
+            + key.searchRequestAttributes
+            + [KeychainAttribute.account(key.key)]
             + [SearchResultAttribute.matchLimit(.one)]
             + [ReturnResultAttribute.returnData(true)]
 
@@ -102,9 +103,10 @@ extension KeychainBridge {
         }
     }
 
-    func attributes(key: String, from keychain: Keychain) throws -> [KeychainAttribute] {
+    func attributes<S: KeychainSerializable>(key: KeychainKey<S>, from keychain: Keychain) throws -> [KeychainAttribute] {
         let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
-            + [KeychainAttribute.account(key)]
+            + key.searchRequestAttributes
+            + [KeychainAttribute.account(key.key)]
             + [SearchResultAttribute.matchLimit(.one)]
             + [
                 ReturnResultAttribute.returnAttributes(true),
@@ -129,9 +131,10 @@ extension KeychainBridge {
         }
     }
 
-    func remove(key: String, from keychain: Keychain) throws {
+    func remove<S: KeychainSerializable>(key: KeychainKey<S>, from keychain: Keychain) throws {
         let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
-            + [KeychainAttribute.account(key)]
+            + key.searchRequestAttributes
+            + [KeychainAttribute.account(key.key)]
 
         let status = keychainItemDelete(attributesToSearch)
         if status != errSecSuccess && status != errSecItemNotFound {
@@ -279,45 +282,42 @@ extension Keychain {
     /// Build keychain search request attributes
     var searchRequestAttributes: [Attribute] {
         var attributes = [Attribute]()
-        attributes.append(KeychainAttribute.class(itemClass))
+        accessGroup.flatMap { attributes.append(KeychainAttribute.accessGroup($0)) }
+        return attributes
+    }
+}
+
+extension KeychainKey {
+    var searchRequestAttributes: [Attribute] {
+        var attributes = [Attribute]()
         attributes.append(SynchronizableAnyAttribute())
 
-        switch itemClass {
-            case .genericPassword:
-                guard let service = service else {
-                    // TODO: Replace fatal error with throw error instead
-                    fatalError("`Service` property is mandatory for saving generic password keychaion item")
-                }
-                attributes.append(KeychainAttribute.service(service))
+        switch self {
+            case .genericPassword(let attr):
+                attributes.append(KeychainAttribute.class(.genericPassword))
+                attributes.append(KeychainAttribute.service(attr.service))
 
-                // TODO: Access group is not supported on any simulators.
-                if let accessGroup {
-                    attributes.append(KeychainAttribute.accessGroup(accessGroup))
-                }
+            case .internetPassword(let attr):
+                attributes.append(KeychainAttribute.class(.internetPassword))
 
-            case .internetPassword:
-                guard
-                    let host = server?.host,
-                    let protocolType = protocolType,
-                    let authenticationType = authenticationType
-                else {
-                    // TODO: Replace fatal error with throw error instead
-                    fatalError("`Server`, `ProtocolType`, `AuthenticationType` properties are mandatory for saving interner password keychaion item")
+                // TODO: Replace fatal error with throws error
+                if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+                    guard let host = attr.url.host(percentEncoded: true)
+                    else { fatalError("Missing `host` information in provided URL") }
+                    attributes.append(KeychainAttribute.server(host))
+                } else {
+                    guard let host = attr.url.host else { fatalError("Missing host information in provided URL") }
+                    attributes.append(KeychainAttribute.server(host))
                 }
 
-                attributes.append(KeychainAttribute.server(host))
-                attributes.append(KeychainAttribute.protocolType(protocolType))
-                attributes.append(KeychainAttribute.authenticationType(authenticationType))
+                attributes.append(KeychainAttribute.protocolType(attr.scheme))
+                attributes.append(KeychainAttribute.path(attr.url.path))
+                attr.url.port.flatMap { attributes.append(KeychainAttribute.port($0)) }
 
-                if let port = server?.port {
-                    attributes.append(KeychainAttribute.port(port))
-                }
+                // TODO: Invetigate do we really reaquire AuthenticationType on internet password
+                attributes.append(KeychainAttribute.authenticationType(attr.authenticationType))
 
-                if let path = server?.path {
-                    attributes.append(KeychainAttribute.path(path))
-                }
-
-                if let securityDomain = securityDomain {
+                if let securityDomain = attr.securityDomain {
                     attributes.append(KeychainAttribute.securityDomain(securityDomain))
                 }
         }
@@ -325,36 +325,19 @@ extension Keychain {
         return attributes
     }
 
-    var updateRequestAttributes: [KeychainAttribute] {
-        [.accessible(accessible), .synchronizable(synchronizable)]
-    }
-}
-
-extension KeychainKey {
-    func updateRequestAttributes(itemClass: ItemClass) -> [Attribute] {
+    var updateRequestAttributes: [Attribute] {
         var attributes = [KeychainAttribute]()
 
-        if let label {
-            attributes.append(.label(label))
-        }
+        attributes.append(.accessible(accessible))
+        attributes.append(.synchronizable(synchronizable))
 
-        if let comment {
-            attributes.append(.comment(comment))
-        }
+        label.flatMap { attributes.append(.label($0)) }
+        comment.flatMap { attributes.append(.comment($0)) }
+        descr.flatMap { attributes.append(.attrDescription($0)) }
+        isInvisible.flatMap { attributes.append(.isInvisible($0)) }
+        isNegative.flatMap { attributes.append(.isNegative($0)) }
 
-        if let aDescription {
-            attributes.append(.attrDescription(aDescription))
-        }
-
-        if let isInvisible {
-            attributes.append(.isInvisible(isInvisible))
-        }
-
-        if let isNegative {
-            attributes.append(.isNegative(isNegative))
-        }
-
-        if case .genericPassword = itemClass, let generic {
+        if case let .genericPassword(attrs) = self, let generic = attrs.generic {
             attributes.append(.generic(generic))
         }
 

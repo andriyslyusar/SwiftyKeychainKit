@@ -27,7 +27,7 @@ import Security
 
 /**
     Extend this class and add your user defaults keys as static constants so you can use the shortcut dot notation
-    (e.g. `Keychain[.yourKey]`)
+    (e.g. `keychain[.yourKey]`)
 
     Example:
     ```
@@ -38,144 +38,264 @@ import Security
     }
     ```
 */
-open class KeychainKeys {}
 
-open class KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
-    public let key: String
+public protocol KeychainKeys {}
 
-    /// The user-visible label for this item
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrlabel)
-    public let label: String?
+public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
+    case genericPassword(GenericPassword)
+    case internetPassword(InternetPassword)
 
-    /// The comment associated with the item
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcomment)
-    public let comment: String?
-
-    /// The item's description
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcomment)
-    public let aDescription: String?
-
-    /// Indicating the item's visibility
-    ///
-    /// iOS does not have a general-purpose way to view keychain items, so this propery make sense only with sync
-    /// to a Mac via iCloud Keychain, than you might want to make it invisible there.
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisinvisible)
-    public let isInvisible: Bool?
-
-    /// Indicating whether the item has a valid password
-    ///
-    /// This is useful if your application doesn't want a password for some particular service to be stored in the keychain,
-    /// but prefers that it always be entered by the user.
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisnegative)
-    public let isNegative: Bool?
-
-    /// The item's user-defined attribute. Items of class GenericPassword have this attribute.
-    ///
-    /// This is a misterious attribute, by mistake use as primary key on Keychain Service release by developers
-    /// https://useyourloaf.com/blog/keychain-duplicate-item-when-adding-password/
-    ///
-    /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrgeneric)
-    public let generic: Data?
-
-    /// Initialise Keychain key with attributes
-    /// - Parameter key: Primary item key
-    /// - Parameter label: The user-visible label for this item
-    /// - Parameter comment: The comment associated with the item
-    /// - Parameter description: The item's description
-    /// - Parameter isInvisible: Indicating the item's visibility
-    /// - Parameter isNegative: Indicating whether the item has a valid password
-    /// - Parameter generic: The item's user-defined attribute
-    public init(
+    public static func genericPassword(
         key: String,
+        service: String,
+        accessible: AccessibilityLevel = .whenUnlocked,
+        synchronizable: Bool = false,
         label: String? = nil,
         comment: String? = nil,
         description: String? = nil,
         isInvisible: Bool? = nil,
         isNegative: Bool? = nil,
         generic: Data? = nil
-    ) {
-        self.key = key
-        self.label = label
-        self.comment = comment
-        self.aDescription = description
-        self.isInvisible = isInvisible
-        self.isNegative = isNegative
-        self.generic = generic
+    ) -> Self {
+        self.genericPassword(
+            .init(
+                key: key,
+                service: service,
+                accessible: accessible,
+                synchronizable: synchronizable,
+                label: label,
+                comment: comment,
+                descr: description,
+                isInvisible: isInvisible,
+                isNegative: isNegative,
+                generic: generic
+            )
+        )
+    }
+
+    /// url - must containse host and correct scheme, othervise will generate run-time error
+    public static func internetPassword(
+        key: String,
+        accessible: AccessibilityLevel = .whenUnlocked,
+        synchronizable: Bool = false,
+        url: URL,
+        scheme: ProtocolType,
+        authenticationType: AuthenticationType,
+        securityDomain: String? = nil,
+        label: String? = nil,
+        comment: String? = nil,
+        description: String? = nil,
+        isInvisible: Bool? = nil,
+        isNegative: Bool? = nil
+    ) -> Self {
+        self.internetPassword(
+            .init(
+                key: key,
+                accessible: accessible,
+                synchronizable: synchronizable,
+                url: url,
+                scheme: scheme,
+                authenticationType: authenticationType,
+                securityDomain: securityDomain,
+                label: label,
+                comment: comment,
+                descr: description,
+                isInvisible: isInvisible,
+                isNegative: isNegative
+            )
+        )
+    }
+
+    public var key: String {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.key
+            case .internetPassword(let attrs):
+                return attrs.key
+        }
+    }
+
+    public var accessible: AccessibilityLevel {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.accessible
+            case .internetPassword(let attrs):
+                return attrs.accessible
+        }
+    }
+
+    public var synchronizable: Bool {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.synchronizable
+            case .internetPassword(let attrs):
+                return attrs.synchronizable
+        }
+    }
+
+    public var label: String? {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.label
+            case .internetPassword(let attrs):
+                return attrs.label
+        }
+    }
+
+    public var comment: String? {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.comment
+            case .internetPassword(let attrs):
+                return attrs.comment
+        }
+    }
+
+    public var descr: String? {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.descr
+            case .internetPassword(let attrs):
+                return attrs.descr
+        }
+    }
+
+    public var isInvisible: Bool? {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.isInvisible
+            case .internetPassword(let attrs):
+                return attrs.isInvisible
+        }
+    }
+
+    public var isNegative: Bool? {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.isNegative
+            case .internetPassword(let attrs):
+                return attrs.isNegative
+        }
+    }
+
+    public struct GenericPassword {
+        public let key: String
+
+        //TODO: Budnle identifier by default
+        /// The service associated with Keychain item
+        public var service: String
+
+        /// Indicates when your app has access to the data in a Keychain item
+        public var accessible: AccessibilityLevel
+
+        /// Indicates whether the item in question is synchronized to other devices through iCloud
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrsynchronizable/)
+        public var synchronizable: Bool
+
+        /// The user-visible label for this item
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrlabel)
+        public let label: String?
+
+        /// The comment associated with the item
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcomment)
+        public let comment: String?
+
+        /// The item's description
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcomment)
+        public let descr: String?
+
+        /// Indicating the item's visibility
+        ///
+        /// iOS does not have a general-purpose way to view keychain items, so this propery make sense only with sync
+        /// to a Mac via iCloud Keychain, than you might want to make it invisible there.
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisinvisible)
+        public let isInvisible: Bool?
+
+        /// Indicating whether the item has a valid password
+        ///
+        /// This is useful if your application doesn't want a password for some particular service to be stored in the keychain,
+        /// but prefers that it always be entered by the user.
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisnegative)
+        public let isNegative: Bool?
+
+        /// TBD
+        public let generic: Data?
+    }
+
+    public struct InternetPassword {
+        public let key: String
+
+        /// Indicates when your app has access to the data in a Keychain item
+        public var accessible: AccessibilityLevel
+
+        /// Indicates whether the item in question is synchronized to other devices through iCloud
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrsynchronizable/)
+        public var synchronizable: Bool
+
+        /// Exclusive Internet Password attribuite
+        /// Extracted from URL attributes:
+        /// * `Server` - the server's domain name or IP address,
+        /// * `Path` - the path component of the URL,
+        /// * `Port` - the port number
+        /// * `Protocol`- the protocol
+        public var url: URL
+
+        // TODO: extract scheme from URL, but temporarily provide explicit
+        public var scheme: ProtocolType
+
+        /// Exclusive Internet Password attribuite
+        public var authenticationType: AuthenticationType
+
+        /// Exclusive Internet Password attribuite
+        public var securityDomain: String?
+
+        /// The user-visible label for this item
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrlabel)
+        public let label: String?
+
+        /// The comment associated with the item
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcomment)
+        public let comment: String?
+
+        /// The item's description
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcomment)
+        public let descr: String?
+
+        /// Indicating the item's visibility
+        ///
+        /// iOS does not have a general-purpose way to view keychain items, so this propery make sense only with sync
+        /// to a Mac via iCloud Keychain, than you might want to make it invisible there.
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisinvisible)
+        public let isInvisible: Bool?
+
+        /// Indicating whether the item has a valid password
+        ///
+        /// This is useful if your application doesn't want a password for some particular service to be stored in the keychain,
+        /// but prefers that it always be entered by the user.
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisnegative)
+        public let isNegative: Bool?
     }
 }
 
 @dynamicCallable
 public struct Keychain {
-    /// The kind of data Keychain items hold
-    public var itemClass: ItemClass = .genericPassword
-
-    //TODO: Budnle identifier by default
-    /// The service associated with Keychain item
-    public var service: String?
-
-    /// Indicates when your app has access to the data in a Keychain item
-    public var accessible: AccessibilityLevel
-
     /// Keychain items with share access same group
     public var accessGroup: String?
 
-    public var synchronizable: Bool = false
-
-    // TODO: rename server to url
-    /// Extracted from URL attributes:
-    /// * `Server` - the server's domain name or IP address,
-    /// * `Path` - the path component of the URL,
-    /// * `Port` - thg Internet port number
-    ///
-    /// Exclusive Internet Password attribuite.
-    public var server: URL?
-
-    /// Exclusive Internet Password attribuite
-    public var protocolType: ProtocolType?
-
-    /// Exclusive Internet Password attribuite
-    public var authenticationType: AuthenticationType?
-
-    /// Exclusive Internet Password attribuite
-    public var securityDomain: String?
-
-    /// Construct Generic Password Keychain
-    public init(
-        service: String,
-        accessible: AccessibilityLevel = .whenUnlocked,
-        accessGroup: String? = nil,
-        synchronizable: Bool = false
-    ) {
-        self.itemClass = .genericPassword
-        self.service = service
-        self.accessible = accessible
+    public init(accessGroup: String? = nil) {
         self.accessGroup = accessGroup
-        self.synchronizable = synchronizable
-    }
-
-    /// Construct Internet Password Keychain
-    public init(
-        server: URL,
-        protocolType: ProtocolType,
-        authenticationType: AuthenticationType = .default,
-        accessible: AccessibilityLevel = .whenUnlocked,
-        accessGroup: String? = nil,
-        synchronizable: Bool = false,
-        securityDomain: String? = nil
-    ) {
-        self.itemClass = .internetPassword
-        self.server = server
-        self.protocolType = protocolType
-        self.authenticationType = authenticationType
-        self.accessible = accessible
-        self.accessGroup = accessGroup
-        self.synchronizable = synchronizable
-        self.securityDomain = securityDomain
     }
 
     /// Persist value for key in keychain
@@ -188,7 +308,7 @@ public struct Keychain {
     /// Get value for provided key from keychain
     /// - Parameter key: Key for value
     public func get<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> T.T? {
-        return try T.bridge.get(key: key.key, from: self)
+        return try T.bridge.get(key: key, from: self)
     }
 
     /// Get value for provided key from Keycina, return default value in case `value == nil` and not error rised
@@ -199,7 +319,7 @@ public struct Keychain {
         default defaultProvider: @autoclosure () -> T.T
     ) throws -> T.T {
         do {
-            if let value = try T.bridge.get(key: key.key, from: self) {
+            if let value = try T.bridge.get(key: key, from: self) {
                 return value
             }
             return defaultProvider()
@@ -211,11 +331,22 @@ public struct Keychain {
     /// Remove key from specific keychain
     /// - Parameter key: Keychain key to remove
     public func remove<T: KeychainSerializable>(_ key: KeychainKey<T>) throws {
-        try T.bridge.remove(key: key.key, from: self)
+        try T.bridge.remove(key: key, from: self)
     }
 
     /// Remove all keys from specific keychain
     public func removeAll() throws {
+        try removeAll(ofType: .genericPassword)
+        try removeAll(ofType: .internetPassword)
+    }
+
+    /// Remove all keys from specific keychain of type
+    public func removeAll(ofType type: ItemClass) throws {
+        var searchRequestAttributes = [Attribute]()
+        searchRequestAttributes += self.searchRequestAttributes
+        searchRequestAttributes.append(KeychainAttribute.class(type))
+        searchRequestAttributes.append(SynchronizableAnyAttribute())
+
         let status = keychainItemDelete(searchRequestAttributes)
         if status != errSecSuccess && status != errSecItemNotFound {
             throw KeychainError(status: status)
@@ -276,11 +407,11 @@ public struct Keychain {
     /// Get attributes for provided key from keychain
     /// - Parameter key: Key for value
     public func attributes<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> [KeychainAttribute] {
-        try T.bridge.attributes(key: key.key, from: self)
+        try T.bridge.attributes(key: key, from: self)
     }
 }
 
-public enum KeychainAttribute {
+public enum KeychainAttribute: Equatable {
     // TODO: Maybe rename `class` to type
     case `class`(ItemClass)
     case service(String)
