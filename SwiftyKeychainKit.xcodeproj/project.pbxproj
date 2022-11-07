@@ -11,7 +11,6 @@
 		055848D32310633900FE1AD8 /* KeychainBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D22310633900FE1AD8 /* KeychainBridge.swift */; };
 		055848D523106B0400FE1AD8 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D423106B0400FE1AD8 /* Keychain.swift */; };
 		055848F923130E9F00FE1AD8 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848F823130E9F00FE1AD8 /* KeychainError.swift */; };
-		057B6609234270020092312D /* Attribute+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057B6608234270020092312D /* Attribute+Equatable.swift */; };
 		05ADF23C290AF0480008715A /* KeychainTests.String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ADF23B290AF0480008715A /* KeychainTests.String.swift */; };
 		05ADF23E290AF0C20008715A /* KeychainTests.Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ADF23D290AF0C20008715A /* KeychainTests.Int.swift */; };
 		05ADF240290B0D7D0008715A /* KeychainTests.Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ADF23F290B0D7D0008715A /* KeychainTests.Double.swift */; };
@@ -47,7 +46,6 @@
 		055848D22310633900FE1AD8 /* KeychainBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainBridge.swift; sourceTree = "<group>"; };
 		055848D423106B0400FE1AD8 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
 		055848F823130E9F00FE1AD8 /* KeychainError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainError.swift; sourceTree = "<group>"; };
-		057B6608234270020092312D /* Attribute+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Attribute+Equatable.swift"; sourceTree = "<group>"; };
 		059D47A823219D4D000328C9 /* SwiftyKeychainKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftyKeychainKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		059D47B623219E39000328C9 /* SwiftyKeychainKitTestsHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftyKeychainKitTestsHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		05ADF23B290AF0480008715A /* KeychainTests.String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.String.swift; sourceTree = "<group>"; };
@@ -102,7 +100,6 @@
 		0547CDC82349ED3E00729CA1 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				057B6608234270020092312D /* Attribute+Equatable.swift */,
 				05F90F992323DAD600E53A8B /* KeychainTests.swift */,
 				05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */,
 				05DB40F9232D491200ED3C31 /* KeychainEnumsSpec.swift */,
@@ -319,7 +316,6 @@
 				05DB40F8232D2E6500ED3C31 /* AttributeTests.swift in Sources */,
 				05ADF24A290B0DBC0008715A /* KeychainTests.Archivable.swift in Sources */,
 				05ADF242290B0D8A0008715A /* KeychainTests.Bool.swift in Sources */,
-				057B6609234270020092312D /* Attribute+Equatable.swift in Sources */,
 				05E462B82906FEE300B48726 /* AbstractKeychainTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

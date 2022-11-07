@@ -27,240 +27,216 @@ import XCTest
 @testable import SwiftyKeychainKit
 
 class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T.T: Equatable {
-    var key1: KeychainKey<T> = .init(key: "key1")
-    var key2: KeychainKey<T> = .init(key: "key2")
+    let genericPasswordKey1: KeychainKey<T> = .genericPassword(key: "key1", service: "com.swifty.keychainkit")
+    let genericPasswordKey2: KeychainKey<T> = .genericPassword(key: "key2", service: "com.swifty.keychainkit")
+    let internetPasswordKey1: KeychainKey<T> = .internetPassword(
+        key: "key3",
+        url: URL(string: "https://github.com")!,
+        scheme: .https,
+        authenticationType: .httpBasic
+    )
 
     var value1: T.T!
     var value2: T.T!
     var value3: T.T!
 
-//    [7]    (null)    "agrp" : "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost"
-    let keychainAccessGroup = "W7JL9XM57U.com.swifty.keychain.tests.host.TestsHost"
-
     override func setUp() {
         super.setUp()
 
-        do { try Keychain(service: "com.swifty.keychainkit").removeAll() } catch {}
-        do { try Keychain(server: URL(string: "https://github.com")!, protocolType: .https).removeAll() } catch {}
+        do { try Keychain().removeAll() } catch {}
+        do { try Keychain(accessGroup: "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost").removeAll() } catch {}
     }
 
     // MARK: Generic Password
 
     func testGenericPassword() {
+        let keychain = Keychain()
+
         // Add Keychain items
         do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
+            XCTAssertNoThrow(try keychain.set(value1, for: genericPasswordKey1))
+            XCTAssertNoThrow(try keychain.set(value2, for: genericPasswordKey2))
 
-            XCTAssertNoThrow(try keychain.set(value1, for: key1))
-            XCTAssertNoThrow(try keychain.set(value2, for: key2))
-
-            XCTAssertEqual(try! keychain.get(key1), value1)
-            XCTAssertEqual(try! keychain.get(key2), value2)
+            XCTAssertEqual(try! keychain.get(genericPasswordKey1), value1)
+            XCTAssertEqual(try! keychain.get(genericPasswordKey2), value2)
         }
 
         // Update Keychain items
         do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
+            XCTAssertNoThrow(try keychain.set(value2, for: genericPasswordKey1))
+            XCTAssertNoThrow(try keychain.set(value1, for: genericPasswordKey2))
 
-            XCTAssertNoThrow(try keychain.set(value2, for: key1))
-            XCTAssertNoThrow(try keychain.set(value1, for: key2))
-
-            XCTAssertEqual(try! keychain.get(key1), value2)
-            XCTAssertEqual(try! keychain.get(key2), value1)
+            XCTAssertEqual(try! keychain.get(genericPasswordKey1), value2)
+            XCTAssertEqual(try! keychain.get(genericPasswordKey2), value1)
         }
 
         // Remove Keychain items
         do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
+            XCTAssertNoThrow(try keychain.remove(genericPasswordKey1))
+            XCTAssertNoThrow(try keychain.remove(genericPasswordKey2))
 
-            XCTAssertNoThrow(try keychain.remove(key1))
-            XCTAssertNoThrow(try keychain.remove(key2))
-
-            XCTAssertNil(try! keychain.get(key1))
-            XCTAssertNil(try! keychain.get(key2))
-        }
-    }
-
-    func testGenericPassword1() {
-        let aKey1 = KeychainKey<T>(
-            key: "key",
-            label: "label",
-            comment: "comment",
-            description: "description",
-            isInvisible: true,
-            isNegative: false,
-            generic: "generic".data(using: .utf8)!
-        )
-
-        // Add Keychain items
-        do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
-
-            XCTAssertNoThrow(try keychain.set(value1, for: aKey1))
-            XCTAssertNoThrow(try keychain.set(value2, for: key2))
-
-            XCTAssertEqual(try! keychain.get(aKey1), value1)
-            XCTAssertEqual(try! keychain.get(key2), value2)
-        }
-
-        // Update Keychain items
-        do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
-
-            XCTAssertNoThrow(try keychain.set(value2, for: aKey1))
-            XCTAssertNoThrow(try keychain.set(value1, for: key2))
-
-            XCTAssertEqual(try! keychain.get(aKey1), value2)
-            XCTAssertEqual(try! keychain.get(key2), value1)
-        }
-
-        // Remove Keychain items
-        do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
-
-            XCTAssertNoThrow(try keychain.remove(aKey1))
-            XCTAssertNoThrow(try keychain.remove(key2))
-
-            XCTAssertNil(try! keychain.get(aKey1))
-            XCTAssertNil(try! keychain.get(key2))
+            XCTAssertNil(try! keychain.get(genericPasswordKey1))
+            XCTAssertNil(try! keychain.get(genericPasswordKey2))
         }
     }
 
     func testGenericPasswordSubscripting() {
+        let keychain = Keychain()
+
         // Add Keychain items
         do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
+            XCTAssertNoThrow(try keychain.set(value1, for: genericPasswordKey1))
+            XCTAssertNoThrow(try keychain.set(value2, for: genericPasswordKey2))
 
-            XCTAssertNoThrow(try keychain.set(value1, for: key1))
-            XCTAssertNoThrow(try keychain.set(value2, for: key2))
-
-            XCTAssertEqual(try! keychain[key1].get(), value1)
-            XCTAssertEqual(try! keychain[key2].get(), value2)
+            XCTAssertEqual(try! keychain[genericPasswordKey1].get(), value1)
+            XCTAssertEqual(try! keychain[genericPasswordKey2].get(), value2)
         }
 
         // Update Keychain items
         do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
+            XCTAssertNoThrow(try keychain.set(value2, for: genericPasswordKey1))
+            XCTAssertNoThrow(try keychain.set(value1, for: genericPasswordKey2))
 
-            XCTAssertNoThrow(try keychain.set(value2, for: key1))
-            XCTAssertNoThrow(try keychain.set(value1, for: key2))
-
-            XCTAssertEqual(try! keychain[key1].get(), value2)
-            XCTAssertEqual(try! keychain[key2].get(), value1)
+            XCTAssertEqual(try! keychain[genericPasswordKey1].get(), value2)
+            XCTAssertEqual(try! keychain[genericPasswordKey2].get(), value1)
         }
 
         // Remove Keychain items
         do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
+            XCTAssertNoThrow(try keychain.remove(genericPasswordKey1))
+            XCTAssertNoThrow(try keychain.remove(genericPasswordKey2))
 
-            XCTAssertNoThrow(try keychain.remove(key1))
-            XCTAssertNoThrow(try keychain.remove(key2))
-
-            XCTAssertNil(try! keychain[key1].get())
-            XCTAssertNil(try! keychain[key2].get())
+            XCTAssertNil(try! keychain[genericPasswordKey1].get())
+            XCTAssertNil(try! keychain[genericPasswordKey2].get())
         }
     }
 
     func testGenericPasswordDynamicCallable() {
+        let keychain = Keychain()
+
         // Add Keychain items
         do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
+            XCTAssertNoThrow(try keychain.set(value1, for: genericPasswordKey1))
+            XCTAssertNoThrow(try keychain.set(value2, for: genericPasswordKey2))
 
-            XCTAssertNoThrow(try keychain.set(value1, for: key1))
-            XCTAssertNoThrow(try keychain.set(value2, for: key2))
-
-            XCTAssertEqual(try! keychain(key1).get(), value1)
-            XCTAssertEqual(try! keychain(key2).get(), value2)
+            XCTAssertEqual(try! keychain(genericPasswordKey1).get(), value1)
+            XCTAssertEqual(try! keychain(genericPasswordKey2).get(), value2)
         }
 
         // Update Keychain items
         do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
+            XCTAssertNoThrow(try keychain.set(value2, for: genericPasswordKey1))
+            XCTAssertNoThrow(try keychain.set(value1, for: genericPasswordKey2))
 
-            XCTAssertNoThrow(try keychain.set(value2, for: key1))
-            XCTAssertNoThrow(try keychain.set(value1, for: key2))
-
-            XCTAssertEqual(try! keychain(key1).get(), value2)
-            XCTAssertEqual(try! keychain(key2).get(), value1)
+            XCTAssertEqual(try! keychain(genericPasswordKey1).get(), value2)
+            XCTAssertEqual(try! keychain(genericPasswordKey2).get(), value1)
         }
 
         // Remove Keychain items
         do {
-            let keychain = Keychain(service: "com.swifty.keychainkit")
+            XCTAssertNoThrow(try keychain.remove(genericPasswordKey1))
+            XCTAssertNoThrow(try keychain.remove(genericPasswordKey2))
 
-            XCTAssertNoThrow(try keychain.remove(key1))
-            XCTAssertNoThrow(try keychain.remove(key2))
-
-            XCTAssertNil(try! keychain(key1).get())
-            XCTAssertNil(try! keychain(key2).get())
+            XCTAssertNil(try! keychain(genericPasswordKey1).get())
+            XCTAssertNil(try! keychain(genericPasswordKey2).get())
         }
     }
 
     func testKeychainGetWithDefaultValue() {
-        let keychain = Keychain(service: "com.swifty.keychainkit")
+        let keychain = Keychain()
 
-        XCTAssertEqual(try! keychain.get(key1, default: value3), value3)
-        XCTAssertEqual(try! keychain.get(key2, default: value3), value3)
+        XCTAssertEqual(try! keychain.get(genericPasswordKey1, default: value3), value3)
+        XCTAssertEqual(try! keychain.get(genericPasswordKey2, default: value3), value3)
     }
 
     func testKeychainGetSubsriptWithDefaultValue() {
-        let keychain = Keychain(service: "com.swifty.keychainkit")
+        let keychain = Keychain()
 
-        XCTAssertEqual(try! keychain[key1, default: value3].get(), value3)
-        XCTAssertEqual(try! keychain[key2, default: value3].get(), value3)
+        XCTAssertEqual(try! keychain[genericPasswordKey1, default: value3].get(), value3)
+        XCTAssertEqual(try! keychain[genericPasswordKey2, default: value3].get(), value3)
     }
 
     // MARK: Internet Password
-
-    func testInternetPassword() {
-        // Add Keychain items
-        do {
-            let keychain = Keychain(server: URL(string: "https://github.com")!, protocolType: .https)
-
-            XCTAssertNoThrow(try keychain.set(value1, for: key1))
-            XCTAssertNoThrow(try keychain.set(value2, for: key2))
-
-            XCTAssertEqual(try! keychain.get(key1), value1)
-            XCTAssertEqual(try! keychain.get(key2), value2)
-        }
-
-        // Update Keychain items
-        do {
-            let keychain = Keychain(server: URL(string: "https://github.com")!, protocolType: .https)
-
-            XCTAssertNoThrow(try keychain.set(value2, for: key1))
-            XCTAssertNoThrow(try keychain.set(value1, for: key2))
-
-            XCTAssertEqual(try! keychain.get(key1), value2)
-            XCTAssertEqual(try! keychain.get(key2), value1)
-        }
-
-        // Remove Keychain items
-        do {
-            let keychain = Keychain(server: URL(string: "https://github.com")!, protocolType: .https)
-
-            XCTAssertNoThrow(try keychain.remove(key1))
-            XCTAssertNoThrow(try keychain.remove(key2))
-
-            XCTAssertNil(try! keychain.get(key1))
-            XCTAssertNil(try! keychain.get(key2))
-        }
-    }
-
-    // MARK: Remove all
-
+//
+//    func testInternetPassword() {
+//        // Add Keychain items
+//        do {
+//            let keychain = Keychain(server: URL(string: "https://github.com")!, protocolType: .https)
+//
+//            XCTAssertNoThrow(try keychain.set(value1, for: key1))
+//            XCTAssertNoThrow(try keychain.set(value2, for: key2))
+//
+//            XCTAssertEqual(try! keychain.get(key1), value1)
+//            XCTAssertEqual(try! keychain.get(key2), value2)
+//        }
+//
+//        // Update Keychain items
+//        do {
+//            let keychain = Keychain(server: URL(string: "https://github.com")!, protocolType: .https)
+//
+//            XCTAssertNoThrow(try keychain.set(value2, for: key1))
+//            XCTAssertNoThrow(try keychain.set(value1, for: key2))
+//
+//            XCTAssertEqual(try! keychain.get(key1), value2)
+//            XCTAssertEqual(try! keychain.get(key2), value1)
+//        }
+//
+//        // Remove Keychain items
+//        do {
+//            let keychain = Keychain(server: URL(string: "https://github.com")!, protocolType: .https)
+//
+//            XCTAssertNoThrow(try keychain.remove(key1))
+//            XCTAssertNoThrow(try keychain.remove(key2))
+//
+//            XCTAssertNil(try! keychain.get(key1))
+//            XCTAssertNil(try! keychain.get(key2))
+//        }
+//    }
+//
+//    // MARK: Remove all
+//
     func testKeychainRemoveAll() throws {
-        let keychain = Keychain(service: "com.swifty.keychainkit")
+        let keychain = Keychain()
 
         // Add values to keychain
-        try keychain.set(value2, for: key1)
-        try keychain.set(value1, for: key2)
+        try keychain.set(value2, for: genericPasswordKey1)
+        try keychain.set(value1, for: internetPasswordKey1)
 
         // Remove all values
         try keychain.removeAll()
 
-        // Check values are nil
-        XCTAssertNil(try! keychain.get(key1))
-        XCTAssertNil(try! keychain.get(key2))
+        // Check values
+        XCTAssertNil(try keychain.get(genericPasswordKey1))
+        XCTAssertNil(try keychain.get(internetPasswordKey1))
+    }
+
+    func testKeychainRemoveAllOfTypeGenericPassword() throws {
+        let keychain = Keychain()
+
+        // Add values to keychain
+        try keychain.set(value2, for: genericPasswordKey1)
+        try keychain.set(value1, for: internetPasswordKey1)
+
+        // Remove all values of type GenericPassword
+        try keychain.removeAll(ofType: .genericPassword)
+
+        // Check values
+        XCTAssertNil(try keychain.get(genericPasswordKey1))
+        XCTAssertNotNil(try keychain.get(internetPasswordKey1))
+    }
+
+    func testKeychainRemoveAllOfTypeInternetPassword() throws {
+        let keychain = Keychain()
+
+        // Add values to keychain of type InternetPassword
+        try keychain.set(value2, for: genericPasswordKey1)
+        try keychain.set(value1, for: internetPasswordKey1)
+
+        // Remove all values
+        try keychain.removeAll(ofType: .internetPassword)
+
+        // Check values
+        XCTAssertNotNil(try keychain.get(genericPasswordKey1))
+        XCTAssertNil(try keychain.get(internetPasswordKey1))
     }
 }
