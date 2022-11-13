@@ -336,6 +336,8 @@ extension KeychainKey {
         descr.flatMap { attributes.append(.attrDescription($0)) }
         isInvisible.flatMap { attributes.append(.isInvisible($0)) }
         isNegative.flatMap { attributes.append(.isNegative($0)) }
+        creator.flatMap { attributes.append(.creator($0)) }
+        type.flatMap { attributes.append(.type($0)) }
 
         if case let .genericPassword(attrs) = self, let generic = attrs.generic {
             attributes.append(.generic(generic))

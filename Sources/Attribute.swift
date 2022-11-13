@@ -86,6 +86,10 @@ extension KeychainAttribute: Attribute {
                 return (key: kSecAttrIsNegative, value: NSNumber(value: value))
             case .generic(let value):
                 return (key: kSecAttrGeneric, value: value)
+            case .creator(let value):
+                return (key: kSecAttrCreator, value: value)
+            case .type(let value):
+                return (key: kSecAttrType, value: value)
         }
     }
 
@@ -134,6 +138,10 @@ extension KeychainAttribute: Attribute {
                 self = .isNegative(value as! Bool)
             case String(kSecAttrGeneric):
                 self = .generic(value as! Data)
+            case String(kSecAttrCreator):
+                self = .creator(value as! String)
+            case String(kSecAttrType):
+                self = .type(value as! String)
             default:
                 return nil
         }
