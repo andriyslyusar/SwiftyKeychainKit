@@ -55,7 +55,9 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
         description: String? = nil,
         isInvisible: Bool? = nil,
         isNegative: Bool? = nil,
-        generic: Data? = nil
+        generic: Data? = nil,
+        creator: String? = nil,
+        type: String? = nil
     ) -> Self {
         self.genericPassword(
             .init(
@@ -68,7 +70,9 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
                 descr: description,
                 isInvisible: isInvisible,
                 isNegative: isNegative,
-                generic: generic
+                generic: generic,
+                creator: creator,
+                type: type
             )
         )
     }
@@ -86,7 +90,9 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
         comment: String? = nil,
         description: String? = nil,
         isInvisible: Bool? = nil,
-        isNegative: Bool? = nil
+        isNegative: Bool? = nil,
+        creator: String? = nil,
+        type: String? = nil
     ) -> Self {
         self.internetPassword(
             .init(
@@ -101,7 +107,9 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
                 comment: comment,
                 descr: description,
                 isInvisible: isInvisible,
-                isNegative: isNegative
+                isNegative: isNegative,
+                creator: creator,
+                type: type
             )
         )
     }
@@ -178,6 +186,27 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
         }
     }
 
+    // TODO: We can set and get String for this property, but according to spec we should use CFNumberRef.
+    public var creator: String? {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.creator
+            case .internetPassword(let attrs):
+                return attrs.creator
+        }
+    }
+
+    // TODO: We can set and get String for this property, but according to spec we should use CFNumberRef.
+    public var type: String? {
+        switch self {
+            case .genericPassword(let attrs):
+                return attrs.type
+            case .internetPassword(let attrs):
+                return attrs.type
+        }
+    }
+
+
     public struct GenericPassword {
         public let key: String
 
@@ -226,6 +255,22 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
 
         /// TBD
         public let generic: Data?
+
+        /// Indicating  the item's creator attribute
+        ///
+        /// You use this key to set or get a value of type CFNumberRef that represents the item's creator.
+        /// This number is the unsigned integer representation of a four-character code (e.g., 'aCrt').
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcreator)
+        public let creator: String?
+
+        /// Indicating the type of secret associated with the query
+        ///
+        /// You use this key to set or get a value of type CFNumberRef that represents the item's type.
+        /// This number is the unsigned integer representation of a four-character code (e.g., 'aTyp').
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrtype)
+        public let type: String?
     }
 
     public struct InternetPassword {
@@ -286,6 +331,22 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
         ///
         /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrisnegative)
         public let isNegative: Bool?
+
+        /// Indicating  the item's creator attribute
+        ///
+        /// You use this key to set or get a value of type CFNumberRef that represents the item's creator.
+        /// This number is the unsigned integer representation of a four-character code (e.g., 'aCrt').
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrcreator)
+        public let creator: String?
+
+        /// Indicating the type of secret associated with the query
+        ///
+        /// You use this key to set or get a value of type CFNumberRef that represents the item's type.
+        /// This number is the unsigned integer representation of a four-character code (e.g., 'aTyp').
+        ///
+        /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecattrtype)
+        public let type: String?
     }
 }
 
@@ -432,6 +493,8 @@ public enum KeychainAttribute: Equatable {
     case isInvisible(Bool)
     case isNegative(Bool)
     case generic(Data)
+    case creator(String)
+    case type(String)
 }
 
 public extension [KeychainAttribute] {
@@ -509,6 +572,14 @@ public extension [KeychainAttribute] {
 
     var generic: Data? {
         self.compactMap { if case let .generic(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var creator: String? {
+        self.compactMap { if case let .creator(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var type: String? {
+        self.compactMap { if case let .type(value) = $0 { return value } else { return nil } }.first
     }
 }
 
