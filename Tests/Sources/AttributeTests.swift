@@ -32,10 +32,47 @@ class AttributeTests: XCTestCase {
             XCTAssertEqual(attribute.element.key, kSecClass)
             XCTAssertEqual(attribute.element.value as! CFString, ItemClass.genericPassword.rawValue)
         }
+
         do {
             let attribute = KeychainAttribute.class(.internetPassword)
             XCTAssertEqual(attribute.element.key, kSecClass)
             XCTAssertEqual(attribute.element.value as! CFString, ItemClass.internetPassword.rawValue)
+        }
+    }
+
+    func testKeychainCreationDateAttribute() {
+        let date = Date()
+
+        do {
+            let attribute = KeychainAttribute.creationDate(date)
+            XCTAssertEqual(attribute.element.key, kSecAttrCreationDate)
+            XCTAssertEqual(attribute.element.value as! Date, date)
+            XCTAssertEqual([attribute].creationDate, date)
+        }
+
+        do {
+            let attribute = KeychainAttribute(key: String(kSecAttrCreationDate), value: date)!
+            XCTAssertEqual(attribute.element.key, kSecAttrCreationDate)
+            XCTAssertEqual(attribute.element.value as! Date, date)
+            XCTAssertEqual([attribute].creationDate, date)
+        }
+    }
+
+    func testKeychainModificatioDateAttribute() {
+        let date = Date()
+
+        do {
+            let attribute = KeychainAttribute.modificationDate(date)
+            XCTAssertEqual(attribute.element.key, kSecAttrModificationDate)
+            XCTAssertEqual(attribute.element.value as! Date, date)
+            XCTAssertEqual([attribute].modificationDate, date)
+        }
+
+        do {
+            let attribute = KeychainAttribute(key: String(kSecAttrModificationDate), value: date)!
+            XCTAssertEqual(attribute.element.key, kSecAttrModificationDate)
+            XCTAssertEqual(attribute.element.value as! Date, date)
+            XCTAssertEqual([attribute].modificationDate, date)
         }
     }
 

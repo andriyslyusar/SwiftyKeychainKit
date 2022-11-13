@@ -90,6 +90,10 @@ extension KeychainAttribute: Attribute {
                 return (key: kSecAttrCreator, value: value)
             case .type(let value):
                 return (key: kSecAttrType, value: value)
+            case .creationDate(let value):
+                return (key: kSecAttrCreationDate, value: value)
+            case .modificationDate(let value):
+                return (key: kSecAttrModificationDate, value: value)
         }
     }
 
@@ -142,6 +146,10 @@ extension KeychainAttribute: Attribute {
                 self = .creator(value as! String)
             case String(kSecAttrType):
                 self = .type(value as! String)
+            case String(kSecAttrCreationDate):
+                self = .creationDate(value as! Date)
+            case String(kSecAttrModificationDate):
+                self = .modificationDate(value as! Date)
             default:
                 return nil
         }

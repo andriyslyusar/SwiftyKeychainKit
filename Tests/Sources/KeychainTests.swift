@@ -65,6 +65,8 @@ class KeychainTests: XCTestCase {
         XCTAssertNil(attributes.isInvisible)
         XCTAssertNil(attributes.isNegative)
         XCTAssertNil(attributes.generic)
+        XCTAssertNotNil(attributes.creationDate)
+        XCTAssertNotNil(attributes.modificationDate)
     }
 
     func testGetAttributesForGenericPassword() throws {
@@ -101,6 +103,8 @@ class KeychainTests: XCTestCase {
         XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
         XCTAssertEqual(attributes.creator, "key creator")
         XCTAssertEqual(attributes.type, "key type")
+        XCTAssertNotNil(attributes.creationDate)
+        XCTAssertNotNil(attributes.modificationDate)
     }
 
     func testGetAttributesForInternetPasswordWithDefaultInitilisers() throws {
@@ -130,6 +134,8 @@ class KeychainTests: XCTestCase {
         XCTAssertNil(attributes.isInvisible)
         XCTAssertNil(attributes.isNegative)
         XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
+        XCTAssertNotNil(attributes.creationDate)
+        XCTAssertNotNil(attributes.modificationDate)
 
         // Check General password specific attributes
         XCTAssertNil(attributes.generic)
@@ -176,6 +182,8 @@ class KeychainTests: XCTestCase {
         XCTAssertEqual(attributes.accessGroup, "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost")
         XCTAssertEqual(attributes.creator, "key creator")
         XCTAssertEqual(attributes.type, "key type")
+        XCTAssertNotNil(attributes.creationDate)
+        XCTAssertNotNil(attributes.modificationDate)
 
         // Check General password specific attributes
         XCTAssertNil(attributes.generic)
