@@ -206,7 +206,6 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
         }
     }
 
-
     public struct GenericPassword {
         public let key: String
 
@@ -495,6 +494,8 @@ public enum KeychainAttribute: Equatable {
     case generic(Data)
     case creator(String)
     case type(String)
+    case creationDate(Date)
+    case modificationDate(Date)
 }
 
 public extension [KeychainAttribute] {
@@ -580,6 +581,14 @@ public extension [KeychainAttribute] {
 
     var type: String? {
         self.compactMap { if case let .type(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var creationDate: Date? {
+        self.compactMap { if case let .creationDate(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var modificationDate: Date? {
+        self.compactMap { if case let .modificationDate(value) = $0 { return value } else { return nil } }.first
     }
 }
 
