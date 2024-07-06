@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,7 +13,7 @@
 		0547CDB72349320200729CA1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0547CDB52349320200729CA1 /* Main.storyboard */; };
 		0547CDB92349320400729CA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0547CDB82349320400729CA1 /* Assets.xcassets */; };
 		0547CDBC2349320400729CA1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0547CDBA2349320400729CA1 /* LaunchScreen.storyboard */; };
-		0547CDD4234BAE5600729CA1 /* SwiftyKeychainKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0547CDD3234BAE5600729CA1 /* SwiftyKeychainKit */; };
+		8AC8A0E22C3A9E0B00267FB0 /* SwiftyKeychainKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8AC8A0E12C3A9E0B00267FB0 /* SwiftyKeychainKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +25,7 @@
 		0547CDB82349320400729CA1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0547CDBB2349320400729CA1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0547CDBD2349320400729CA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8AC8A0DF2C3A9DBA00267FB0 /* SwiftyKeychainKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SwiftyKeychainKit; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,7 +33,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0547CDD4234BAE5600729CA1 /* SwiftyKeychainKit in Frameworks */,
+				8AC8A0E22C3A9E0B00267FB0 /* SwiftyKeychainKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,8 +43,10 @@
 		0547CDA32349320200729CA1 = {
 			isa = PBXGroup;
 			children = (
+				8AC8A0DF2C3A9DBA00267FB0 /* SwiftyKeychainKit */,
 				0547CDAE2349320200729CA1 /* Example */,
 				0547CDAD2349320200729CA1 /* Products */,
+				8AC8A0E02C3A9E0B00267FB0 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,6 +72,13 @@
 			path = Example;
 			sourceTree = "<group>";
 		};
+		8AC8A0E02C3A9E0B00267FB0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -86,7 +96,7 @@
 			);
 			name = Example;
 			packageProductDependencies = (
-				0547CDD3234BAE5600729CA1 /* SwiftyKeychainKit */,
+				8AC8A0E12C3A9E0B00267FB0 /* SwiftyKeychainKit */,
 			);
 			productName = Example;
 			productReference = 0547CDAC2349320200729CA1 /* Example.app */;
@@ -117,7 +127,6 @@
 			);
 			mainGroup = 0547CDA32349320200729CA1;
 			packageReferences = (
-				0547CDD2234BAE5600729CA1 /* XCRemoteSwiftPackageReference "SwiftyKeychainKit" */,
 			);
 			productRefGroup = 0547CDAD2349320200729CA1 /* Products */;
 			projectDirPath = "";
@@ -345,21 +354,9 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		0547CDD2234BAE5600729CA1 /* XCRemoteSwiftPackageReference "SwiftyKeychainKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/andriyslyusar/SwiftyKeychainKit.git";
-			requirement = {
-				kind = exactVersion;
-				version = "1.0.0-beta.2";
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		0547CDD3234BAE5600729CA1 /* SwiftyKeychainKit */ = {
+		8AC8A0E12C3A9E0B00267FB0 /* SwiftyKeychainKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0547CDD2234BAE5600729CA1 /* XCRemoteSwiftPackageReference "SwiftyKeychainKit" */;
 			productName = SwiftyKeychainKit;
 		};
 /* End XCSwiftPackageProductDependency section */

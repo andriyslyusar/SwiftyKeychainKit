@@ -1,7 +1,4 @@
 //
-//  ViewController.swift
-//  Example
-//
 //  Created by Andriy Slyusar on 2019-10-05.
 //  Copyright © 2019 Andriy Slyusar. All rights reserved.
 //
@@ -10,13 +7,13 @@ import UIKit
 import SwiftyKeychainKit
 
 extension KeychainKeys {
-  static let secret = KeychainKey<String>(key: "secret")
+  static var secret: KeychainKey<String> { .genericPassword(key: "secret", service: "com.swifty.keychainkit.example") }
 }
 
 class ViewController: UIViewController {
   @IBOutlet weak var secretTextField: UITextField!
 
-  let keychain = Keychain(service: "com.swifty.keychainkit.example")
+  let keychain = Keychain()
 
   override func viewDidLoad() {
     super.viewDidLoad()
