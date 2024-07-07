@@ -209,7 +209,7 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
     public struct GenericPassword {
         public let key: String
 
-        //TODO: Budnle identifier by default
+        //TODO: Bundle identifier by default
         /// The service associated with Keychain item
         public var service: String
 

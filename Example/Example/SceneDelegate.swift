@@ -1,7 +1,4 @@
 //
-//  SceneDelegate.swift
-//  Example
-//
 //  Created by Andriy Slyusar on 2019-10-05.
 //  Copyright © 2019 Andriy Slyusar. All rights reserved.
 //

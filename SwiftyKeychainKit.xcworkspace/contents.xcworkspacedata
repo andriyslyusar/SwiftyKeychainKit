@@ -4,4 +4,7 @@
    <FileRef
       location = "group:SwiftyKeychainKit.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Example/Example.xcodeproj">
+   </FileRef>
 </Workspace>
