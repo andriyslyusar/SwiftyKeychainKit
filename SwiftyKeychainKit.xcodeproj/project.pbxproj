@@ -29,6 +29,7 @@
 		05DB410923300A0800ED3C31 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB410623300A0800ED3C31 /* AppDelegate.swift */; };
 		05E462B82906FEE300B48726 /* AbstractKeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05E462B72906FEE300B48726 /* AbstractKeychainTests.swift */; };
 		05F90F9A2323DAD600E53A8B /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F90F992323DAD600E53A8B /* KeychainTests.swift */; };
+		8A33D40E2C3B09980015CEEB /* AppKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A33D40D2C3B09980015CEEB /* AppKeychainStorage.swift */; };
 		8AC8A0E42C3AAF7000267FB0 /* SwiftyKeychainKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "SwiftyKeychain::SwiftyKeychain::Product" /* SwiftyKeychainKit.framework */; };
 		8AC8A0E52C3AAF7000267FB0 /* SwiftyKeychainKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = "SwiftyKeychain::SwiftyKeychain::Product" /* SwiftyKeychainKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -91,6 +92,7 @@
 		05DB410723300A0800ED3C31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		05E462B72906FEE300B48726 /* AbstractKeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AbstractKeychainTests.swift; sourceTree = "<group>"; };
 		05F90F992323DAD600E53A8B /* KeychainTests.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; tabWidth = 4; };
+		8A33D40D2C3B09980015CEEB /* AppKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppKeychainStorage.swift; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		"SwiftyKeychain::SwiftyKeychain::Product" /* SwiftyKeychainKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftyKeychainKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -201,6 +203,7 @@
 				055848D22310633900FE1AD8 /* KeychainBridge.swift */,
 				055848F823130E9F00FE1AD8 /* KeychainError.swift */,
 				05ADF24F2914407F0008715A /* Attribute.swift */,
+				8A33D40D2C3B09980015CEEB /* AppKeychainStorage.swift */,
 			);
 			path = Sources;
 			sourceTree = SOURCE_ROOT;
@@ -369,6 +372,7 @@
 				05ADF250291440800008715A /* Attribute.swift in Sources */,
 				055848D32310633900FE1AD8 /* KeychainBridge.swift in Sources */,
 				055848D123105F4600FE1AD8 /* KeychainSerializable.swift in Sources */,
+				8A33D40E2C3B09980015CEEB /* AppKeychainStorage.swift in Sources */,
 				055848D523106B0400FE1AD8 /* Keychain.swift in Sources */,
 				055848F923130E9F00FE1AD8 /* KeychainError.swift in Sources */,
 			);

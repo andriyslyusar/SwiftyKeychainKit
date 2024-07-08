@@ -371,9 +371,9 @@ public struct Keychain {
         return try T.bridge.get(key: key, from: self)
     }
 
-    /// Get value for provided key from Keycina, return default value in case `value == nil` and not error rised
+    /// Get value for provided key from keychain, return default value in case `value == nil` and not error raised
     /// - Parameter key: Key for value
-    /// - Parameter defaultProvider: Value retrun by default than value is nil
+    /// - Parameter defaultProvider: Value return by default than value is nil
     public func get<T: KeychainSerializable>(
         _ key: KeychainKey<T>,
         default defaultProvider: @autoclosure () -> T.T
@@ -413,7 +413,7 @@ public struct Keychain {
         }
     }
 
-    /// Subsript fetching from keychain in return result with Result type
+    /// Subscript fetching from keychain in return result with Result type
     public subscript<T: KeychainSerializable>(key: KeychainKey<T>) -> Result<T.T?, KeychainError> {
         do {
             return .success(try get(key))
@@ -422,11 +422,12 @@ public struct Keychain {
         }
     }
 
-     /// Subsript with defaul value. In case of error raise fetchin from keychain `.failure` result returns, default
+     /// Subscript with default value. In case of error raise fetching from keychain `.failure` result returns, default
      /// value apply only in case fetch value is nil
-    public subscript<T: KeychainSerializable>(key: KeychainKey<T>, default defaultProvider: @autoclosure () -> T.T)
-        -> Result<T.T, KeychainError> {
-
+    public subscript<T: KeychainSerializable>(
+        key: KeychainKey<T>,
+        default defaultProvider: @autoclosure () -> T.T
+    ) -> Result<T.T, KeychainError> {
         do {
             return .success(try get(key, default: defaultProvider()))
         } catch {
@@ -469,6 +470,10 @@ public struct Keychain {
     public func attributes<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> [KeychainAttribute] {
         try T.bridge.attributes(key: key, from: self)
     }
+}
+
+public extension Keychain {
+    static var `default` = Keychain()
 }
 
 public enum KeychainAttribute: Equatable {
