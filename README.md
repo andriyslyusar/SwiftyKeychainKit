@@ -103,6 +103,89 @@ try keychain.get(.username, default: "Daenerys Targaryen")
 try keychain[.age, default: 18].get() 
 ```
 
+## SwiftUI
+
+### Basic
+Use @AppKeychainStorage property wrapper for storing and reading values from Keychain, which will automatically reinvoke your view’s body property when the value changes. 
+* AppKeychainStorage property wrapper DOES NOT watches a key in KeyChain, and will not refresh your UI if that key changes. (Keychain on iOS lucking API to implement obsevation)
+* AppKeychainStorage property wrapper DOES NOT implement "projected value" Binding. The main reason is Swift lucking feature to implement throwable 'set', ...
+
+```swift
+struct YourView: View {
+    @AppKeychainStorage(.secret) var secret
+
+    @State var secretInput: String = ""
+
+    var body: some View {
+        // Get value 
+        switch secret {
+            case .success(let value):
+                if let value = value {
+                    Text("Keychain value: \(value)")
+                } else {
+                    Text("Keychain missing value")
+                }
+
+            case .failure(let error):
+                Text("Keychain error: \(error)")
+        }
+
+        // Set value
+        TextField("Input secret", text: $secretInput)
+        Button("Save") {
+            do {
+                try self._secret.set(secretInput)
+            } catch {
+                // process error
+            }
+        }
+
+        // Remove value
+         Button("Remove") {
+            do {
+                try self._secret.remove()
+            } catch {
+                // process error
+            }
+        }
+    }
+}
+```
+
+### Configure Keychain
+Besides the default keychain `@AppKeychainStorage` also supports any developer-defined Keychain.
+
+```swift
+struct YourView: View {
+    @AppKeychainStorage(.secret, keychain: .accessGroupKeychain) var secret
+
+    var body: some View {
+        ...
+    }
+}
+
+extension Keychain {
+    // Keychain with custom access group to share Keychain item with extenstions
+    static let accessGroupKeychain = Keychain(accessGroup: "NS8HLGG733.com.swifty.keychain.example")
+}
+```
+
+ ### Configure default Keychain
+ Using `defaultAppKeychainStorage` modifier allows setting a default Keychain for the view or scene, avoiding the need to set it repeatedly in each `@AppKeychainStorage`
+
+ ```swift
+ @main
+struct ExampleApp: App {
+    var body: some Scene {
+        WindowGroup {
+            YourView()
+                .defaultAppKeychainStorage(.accessGroupKeychain)
+        }
+        .defaultAppKeychainStorage(.accessGroupKeychain)
+    }
+}
+ ```
+
 ## Supported types
 - Int
 - String
@@ -157,8 +240,8 @@ class KeychainBridgeStringArray: KeychainBridge<[String]> {
 - [x] kSecAttrAccessible 
 - [x] kSecAttrDescription
 - [x] kSecAttrComment
-- [ ] kSecAttrCreator
-- [ ] kSecAttrType
+- [x] kSecAttrCreator
+- [x] kSecAttrType
 - [x] kSecAttrLabel
 - [x] kSecAttrIsInvisible
 - [x] kSecAttrIsNegative
@@ -168,7 +251,7 @@ class KeychainBridgeStringArray: KeychainBridge<[String]> {
 **Generic password**
 - [ ] kSecAttrAccessControl
 - [x] kSecAttrService 
-- [ ] kSecAttrGeneric
+- [x] kSecAttrGeneric
 
 **Internet password**
 - [x] kSecAttrSecurityDomain

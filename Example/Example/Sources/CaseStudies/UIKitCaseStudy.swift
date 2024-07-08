@@ -6,11 +6,7 @@
 import UIKit
 import SwiftyKeychainKit
 
-extension KeychainKeys {
-  static var secret: KeychainKey<String> { .genericPassword(key: "secret", service: "com.swifty.keychainkit.example") }
-}
-
-class ViewController: UIViewController {
+class UIKitCaseStudyViewController: UIViewController {
   @IBOutlet weak var secretTextField: UITextField!
 
   let keychain = Keychain()
