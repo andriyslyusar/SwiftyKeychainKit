@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		055848D123105F4600FE1AD8 /* KeychainSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D023105F4600FE1AD8 /* KeychainSerializable.swift */; };
-		055848D32310633900FE1AD8 /* KeychainBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D22310633900FE1AD8 /* KeychainBridge.swift */; };
 		055848D523106B0400FE1AD8 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848D423106B0400FE1AD8 /* Keychain.swift */; };
 		055848F923130E9F00FE1AD8 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055848F823130E9F00FE1AD8 /* KeychainError.swift */; };
 		05ADF23C290AF0480008715A /* KeychainTests.String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ADF23B290AF0480008715A /* KeychainTests.String.swift */; };
@@ -21,7 +20,7 @@
 		05ADF24A290B0DBC0008715A /* KeychainTests.Archivable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ADF249290B0DBC0008715A /* KeychainTests.Archivable.swift */; };
 		05ADF24C290B0DD50008715A /* KeychainTests.CustomType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ADF24B290B0DD50008715A /* KeychainTests.CustomType.swift */; };
 		05ADF24E290D749C0008715A /* KeychainKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ADF24D290D749C0008715A /* KeychainKeyTests.swift */; };
-		05ADF250291440800008715A /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ADF24F2914407F0008715A /* Attribute.swift */; };
+		05ADF250291440800008715A /* KeychainAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ADF24F2914407F0008715A /* KeychainAttribute.swift */; };
 		05DB40F8232D2E6500ED3C31 /* AttributeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */; };
 		05DB40FA232D491200ED3C31 /* KeychainEnumsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB40F9232D491200ED3C31 /* KeychainEnumsSpec.swift */; };
 		05DB4102232E5C9A00ED3C31 /* KeychainErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DB4101232E5C9A00ED3C31 /* KeychainErrorTests.swift */; };
@@ -67,7 +66,6 @@
 
 /* Begin PBXFileReference section */
 		055848D023105F4600FE1AD8 /* KeychainSerializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSerializable.swift; sourceTree = "<group>"; };
-		055848D22310633900FE1AD8 /* KeychainBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainBridge.swift; sourceTree = "<group>"; };
 		055848D423106B0400FE1AD8 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
 		055848F823130E9F00FE1AD8 /* KeychainError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainError.swift; sourceTree = "<group>"; };
 		059D47A823219D4D000328C9 /* SwiftyKeychainKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftyKeychainKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -82,7 +80,7 @@
 		05ADF249290B0DBC0008715A /* KeychainTests.Archivable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.Archivable.swift; sourceTree = "<group>"; };
 		05ADF24B290B0DD50008715A /* KeychainTests.CustomType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.CustomType.swift; sourceTree = "<group>"; };
 		05ADF24D290D749C0008715A /* KeychainKeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainKeyTests.swift; sourceTree = "<group>"; };
-		05ADF24F2914407F0008715A /* Attribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Attribute.swift; sourceTree = "<group>"; };
+		05ADF24F2914407F0008715A /* KeychainAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAttribute.swift; sourceTree = "<group>"; };
 		05DB40F7232D2E6500ED3C31 /* AttributeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributeTests.swift; sourceTree = "<group>"; };
 		05DB40F9232D491200ED3C31 /* KeychainEnumsSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainEnumsSpec.swift; sourceTree = "<group>"; };
 		05DB4101232E5C9A00ED3C31 /* KeychainErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainErrorTests.swift; sourceTree = "<group>"; };
@@ -200,9 +198,8 @@
 			children = (
 				055848D423106B0400FE1AD8 /* Keychain.swift */,
 				055848D023105F4600FE1AD8 /* KeychainSerializable.swift */,
-				055848D22310633900FE1AD8 /* KeychainBridge.swift */,
 				055848F823130E9F00FE1AD8 /* KeychainError.swift */,
-				05ADF24F2914407F0008715A /* Attribute.swift */,
+				05ADF24F2914407F0008715A /* KeychainAttribute.swift */,
 				8A33D40D2C3B09980015CEEB /* AppKeychainStorage.swift */,
 			);
 			path = Sources;
@@ -369,8 +366,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				05ADF250291440800008715A /* Attribute.swift in Sources */,
-				055848D32310633900FE1AD8 /* KeychainBridge.swift in Sources */,
+				05ADF250291440800008715A /* KeychainAttribute.swift in Sources */,
 				055848D123105F4600FE1AD8 /* KeychainSerializable.swift in Sources */,
 				8A33D40E2C3B09980015CEEB /* AppKeychainStorage.swift in Sources */,
 				055848D523106B0400FE1AD8 /* Keychain.swift in Sources */,

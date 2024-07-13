@@ -42,16 +42,12 @@ class KeychainCustomTypeTests: AbstractKeychainTests<[String]> {
     }
 }
 
-extension [String]: KeychainSerializable  {
-    public static var bridge: KeychainBridge<[String]> { return KeychainBridgeStringArray() }
-}
-
-class KeychainBridgeStringArray: KeychainBridge<[String]> {
-    override func encode(_ value: [String]) throws -> Data {
+extension [String]: KeychainSerializable {
+    public static func encode(_ value: [String]) throws -> Data {
         try JSONSerialization.data(withJSONObject: value, options: [])
     }
 
-    override func decode(_ data: Data) throws -> [String]? {
+    public static func decode(_ data: Data) throws -> [String]? {
         (try JSONSerialization.jsonObject(with: data, options: [])) as? [String]
     }
 }

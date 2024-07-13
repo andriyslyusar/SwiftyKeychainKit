@@ -26,7 +26,7 @@ import Foundation
 import XCTest
 @testable import SwiftyKeychainKit
 
-class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T.T: Equatable {
+class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T: Equatable {
     let genericPasswordKey1: KeychainKey<T> = .genericPassword(key: "key1", service: "com.swifty.keychainkit")
     let genericPasswordKey2: KeychainKey<T> = .genericPassword(key: "key2", service: "com.swifty.keychainkit")
     let internetPasswordKey1: KeychainKey<T> = .internetPassword(
@@ -36,9 +36,9 @@ class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T.T: Equa
         authenticationType: .httpBasic
     )
 
-    var value1: T.T!
-    var value2: T.T!
-    var value3: T.T!
+    var value1: T!
+    var value2: T!
+    var value3: T!
 
     override func setUp() {
         super.setUp()

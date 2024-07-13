@@ -38,7 +38,6 @@ import Security
     }
     ```
 */
-
 public protocol KeychainKeys {}
 
 public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
@@ -361,25 +360,22 @@ public struct Keychain {
     /// Persist value for key in keychain
     /// - Parameter value: Persisting value
     /// - Parameter key: Key for value
-    public func set<T: KeychainSerializable>(_ value: T.T, for key: KeychainKey<T>) throws {
-        try T.bridge.set(value, forKey: key, in: self)
+    public func set<T: KeychainSerializable>(_ value: T, for key: KeychainKey<T>) throws {
+        try T.set(value, forKey: key, in: self)
     }
 
     /// Get value for provided key from keychain
     /// - Parameter key: Key for value
-    public func get<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> T.T? {
-        return try T.bridge.get(key: key, from: self)
+    public func get<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> T? {
+        try T.get(key: key, from: self)
     }
 
     /// Get value for provided key from keychain, return default value in case `value == nil` and not error raised
     /// - Parameter key: Key for value
     /// - Parameter defaultProvider: Value return by default than value is nil
-    public func get<T: KeychainSerializable>(
-        _ key: KeychainKey<T>,
-        default defaultProvider: @autoclosure () -> T.T
-    ) throws -> T.T {
+    public func get<T: KeychainSerializable>(_ key: KeychainKey<T>, default defaultProvider: @autoclosure () -> T) throws -> T {
         do {
-            if let value = try T.bridge.get(key: key, from: self) {
+            if let value = try T.get(key: key, from: self) {
                 return value
             }
             return defaultProvider()
@@ -391,7 +387,7 @@ public struct Keychain {
     /// Remove key from specific keychain
     /// - Parameter key: Keychain key to remove
     public func remove<T: KeychainSerializable>(_ key: KeychainKey<T>) throws {
-        try T.bridge.remove(key: key, from: self)
+        try T.remove(key: key, from: self)
     }
 
     /// Remove all keys from specific keychain
@@ -414,7 +410,7 @@ public struct Keychain {
     }
 
     /// Subscript fetching from keychain in return result with Result type
-    public subscript<T: KeychainSerializable>(key: KeychainKey<T>) -> Result<T.T?, KeychainError> {
+    public subscript<T: KeychainSerializable>(key: KeychainKey<T>) -> Result<T?, KeychainError> {
         do {
             return .success(try get(key))
         } catch {
@@ -424,10 +420,7 @@ public struct Keychain {
 
      /// Subscript with default value. In case of error raise fetching from keychain `.failure` result returns, default
      /// value apply only in case fetch value is nil
-    public subscript<T: KeychainSerializable>(
-        key: KeychainKey<T>,
-        default defaultProvider: @autoclosure () -> T.T
-    ) -> Result<T.T, KeychainError> {
+    public subscript<T: KeychainSerializable>(key: KeychainKey<T>, default defaultProvider: @autoclosure () -> T) -> Result<T, KeychainError> {
         do {
             return .success(try get(key, default: defaultProvider()))
         } catch {
@@ -444,7 +437,7 @@ public struct Keychain {
     /// try keychain(.stringKey)
     ///  ```
     /// - Parameter args: KeychainKey object
-    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [KeychainKey<T>]) throws -> T.T? {
+    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [KeychainKey<T>]) throws -> T? {
         return try get(args[0])
     }
 
@@ -457,7 +450,7 @@ public struct Keychain {
     /// if case .success(let value) = keychain(key) as Result { ... }
     /// ```
     /// - Parameter args: KeychainKey object
-    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [KeychainKey<T>]) -> Result<T.T?, KeychainError> {
+    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [KeychainKey<T>]) -> Result<T?, KeychainError> {
         do {
             return .success(try get(args[0]))
         } catch {
@@ -468,7 +461,7 @@ public struct Keychain {
     /// Get attributes for provided key from keychain
     /// - Parameter key: Key for value
     public func attributes<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> [KeychainAttribute] {
-        try T.bridge.attributes(key: key, from: self)
+        try T.attributes(key: key, from: self)
     }
 }
 
