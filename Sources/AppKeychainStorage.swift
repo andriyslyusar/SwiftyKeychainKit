@@ -35,7 +35,7 @@ public struct AppKeychainStorage<T: KeychainSerializable> {
     /// Keychain value for key
     /// get - use Result type to persist error while getting key value from keychain.
     /// set - omitted due to Swift does not support 'set' accessor with 'throws'
-    public var wrappedValue: Result<T.T?, KeychainError> {
+    public var wrappedValue: Result<T?, KeychainError> {
         tracker.value
     }
 
@@ -46,7 +46,7 @@ public struct AppKeychainStorage<T: KeychainSerializable> {
 
     /// Persist value for key in keychain
     /// - Parameter newValue: Persisting value
-    public func set(_ newValue: T.T?) throws {
+    public func set(_ newValue: T?) throws {
         try tracker.set(newValue, key: key, keychain: keychain ?? defaultKeychain)
     }
 
@@ -55,13 +55,13 @@ public struct AppKeychainStorage<T: KeychainSerializable> {
     }
 
     private class Tracker: ObservableObject {
-        var value: Result<T.T?, KeychainError> = .success(nil)
+        var value: Result<T?, KeychainError> = .success(nil)
 
         func get(key: KeychainKey<T>, keychain: Keychain) {
             self.value = keychain[key]
         }
 
-        func set(_ newValue: T.T?, key: KeychainKey<T>, keychain: Keychain) throws {
+        func set(_ newValue: T?, key: KeychainKey<T>, keychain: Keychain) throws {
             if let newValue {
                 try keychain.set(newValue, for: key)
             } else {
