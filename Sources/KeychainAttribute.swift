@@ -29,20 +29,31 @@ protocol Attribute {
     var element: Element { get }
 }
 
-enum SearchResultAttribute {
-    case matchLimit(MatchLimit)
-
-    enum MatchLimit {
-        case one
-        case all
-    }
-}
-
-enum ReturnResultAttribute {
-    case returnData(Bool)
-    case returnAttributes(Bool)
-    case returnRef(Bool)
-    case returnPersistentRef(Bool)
+public enum KeychainAttribute: Equatable {
+    // TODO: Maybe rename `class` to type
+    case `class`(ItemClass)
+    case service(String)
+    case accessible(AccessibilityLevel)
+    case accessGroup(String)
+    case synchronizable(Bool)
+    case server(String)
+    case port(Int)
+    case protocolType(ProtocolType)
+    case authenticationType(AuthenticationType)
+    case securityDomain(String)
+    case path(String)
+    case valueData(Data)
+    case account(String)
+    case label(String)
+    case comment(String)
+    case attrDescription(String)
+    case isInvisible(Bool)
+    case isNegative(Bool)
+    case generic(Data)
+    case creator(String)
+    case type(String)
+    case creationDate(Date)
+    case modificationDate(Date)
 }
 
 extension KeychainAttribute: Attribute {
@@ -156,6 +167,100 @@ extension KeychainAttribute: Attribute {
     }
 }
 
+public extension [KeychainAttribute] {
+    var `class`: ItemClass? {
+        self.compactMap { if case let .class(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var service: String? {
+        self.compactMap { if case let .service(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var accessible: AccessibilityLevel? {
+        self.compactMap { if case let .accessible(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var accessGroup: String? {
+        self.compactMap { if case let .accessGroup(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var synchronizable: Bool? {
+        self.compactMap { if case let .synchronizable(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var server: String? {
+        self.compactMap { if case let .server(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var port: Int? {
+        self.compactMap { if case let .port(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var protocolType: ProtocolType? {
+        self.compactMap { if case let .protocolType(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var authenticationType: AuthenticationType? {
+        self.compactMap { if case let .authenticationType(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var securityDomain: String? {
+        self.compactMap { if case let .securityDomain(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var path: String? {
+        self.compactMap { if case let .path(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var valueData: Data? {
+        self.compactMap { if case let .valueData(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var account: String? {
+        self.compactMap { if case let .account(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var label: String? {
+        self.compactMap { if case let .label(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var comment: String? {
+        self.compactMap { if case let .comment(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var attrDescription: String? {
+        self.compactMap { if case let .attrDescription(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var isInvisible: Bool? {
+        self.compactMap { if case let .isInvisible(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var isNegative: Bool? {
+        self.compactMap { if case let .isNegative(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var generic: Data? {
+        self.compactMap { if case let .generic(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var creator: String? {
+        self.compactMap { if case let .creator(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var type: String? {
+        self.compactMap { if case let .type(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var creationDate: Date? {
+        self.compactMap { if case let .creationDate(value) = $0 { return value } else { return nil } }.first
+    }
+
+    var modificationDate: Date? {
+        self.compactMap { if case let .modificationDate(value) = $0 { return value } else { return nil } }.first
+    }
+}
+
 extension Bool {
     init?(value: CFNumber) {
         if value == kCFBooleanTrue { self = true }
@@ -166,6 +271,31 @@ extension Bool {
     var toCFBoolean: CFBoolean {
         self ? kCFBooleanTrue : kCFBooleanFalse
     }
+}
+
+enum SearchResultAttribute {
+    case matchLimit(MatchLimit)
+
+    enum MatchLimit {
+        case one
+        case all
+
+        var rawValue: CFString {
+            switch self {
+                case .one:
+                    return kSecMatchLimitOne
+                case .all:
+                    return kSecMatchLimitAll
+            }
+        }
+    }
+}
+
+enum ReturnResultAttribute {
+    case returnData(Bool)
+    case returnAttributes(Bool)
+    case returnRef(Bool)
+    case returnPersistentRef(Bool)
 }
 
 /// Query for both synchronizable and non-synchronizable results
@@ -182,17 +312,6 @@ extension SearchResultAttribute: Attribute {
     }
 }
 
-extension SearchResultAttribute.MatchLimit {
-    var rawValue: CFString {
-        switch self {
-            case .one:
-                return kSecMatchLimitOne
-            case .all:
-                return kSecMatchLimitAll
-        }
-    }
-}
-
 extension ReturnResultAttribute: Attribute {
     var element: Element {
         switch self {
@@ -205,6 +324,12 @@ extension ReturnResultAttribute: Attribute {
             case .returnPersistentRef(let value):
                 return (key: kSecReturnPersistentRef, value: value)
         }
+    }
+}
+
+extension [Attribute] {
+    func compose() -> CFDictionary {
+        return self.map(\.element).reduce(into: [CFString: Any]()) { $0[$1.key] = $1.value } as CFDictionary
     }
 }
 
