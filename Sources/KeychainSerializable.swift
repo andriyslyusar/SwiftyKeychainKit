@@ -24,122 +24,14 @@ import Foundation
 import Security
 
 public protocol KeychainSerializable {
-    static func encode(_ value: Self) throws -> Data
+    func encode() throws -> Data
 
     static func decode(_ data: Data) throws -> Self?
 }
 
-extension KeychainSerializable {
-    static func set(_ value: Self, forKey key: KeychainKey<Self>, in keychain: Keychain) throws {
-        let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
-        + key.searchRequestAttributes
-        + [KeychainAttribute.account(key.key)]
-
-        let status = keychainItemFetch(attributesToSearch)
-        switch status {
-                // Keychain already contains key -> update existing item
-            case errSecSuccess:
-                let attributesToUpdate = key.updateRequestAttributes
-                + [KeychainAttribute.valueData(try encode(value))]
-
-                let status = keychainItemUpdate(
-                    attributesToSearch: attributesToSearch,
-                    attributesToUpdate: attributesToUpdate
-                )
-                if status != errSecSuccess {
-                    throw KeychainError(status: status)
-                }
-
-                // Keychain doesn't contain key -> add new item
-            case errSecItemNotFound:
-                let attributesToAdd = keychain.searchRequestAttributes
-                + key.searchRequestAttributes
-                + key.updateRequestAttributes
-                + [KeychainAttribute.account(key.key), KeychainAttribute.valueData(try encode(value))]
-
-                let status = keychainItemAdd(attributesToAdd)
-                if status != errSecSuccess {
-                    throw KeychainError(status: status)
-                }
-
-                // This error can happen when your app is launched in the background while the device is locked
-                // (for example, in response to an actionable push notification or a Core Location geofence event),
-                // the application may crash as a result of accessing a locked keychain entry.
-                //
-                // TODO: Maybe introduce `force` property to allow remove and save key with different permissions
-            case errSecInteractionNotAllowed:
-                throw KeychainError(status: status)
-
-            default:
-                throw KeychainError(status: status)
-        }
-    }
-
-    static func get(key: KeychainKey<Self>, from keychain: Keychain) throws -> Self? {
-        let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
-            + key.searchRequestAttributes
-            + [KeychainAttribute.account(key.key)]
-            + [SearchResultAttribute.matchLimit(.one)]
-            + [ReturnResultAttribute.returnData(true)]
-
-        var result: AnyObject?
-        let status = SecItemCopyMatching(attributesToSearch.compose(), &result)
-        switch status {
-            case errSecSuccess:
-                guard let data = result as? Data else {
-                    throw KeychainError.unexpectedError
-                }
-                return try decode(data)
-            case errSecItemNotFound:
-                return nil
-            default:
-                throw KeychainError(status: status)
-        }
-    }
-
-    static func attributes(key: KeychainKey<Self>, from keychain: Keychain) throws -> [KeychainAttribute] {
-        let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
-            + key.searchRequestAttributes
-            + [KeychainAttribute.account(key.key)]
-            + [SearchResultAttribute.matchLimit(.one)]
-            + [
-                ReturnResultAttribute.returnAttributes(true),
-                ReturnResultAttribute.returnRef(true),
-                ReturnResultAttribute.returnPersistentRef(true),
-            ]
-
-        var result: AnyObject?
-        let status = SecItemCopyMatching(attributesToSearch.compose(), &result)
-        switch status {
-            case errSecSuccess:
-                guard let data = result as? [String: Any] else {
-                    throw KeychainError.unexpectedError
-                }
-
-                let attrs: [KeychainAttribute] = data.compactMap { KeychainAttribute(key: $0, value: $1) }
-
-                return attrs
-
-            default:
-                throw KeychainError(status: status)
-        }
-    }
-
-    static func remove(key: KeychainKey<Self>, from keychain: Keychain) throws {
-        let attributesToSearch: [Attribute] = keychain.searchRequestAttributes
-        + key.searchRequestAttributes
-        + [KeychainAttribute.account(key.key)]
-
-        let status = keychainItemDelete(attributesToSearch)
-        if status != errSecSuccess && status != errSecItemNotFound {
-            throw KeychainError(status: status)
-        }
-    }
-}
-
 extension Int: KeychainSerializable {
-    public static func encode(_ value: Int) throws -> Data {
-        Data(from: value)
+    public func encode() throws -> Data {
+        Data(from: self)
     }
     
     public static func decode(_ data: Data) throws -> Int? {
@@ -148,8 +40,8 @@ extension Int: KeychainSerializable {
 }
 
 extension String: KeychainSerializable {
-    public static func encode(_ value: String) throws -> Data {
-        guard let data = value.data(using: .utf8) else {
+    public func encode() throws -> Data {
+        guard let data = self.data(using: .utf8) else {
             throw KeychainError.conversionError
         }
         return data
@@ -161,8 +53,8 @@ extension String: KeychainSerializable {
 }
 
 extension Double: KeychainSerializable {
-    public static func encode(_ value: Double) throws -> Data {
-        Data(from: value)
+    public func encode() throws -> Data {
+        Data(from: self)
     }
 
     public static func decode(_ data: Data) throws -> Double? {
@@ -171,8 +63,8 @@ extension Double: KeychainSerializable {
 }
 
 extension Float: KeychainSerializable {
-    public static func encode(_ value: Float) throws -> Data {
-        Data(from: value)
+    public func encode() throws -> Data {
+        Data(from: self)
     }
 
     public static func decode(_ data: Data) throws -> Float? {
@@ -181,8 +73,8 @@ extension Float: KeychainSerializable {
 }
 
 extension Bool: KeychainSerializable {
-    public static func encode(_ value: Bool) throws -> Data {
-        let bytes: [UInt8] = value ? [1] : [0]
+    public func encode() throws -> Data {
+        let bytes: [UInt8] = self ? [1] : [0]
         return Data(bytes)
     }
 
@@ -195,8 +87,8 @@ extension Bool: KeychainSerializable {
 }
 
 extension Data: KeychainSerializable {
-    public static func encode(_ value: Data) throws -> Data {
-        value
+    public func encode() throws -> Data {
+        self
     }
 
     public static func decode(_ data: Data) throws -> Data? {
@@ -205,8 +97,8 @@ extension Data: KeychainSerializable {
 }
 
 public extension KeychainSerializable where Self: Decodable & Encodable {
-    static func encode(_ value: Self) throws -> Data {
-        try JSONEncoder().encode(value)
+    func encode() throws -> Data {
+        try JSONEncoder().encode(self)
     }
 
     static func decode(_ data: Data) throws -> Self? {
@@ -215,9 +107,9 @@ public extension KeychainSerializable where Self: Decodable & Encodable {
 }
 
 public extension KeychainSerializable where Self: NSCoding {
-    static func encode(_ value: Self) throws -> Data {
+    func encode() throws -> Data {
         // TODO: iOS 13 deprecated +archivedDataWithRootObject:requiringSecureCoding:error:
-        NSKeyedArchiver.archivedData(withRootObject: value)
+        NSKeyedArchiver.archivedData(withRootObject: self)
     }
 
     static func decode(_ data: Data) throws -> Self? {
@@ -227,28 +119,6 @@ public extension KeychainSerializable where Self: NSCoding {
         }
         return value
     }
-}
-
-func keychainItemDelete(_ attributes: [Attribute]) -> OSStatus {
-    return SecItemDelete(attributes.compose())
-}
-
-func keychainItemAdd(_ attributes: [Attribute]) -> OSStatus {
-    return SecItemAdd(attributes.compose(), nil)
-}
-
-/// Modifies items that match a search query.
-/// Keychain SecItemUpdate do not allow search query parameters and account to pass as `attributesToUpdate`
-/// - Parameters:
-///   - query: Attributes collection that describes the search for the keychain items you want to update.
-///   - attributes: Attributes collection containing the attributes whose values should be changed, along with the new values.
-/// - Returns: A result code
-func keychainItemUpdate(attributesToSearch: [Attribute], attributesToUpdate: [Attribute]) -> OSStatus {
-    return SecItemUpdate(attributesToSearch.compose(), attributesToUpdate.compose())
-}
-
-func keychainItemFetch(_ attributes: [Attribute]) -> OSStatus {
-    return SecItemCopyMatching(attributes.compose(), nil)
 }
 
 /// https://stackoverflow.com/a/38024025/2845836
@@ -263,80 +133,5 @@ extension Data {
         guard count >= MemoryLayout.size(ofValue: value) else { return nil }
         _ = Swift.withUnsafeMutableBytes(of: &value, { copyBytes(to: $0)} )
         return value
-    }
-}
-
-extension [Attribute] {
-    func compose() -> CFDictionary {
-        return self.map(\.element).reduce(into: [CFString: Any]()) { $0[$1.key] = $1.value } as CFDictionary
-    }
-}
-
-extension Keychain {
-    /// Build keychain search request attributes
-    var searchRequestAttributes: [Attribute] {
-        var attributes = [Attribute]()
-        accessGroup.flatMap { attributes.append(KeychainAttribute.accessGroup($0)) }
-        return attributes
-    }
-}
-
-extension KeychainKey {
-    var searchRequestAttributes: [Attribute] {
-        var attributes = [Attribute]()
-        attributes.append(SynchronizableAnyAttribute())
-
-        switch self {
-            case .genericPassword(let attr):
-                attributes.append(KeychainAttribute.class(.genericPassword))
-                attributes.append(KeychainAttribute.service(attr.service))
-
-            case .internetPassword(let attr):
-                attributes.append(KeychainAttribute.class(.internetPassword))
-
-                // TODO: Replace fatal error with throws error
-                if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
-                    guard let host = attr.url.host(percentEncoded: true)
-                    else { fatalError("Missing `host` information in provided URL") }
-                    attributes.append(KeychainAttribute.server(host))
-                } else {
-                    guard let host = attr.url.host else { fatalError("Missing host information in provided URL") }
-                    attributes.append(KeychainAttribute.server(host))
-                }
-
-                attributes.append(KeychainAttribute.protocolType(attr.scheme))
-                attributes.append(KeychainAttribute.path(attr.url.path))
-                attr.url.port.flatMap { attributes.append(KeychainAttribute.port($0)) }
-
-                // TODO: Invetigate do we really reaquire AuthenticationType on internet password
-                attributes.append(KeychainAttribute.authenticationType(attr.authenticationType))
-
-                if let securityDomain = attr.securityDomain {
-                    attributes.append(KeychainAttribute.securityDomain(securityDomain))
-                }
-        }
-
-        return attributes
-    }
-
-    var updateRequestAttributes: [Attribute] {
-        var attributes = [KeychainAttribute]()
-
-        attributes.append(.accessible(accessible))
-        attributes.append(.synchronizable(synchronizable))
-
-        label.flatMap { attributes.append(.label($0)) }
-        comment.flatMap { attributes.append(.comment($0)) }
-        descr.flatMap { attributes.append(.attrDescription($0)) }
-        isInvisible.flatMap { attributes.append(.isInvisible($0)) }
-        isNegative.flatMap { attributes.append(.isNegative($0)) }
-        creator.flatMap { attributes.append(.creator($0)) }
-        type.flatMap { attributes.append(.type($0)) }
-
-        if case let .genericPassword(attrs) = self, let generic = attrs.generic {
-            attributes.append(.generic(generic))
-        }
-
-        return attributes
     }
 }
