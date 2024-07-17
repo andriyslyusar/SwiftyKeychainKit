@@ -112,7 +112,6 @@ class KeychainTests: XCTestCase {
         let key = KeychainKey<String>.internetPassword(
             key: "key",
             url: URL(string: "https://github.com:8080/SwiftyKeychainKit")!,
-            scheme: .https,
             authenticationType: .httpBasic
         )
 
@@ -150,7 +149,6 @@ class KeychainTests: XCTestCase {
             accessible: .afterFirstUnlock,
             synchronizable: true,
             url: URL(string: "https://github.com:8080/SwiftyKeychainKit")!,
-            scheme: .https,
             authenticationType: .httpBasic,
             securityDomain: "securityDomain",
             label: "label",
@@ -187,5 +185,65 @@ class KeychainTests: XCTestCase {
 
         // Check General password specific attributes
         XCTAssertNil(attributes.generic)
+    }
+
+    func testGenericPasswordItems() throws {
+        let keychain = Keychain()
+
+        let key1 = KeychainKey<String>.genericPassword(key: "key1", service: "com.swifty.keychainkit")
+        let key2 = KeychainKey<String>.genericPassword(key: "key2", service: "com.swifty.keychainkit")
+        let key3 = KeychainKey<String>
+            .internetPassword(key: "key3", url: URL(string: "https://github.com")!, authenticationType: .default)
+
+        try keychain.set("value1", for: key1)
+        try keychain.set("value2", for: key2)
+        try keychain.set("value3", for: key3)
+
+        let items = try keychain.items(ofType: .genericPassword)
+
+        XCTAssertEqual(items.count, 2)
+        XCTAssertTrue(items.contains { $0.key == "key1" })
+        XCTAssertTrue(items.contains { $0.key == "key2" })
+        XCTAssertFalse(items.contains { $0.key == "key3" })
+    }
+
+    func testInternetPasswordItems() throws {
+        let keychain = Keychain()
+
+        let key1 = KeychainKey<String>.genericPassword(key: "key1", service: "com.swifty.keychainkit")
+        let key2 = KeychainKey<String>.genericPassword(key: "key2", service: "com.swifty.keychainkit")
+        let key3 = KeychainKey<String>
+            .internetPassword(key: "key3", url: URL(string: "https://github.com")!, authenticationType: .default)
+
+        try keychain.set("value1", for: key1)
+        try keychain.set("value2", for: key2)
+        try keychain.set("value3", for: key3)
+
+        let items = try keychain.items(ofType: .internetPassword)
+
+        XCTAssertEqual(items.count, 1)
+        XCTAssertFalse(items.contains { $0.key == "key1" })
+        XCTAssertFalse(items.contains { $0.key == "key2" })
+        XCTAssertTrue(items.contains { $0.key == "key3" })
+    }
+
+    func testAllItems() throws {
+        let keychain = Keychain()
+
+        let key1 = KeychainKey<String>.genericPassword(key: "key1", service: "com.swifty.keychainkit")
+        let key2 = KeychainKey<String>.genericPassword(key: "key2", service: "com.swifty.keychainkit")
+        let key3 = KeychainKey<String>
+            .internetPassword(key: "key3", url: URL(string: "https://github.com")!, authenticationType: .default)
+
+        try keychain.set("value1", for: key1)
+        try keychain.set("value2", for: key2)
+        try keychain.set("value3", for: key3)
+
+        let items = try keychain.items()
+
+        XCTAssertEqual(items.count, 3)
+        XCTAssertTrue(items.contains { $0.key == "key1" })
+        XCTAssertTrue(items.contains { $0.key == "key2" })
+        XCTAssertTrue(items.contains { $0.key == "key3" })
     }
 }
