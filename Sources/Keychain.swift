@@ -139,6 +139,91 @@ public struct Keychain {
     public func attributes<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> [KeychainAttribute] {
         try attributes(key: key)
     }
+
+    /// Checks if an key is stored in the Keychain.
+    ///
+    /// ```swift
+    /// let isStored = try keychain.hasKey(.secret)
+    /// ```
+    ///
+    /// - Parameter key: Key of the Keychain item to check.
+    /// - Returns: Whether the item is stored in the Keychain or not.
+    /// - Throws: A ``KeychainError`` when the SwiftyKeychainKit operation fails.
+    public func hasKey<T>(_ key: KeychainKey<T>) throws -> Bool {
+        let attributesToSearch: [Attribute] = self.searchRequestAttributes
+            + key.searchRequestAttributes
+            + [KeychainAttribute.account(key.key)]
+            + [SearchResultAttribute.matchLimit(.one)]
+            + [ReturnResultAttribute.returnData(false)]
+
+        let status = SecItemCopyMatching(attributesToSearch.compose(), nil)
+        switch status {
+            case errSecSuccess:
+               return true
+            case errSecItemNotFound:
+                return false
+            default:
+                throw KeychainError(status: status)
+        }
+    }
+
+    /// Retrieve the keys of all stored items
+    ///
+    /// ```swift
+    /// let items = try keychain.items()
+    /// ```
+    public func items() throws -> [KeychainItem] {
+        [try items(ofType: .genericPassword), try items(ofType: .internetPassword)].flatMap { $0 }
+    }
+
+    /// Retrieve the keys of specific item type
+    ///
+    /// ```swift
+    /// let items = try keychain.items(ofType: .internetPassword)
+    /// ```
+    ///
+    /// - Parameter type: Type of  the Keychain item to retrieve.
+    /// - Returns: Array of items accessible in the Keychain
+    /// - Throws: A ``KeychainError`` when the SwiftyKeychainKit operation fails.
+    public func items(ofType type: ItemClass) throws -> [KeychainItem] {
+        let request: [Attribute] = self.searchRequestAttributes
+        + [
+            KeychainAttribute.class(type),
+            SearchResultAttribute.matchLimit(.all),
+            ReturnResultAttribute.returnAttributes(true),
+            ReturnResultAttribute.returnData(false),
+            ReturnResultAttribute.returnRef(true)
+        ]
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(request.compose(), &result)
+        switch status {
+            case errSecSuccess:
+                guard let items = result as? [[String: Any]] else {
+                    throw KeychainError.unexpectedError
+                }
+
+                return items.compactMap { item in
+                    guard let key = item[kSecAttrAccount as String] as? String else { return nil }
+                    let keychainAttributes = item.compactMap { KeychainAttribute(key: $0, value: $1) }
+
+                    switch keychainAttributes.class {
+                        case .genericPassword:
+                            return GenericPassword(key: key, attributes: keychainAttributes)
+                        case .internetPassword:
+                            return InternetPassword(key: key, attributes: keychainAttributes)
+                        case .none:
+                            return nil
+                    }
+                }
+
+            case errSecItemNotFound:
+                return []
+
+            default:
+                throw KeychainError(status: status)
+        }
+    }
 }
 
 public extension Keychain {
@@ -156,7 +241,7 @@ private extension Keychain {
             // Keychain already contains key -> update existing item
             case errSecSuccess:
                 let attributesToUpdate = key.updateRequestAttributes
-                + [KeychainAttribute.valueData(try value.encode())]
+                    + [KeychainAttribute.valueData(try value.encode())]
 
                 let status = keychainItemUpdate(
                     attributesToSearch: attributesToSearch,
@@ -169,9 +254,9 @@ private extension Keychain {
             // Keychain doesn't contain key -> add new item
             case errSecItemNotFound:
                 let attributesToAdd = self.searchRequestAttributes
-                + key.searchRequestAttributes
-                + key.updateRequestAttributes
-                + [KeychainAttribute.account(key.key), KeychainAttribute.valueData(try value.encode())]
+                    + key.searchRequestAttributes
+                    + key.updateRequestAttributes
+                    + [KeychainAttribute.account(key.key), KeychainAttribute.valueData(try value.encode())]
 
                 let status = keychainItemAdd(attributesToAdd)
                 if status != errSecSuccess {

@@ -29,12 +29,8 @@ import XCTest
 class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T: Equatable {
     let genericPasswordKey1: KeychainKey<T> = .genericPassword(key: "key1", service: "com.swifty.keychainkit")
     let genericPasswordKey2: KeychainKey<T> = .genericPassword(key: "key2", service: "com.swifty.keychainkit")
-    let internetPasswordKey1: KeychainKey<T> = .internetPassword(
-        key: "key3",
-        url: URL(string: "https://github.com")!,
-        scheme: .https,
-        authenticationType: .httpBasic
-    )
+    let internetPasswordKey1: KeychainKey<T> =
+        .internetPassword(key: "key3", url: URL(string: "https://github.com")!, authenticationType: .httpBasic)
 
     var value1: T!
     var value2: T!
@@ -155,6 +151,17 @@ class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T: Equata
         XCTAssertEqual(try! keychain[genericPasswordKey1, default: value3].get(), value3)
         XCTAssertEqual(try! keychain[genericPasswordKey2, default: value3].get(), value3)
     }
+
+    func testKeychainHasKey() throws {
+        let keychain = Keychain()
+
+        try keychain.set(value1, for: genericPasswordKey1)
+        
+        XCTAssertTrue(try keychain.hasKey(genericPasswordKey1))
+        XCTAssertFalse(try keychain.hasKey(genericPasswordKey2))
+    }
+
+
 
     // MARK: Internet Password
 //
