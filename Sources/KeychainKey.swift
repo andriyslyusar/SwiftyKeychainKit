@@ -46,9 +46,9 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
 
     public static func genericPassword(
         key: String,
-        service: String,
-        accessible: AccessibilityLevel = .whenUnlocked,
-        synchronizable: Bool = false,
+        service: String = KeychainKeyConfiguration.shared.service,
+        accessible: AccessibilityLevel = KeychainKeyConfiguration.shared.accessible,
+        synchronizable: Bool = KeychainKeyConfiguration.shared.synchronizable,
         label: String? = nil,
         comment: String? = nil,
         description: String? = nil,
@@ -78,13 +78,13 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
 
     public static func internetPassword(
         key: String,
-        accessible: AccessibilityLevel = .whenUnlocked,
-        synchronizable: Bool = false,
+        accessible: AccessibilityLevel = KeychainKeyConfiguration.shared.accessible,
+        synchronizable: Bool = KeychainKeyConfiguration.shared.synchronizable,
         protocolType: ProtocolType,
         domain: String,
         port: Int? = nil,
         path: String? = nil,
-        authenticationType: AuthenticationType,
+        authenticationType: AuthenticationType = KeychainKeyConfiguration.shared.authenticationType,
         securityDomain: String? = nil,
         label: String? = nil,
         comment: String? = nil,
@@ -118,10 +118,10 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
 
     public static func internetPassword(
         key: String,
-        accessible: AccessibilityLevel = .whenUnlocked,
-        synchronizable: Bool = false,
+        accessible: AccessibilityLevel = KeychainKeyConfiguration.shared.accessible,
+        synchronizable: Bool = KeychainKeyConfiguration.shared.synchronizable,
         url: URL,
-        authenticationType: AuthenticationType,
+        authenticationType: AuthenticationType = KeychainKeyConfiguration.shared.authenticationType,
         securityDomain: String? = nil,
         label: String? = nil,
         comment: String? = nil,
@@ -239,7 +239,6 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
         }
     }
 
-    // TODO: We can set and get String for this property, but according to spec we should use CFNumberRef.
     public var creator: String? {
         switch self {
             case .genericPassword(let attrs):
@@ -249,7 +248,6 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
         }
     }
 
-    // TODO: We can set and get String for this property, but according to spec we should use CFNumberRef.
     public var type: String? {
         switch self {
             case .genericPassword(let attrs):
@@ -257,6 +255,32 @@ public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
             case .internetPassword(let attrs):
                 return attrs.type
         }
+    }
+}
+
+public class KeychainKeyConfiguration {
+    public var service: String
+    public var accessible: AccessibilityLevel
+    public var synchronizable: Bool
+    public var authenticationType: AuthenticationType
+
+    public static let shared = KeychainKeyConfiguration(
+        service: Bundle.main.bundleIdentifier ?? "com.swifty.keychainkit",
+        accessible: .whenUnlocked,
+        synchronizable: false,
+        authenticationType: .default
+    )
+
+    private init(
+        service: String,
+        accessible: AccessibilityLevel,
+        synchronizable: Bool,
+        authenticationType: AuthenticationType
+    ) {
+        self.service = service
+        self.accessible = accessible
+        self.synchronizable = synchronizable
+        self.authenticationType = authenticationType
     }
 }
 
@@ -344,7 +368,6 @@ public struct InternetPassword: KeychainItem {
 public struct GenericPassword: KeychainItem {
     public let key: String
 
-    //TODO: Bundle identifier by default
     /// The service associated with Keychain item
     public var service: String
 
@@ -407,7 +430,7 @@ public struct GenericPassword: KeychainItem {
     public let type: String?
 }
 
-public enum ItemClass {
+public enum ItemClass: Equatable {
     /// The value that indicates a Generic password item.
     ///
     /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecclassgenericpassword)
@@ -419,7 +442,7 @@ public enum ItemClass {
     case internetPassword
 }
 
-public enum AccessibilityLevel {
+public enum AccessibilityLevel: Equatable {
     /// The data in the keychain can only be accessed when the device is unlocked.
     /// Only available if a passcode is set on the device
     ///
@@ -447,7 +470,7 @@ public enum AccessibilityLevel {
     case accessibleAlways
 }
 
-public enum ProtocolType {
+public enum ProtocolType: Equatable {
     case ftp
     case ftpAccount
     case http
@@ -481,7 +504,7 @@ public enum ProtocolType {
     case pop3S
 }
 
-public enum AuthenticationType {
+public enum AuthenticationType: Equatable {
     case ntlm
     case msn
     case dpa
