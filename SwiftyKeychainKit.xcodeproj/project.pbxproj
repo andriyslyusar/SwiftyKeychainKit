@@ -30,6 +30,7 @@
 		05F90F9A2323DAD600E53A8B /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F90F992323DAD600E53A8B /* KeychainTests.swift */; };
 		8A33D40E2C3B09980015CEEB /* AppKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A33D40D2C3B09980015CEEB /* AppKeychainStorage.swift */; };
 		8A43E3C12C42800F001E68CB /* KeychainKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A43E3C02C42800F001E68CB /* KeychainKey.swift */; };
+		8A5CA7ED2C564C3C00E20AAA /* KeychainKeyConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A5CA7EC2C564C3C00E20AAA /* KeychainKeyConfigurationTests.swift */; };
 		8AC8A0E42C3AAF7000267FB0 /* SwiftyKeychainKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "SwiftyKeychain::SwiftyKeychain::Product" /* SwiftyKeychainKit.framework */; };
 		8AC8A0E52C3AAF7000267FB0 /* SwiftyKeychainKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = "SwiftyKeychain::SwiftyKeychain::Product" /* SwiftyKeychainKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -93,6 +94,7 @@
 		05F90F992323DAD600E53A8B /* KeychainTests.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; tabWidth = 4; };
 		8A33D40D2C3B09980015CEEB /* AppKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppKeychainStorage.swift; sourceTree = "<group>"; };
 		8A43E3C02C42800F001E68CB /* KeychainKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainKey.swift; sourceTree = "<group>"; };
+		8A5CA7EC2C564C3C00E20AAA /* KeychainKeyConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainKeyConfigurationTests.swift; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		"SwiftyKeychain::SwiftyKeychain::Product" /* SwiftyKeychainKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftyKeychainKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -141,6 +143,7 @@
 				05ADF249290B0DBC0008715A /* KeychainTests.Archivable.swift */,
 				05ADF24B290B0DD50008715A /* KeychainTests.CustomType.swift */,
 				05ADF24D290D749C0008715A /* KeychainKeyTests.swift */,
+				8A5CA7EC2C564C3C00E20AAA /* KeychainKeyConfigurationTests.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -353,6 +356,7 @@
 				05DB40F8232D2E6500ED3C31 /* AttributeTests.swift in Sources */,
 				05ADF24A290B0DBC0008715A /* KeychainTests.Archivable.swift in Sources */,
 				05ADF242290B0D8A0008715A /* KeychainTests.Bool.swift in Sources */,
+				8A5CA7ED2C564C3C00E20AAA /* KeychainKeyConfigurationTests.swift in Sources */,
 				05E462B82906FEE300B48726 /* AbstractKeychainTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -30,7 +30,6 @@ protocol Attribute {
 }
 
 public enum KeychainAttribute: Equatable {
-    // TODO: Maybe rename `class` to type
     case `class`(ItemClass)
     case service(String)
     case accessible(AccessibilityLevel)
