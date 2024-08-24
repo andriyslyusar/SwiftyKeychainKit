@@ -10,5 +10,5 @@ import Foundation
 import SwiftyKeychainKit
 
 extension KeychainKeys {
-    static var secret: KeychainKey<String> { .genericPassword(key: "secret", service: "com.swifty.keychainkit.example") }
+    static var secret: Keychain.Key<String> { .genericPassword(key: "secret", service: "com.swifty.keychainkit.example") }
 }

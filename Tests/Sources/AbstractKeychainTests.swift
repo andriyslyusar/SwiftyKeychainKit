@@ -27,9 +27,9 @@ import XCTest
 @testable import SwiftyKeychainKit
 
 class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T: Equatable {
-    let genericPasswordKey1: KeychainKey<T> = .genericPassword(key: "key1", service: "com.swifty.keychainkit")
-    let genericPasswordKey2: KeychainKey<T> = .genericPassword(key: "key2", service: "com.swifty.keychainkit")
-    let internetPasswordKey1: KeychainKey<T> =
+    let genericPasswordKey1: Keychain.Key<T> = .genericPassword(key: "key1", service: "com.swifty.keychainkit")
+    let genericPasswordKey2: Keychain.Key<T> = .genericPassword(key: "key2", service: "com.swifty.keychainkit")
+    let internetPasswordKey1: Keychain.Key<T> =
         .internetPassword(key: "key3", url: URL(string: "https://github.com")!, authenticationType: .httpBasic)
 
     var value1: T!
@@ -136,20 +136,6 @@ class AbstractKeychainTests<T: KeychainSerializable>: XCTestCase where T: Equata
             XCTAssertNil(try! keychain(genericPasswordKey1).get())
             XCTAssertNil(try! keychain(genericPasswordKey2).get())
         }
-    }
-
-    func testKeychainGetWithDefaultValue() {
-        let keychain = Keychain()
-
-        XCTAssertEqual(try! keychain.get(genericPasswordKey1, default: value3), value3)
-        XCTAssertEqual(try! keychain.get(genericPasswordKey2, default: value3), value3)
-    }
-
-    func testKeychainGetSubsriptWithDefaultValue() {
-        let keychain = Keychain()
-
-        XCTAssertEqual(try! keychain[genericPasswordKey1, default: value3].get(), value3)
-        XCTAssertEqual(try! keychain[genericPasswordKey2, default: value3].get(), value3)
     }
 
     func testKeychainHasKey() throws {

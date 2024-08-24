@@ -19,7 +19,7 @@ SwiftyKeychainKit is a simple Swift wrapper for Keychain Services API with the b
 
 ```swift
 let keychain = Keychain(service: "com.swifty.keychain")
-let accessTokenKey = KeychainKey<String>(key: "accessToken")
+let accessTokenKey = Keychain.Key<String>(key: "accessToken")
 
 // Save or modify value
 try? keychain.save("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", for : accessTokenKey)
@@ -50,8 +50,8 @@ For extra convenience, define your keys by extending `KeychainKeys` class and ad
 
 ```swift
 extension KeychainKeys {
-    static let username = KeychainKey<String>(key: "username")
-    static let age = KeychainKey<Int>(key: "age")
+    static let username = Keychain.Key<String>(key: "username")
+    static let age = Keychain.Key<Int>(key: "age")
 }
 ```
 

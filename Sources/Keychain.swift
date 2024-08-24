@@ -26,53 +26,73 @@ import Foundation
 
 @dynamicCallable
 public struct Keychain {
-    /// Keychain items with share access same group
+    /// Keychain items with share access  group
     public var accessGroup: String?
 
+    /// Initializes a new instance of Keychain.
+    /// - Parameter accessGroup: An optional access group for shared access.
+    ///
+    /// ```
+    /// let keychain = Keychain()
+    /// let keychainWithGroup = Keychain(accessGroup: "group.com.example")
+    /// ```
     public init(accessGroup: String? = nil) {
         self.accessGroup = accessGroup
     }
 
-    /// Persist value for key in keychain
-    /// - Parameter value: Persisting value
-    /// - Parameter key: Key for value
-    public func set<T: KeychainSerializable>(_ value: T, for key: KeychainKey<T>) throws {
+    /// Stores a value in the keychain for a specified key.
+    /// - Parameter value: The value to be stored.
+    /// - Parameter key: The key associated with the value.
+    /// - Throws: A KeychainError if the operation fails.
+    ///
+    /// ```
+    /// try keychain.set("mySecret", for: .mySecretKey)
+    /// ```
+    public func set<T: KeychainSerializable>(_ value: T, for key: Keychain.Key<T>) throws {
         try set(value, forKey: key)
     }
 
-    /// Get value for provided key from keychain
-    /// - Parameter key: Key for value
-    public func get<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> T? {
+    /// Retrieves a value from the keychain for a specified key.
+    /// - Parameter key: The key associated with the value.
+    /// - Throws: A KeychainError if the operation fails.
+    /// - Returns: The value associated with the key
+    ///
+    /// ```
+    /// let value = try keychain.get(.mySecretKey)
+    /// ```
+    public func get<T: KeychainSerializable>(_ key: Keychain.Key<T>) throws -> T? {
         try get(key: key)
     }
 
-    /// Get value for provided key from keychain, return default value in case `value == nil` and not error raised
-    /// - Parameter key: Key for value
-    /// - Parameter defaultProvider: Value return by default than value is nil
-    public func get<T: KeychainSerializable>(_ key: KeychainKey<T>, default defaultProvider: @autoclosure () -> T) throws -> T {
-        do {
-            if let value = try get(key: key) {
-                return value
-            }
-            return defaultProvider()
-        } catch {
-            throw error
-        }
-    }
-
-    /// Remove key from specific keychain
-    /// - Parameter key: Keychain key to remove
-    public func remove<T: KeychainSerializable>(_ key: KeychainKey<T>) throws {
+    /// Remove key with value from the  keychain
+    /// - Parameter key: The key associated with the value to be removed.
+    /// - Throws: A KeychainError if the operation fails.
+    ///
+    /// ```
+    /// try keychain.remove(.mySecretKey)
+    /// ```
+    public func remove<T: KeychainSerializable>(_ key: Keychain.Key<T>) throws {
         try remove(key: key)
     }
 
-    /// Remove all keys from specific keychain
+    /// Removes all keys and values from the keychain.
+    /// - Throws: A KeychainError if the operation fails.
+    ///
+    /// ```
+    /// try keychain.removeAll()
+    /// ```
     public func removeAll() throws {
         try removeAll(ofType: .genericPassword)
         try removeAll(ofType: .internetPassword)
     }
 
-    /// Remove all keys from specific keychain of type
+    /// Removes all keys and values of a specific type from the keychain.
+    /// - Parameter type: The type of items to remove.
+    /// - Throws: A KeychainError if the operation fails.
+    ///
+    /// ```
+    /// try keychain.removeAll(ofType: .internetPassword)
+    /// ```
     public func removeAll(ofType type: ItemClass) throws {
         var searchRequestAttributes = [Attribute]()
         searchRequestAttributes += self.searchRequestAttributes
@@ -85,8 +105,20 @@ public struct Keychain {
         }
     }
 
-    /// Subscript fetching from keychain in return result with Result type
-    public subscript<T: KeychainSerializable>(key: KeychainKey<T>) -> Result<T?, KeychainError> {
+    /// Retrieves the result of a keychain query using a subscript syntax.
+    /// - Parameter key: The key associated with the value.
+    /// - Returns: A Result containing the value or a KeychainError.
+    ///
+    /// ```
+    /// let result = keychain[.mySecretKey]
+    /// switch result {
+    /// case .success(let value):
+    ///     print("Retrieved value: \(value)")
+    /// case .failure(let error):
+    ///     print("Error: \(error)")
+    /// }
+    /// ```
+    public subscript<T: KeychainSerializable>(key: Keychain.Key<T>) -> Result<T?, KeychainError> {
         do {
             return .success(try get(key))
         } catch {
@@ -94,39 +126,36 @@ public struct Keychain {
         }
     }
 
-     /// Subscript with default value. In case of error raise fetching from keychain `.failure` result returns, default
-     /// value apply only in case fetch value is nil
-    public subscript<T: KeychainSerializable>(key: KeychainKey<T>, default defaultProvider: @autoclosure () -> T) -> Result<T, KeychainError> {
-        do {
-            return .success(try get(key, default: defaultProvider()))
-        } catch {
-            return .failure(KeychainError(error))
-        }
-    }
-
-    /// User `dynamicCallable` syntax sugar to implement `get` keychain value
+    /// Dynamically retrieves a value from the keychain using dynamic callable syntax.
+    /// - Parameter args: A single Keychain.Key object.
+    /// - Throws: A KeychainError if the operation fails.
+    /// - Returns: The value associated with the key
     ///
-    /// NOTE: Current implementation support only single argument and will ignore others.
-    ///
-    /// Example:
     /// ```
-    /// try keychain(.stringKey)
-    ///  ```
-    /// - Parameter args: KeychainKey object
-    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [KeychainKey<T>]) throws -> T? {
+    /// let value = try keychain(.mySecretKey)
+    /// ```
+    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [Keychain.Key<T>]) throws -> T? {
         return try get(args[0])
     }
 
-    /// User `dynamicCallable` syntax sugar to implement `get` keychain value. 
+
+    /// Dynamically retrieves a value from the keychain using dynamic callable syntax.
+    /// - Parameter args: A single Keychain.Key object.
+    /// - Returns: A Result containing the value or a KeychainError.
+    /// - Note: Cast return type to Result to handle ambiguous use of method.
     ///
-    /// NOTE: Current implementation support only single argument and will ignore others.
+    /// ```
+    /// let result: Result<String?, KeychainError> = keychain(.mySecretKey)
+    /// switch result {
+    /// case .success(let value):
+    ///     print("Retrieved value: \(value)")
+    /// case .failure(let error):
+    ///     print("Error: \(error)")
+    /// }
     ///
-    /// Due to `ambiguous use of method` error it is required to case return type to `Result`
+    /// if case .success(let value) = keychain(.mySecretKey) as Result { ... }
     /// ```
-    /// if case .success(let value) = keychain(key) as Result { ... }
-    /// ```
-    /// - Parameter args: KeychainKey object
-    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [KeychainKey<T>]) -> Result<T?, KeychainError> {
+    public func dynamicallyCall<T: KeychainSerializable>(withArguments args: [Keychain.Key<T>]) -> Result<T?, KeychainError> {
         do {
             return .success(try get(args[0]))
         } catch {
@@ -134,22 +163,27 @@ public struct Keychain {
         }
     }
 
-    /// Get attributes for provided key from keychain
-    /// - Parameter key: Key for value
-    public func attributes<T: KeychainSerializable>(_ key: KeychainKey<T>) throws -> [KeychainAttribute] {
+    /// Retrieves attributes for a specified key from the keychain.
+    /// - Parameter key: The key associated with the value.
+    /// - Throws: A KeychainError if the operation fails.
+    /// - Returns: An array of KeychainAttributes associated with the key.
+    ///
+    /// ```
+    /// let attributes = try keychain.attributes(.mySecretKey)
+    /// ```
+    public func attributes<T: KeychainSerializable>(_ key: Keychain.Key<T>) throws -> [KeychainAttribute] {
         try attributes(key: key)
     }
 
-    /// Checks if an key is stored in the Keychain.
+    /// Checks if a key is stored in the Keychain.
+    /// - Parameter key: The key to check.
+    /// - Throws: A KeychainError if the operation fails.
+    /// - Returns: True if the key exists, false otherwise.
     ///
-    /// ```swift
-    /// let isStored = try keychain.hasKey(.secret)
     /// ```
-    ///
-    /// - Parameter key: Key of the Keychain item to check.
-    /// - Returns: Whether the item is stored in the Keychain or not.
-    /// - Throws: A ``KeychainError`` when the SwiftyKeychainKit operation fails.
-    public func hasKey<T>(_ key: KeychainKey<T>) throws -> Bool {
+    /// let isStored = try keychain.hasKey(.mySecretKey)
+    /// ```
+    public func hasKey<T>(_ key: Keychain.Key<T>) throws -> Bool {
         let attributesToSearch: [Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
@@ -168,23 +202,25 @@ public struct Keychain {
     }
 
     /// Retrieve the keys of all stored items
+    /// - Throws: A KeychainError if the operation fails.
+    /// - Returns: An array of KeychainItem representing the stored items.
     ///
     /// ```swift
     /// let items = try keychain.items()
     /// ```
     public func items() throws -> [KeychainItem] {
-        [try items(ofType: .genericPassword), try items(ofType: .internetPassword)].flatMap { $0 }
+        [try items(ofType: .genericPassword), try items(ofType: .internetPassword)]
+            .flatMap { $0 }
     }
 
-    /// Retrieve the keys of specific item type
+    /// Retrieves the keys of all stored items of a specific type.
+    /// - Parameter type: The type of items to retrieve.
+    /// - Throws: A KeychainError if the operation fails.
+    /// - Returns: An array of KeychainItem representing the stored items.
     ///
     /// ```swift
     /// let items = try keychain.items(ofType: .internetPassword)
     /// ```
-    ///
-    /// - Parameter type: Type of  the Keychain item to retrieve.
-    /// - Returns: Array of items accessible in the Keychain
-    /// - Throws: A ``KeychainError`` when the SwiftyKeychainKit operation fails.
     public func items(ofType type: ItemClass) throws -> [KeychainItem] {
         let request: [Attribute] = self.searchRequestAttributes
         + [
@@ -227,11 +263,16 @@ public struct Keychain {
 }
 
 public extension Keychain {
+    /// The default instance of Keychain.
+    ///
+    /// ```
+    /// let defaultKeychain = Keychain.default
+    /// ```
     static var `default` = Keychain()
 }
 
 private extension Keychain {
-    func set<T: KeychainSerializable>(_ value: T, forKey key: KeychainKey<T>) throws {
+    func set<T: KeychainSerializable>(_ value: T, forKey key: Keychain.Key<T>) throws {
         let attributesToSearch: [Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
@@ -276,7 +317,7 @@ private extension Keychain {
         }
     }
 
-    func get<T: KeychainSerializable>(key: KeychainKey<T>) throws -> T? {
+    func get<T: KeychainSerializable>(key: Keychain.Key<T>) throws -> T? {
         let attributesToSearch: [Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
@@ -300,7 +341,7 @@ private extension Keychain {
         }
     }
 
-    func attributes<T: KeychainSerializable>(key: KeychainKey<T>) throws -> [KeychainAttribute] {
+    func attributes<T: KeychainSerializable>(key: Keychain.Key<T>) throws -> [KeychainAttribute] {
         let attributesToSearch: [Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
@@ -325,7 +366,7 @@ private extension Keychain {
         }
     }
 
-    func remove<T: KeychainSerializable>(key: KeychainKey<T>) throws {
+    func remove<T: KeychainSerializable>(key: Keychain.Key<T>) throws {
         let attributesToSearch: [Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
@@ -362,6 +403,55 @@ private extension Keychain {
     var searchRequestAttributes: [Attribute] {
         var attributes = [Attribute]()
         accessGroup.flatMap { attributes.append(KeychainAttribute.accessGroup($0)) }
+        return attributes
+    }
+}
+
+private extension Keychain.Key {
+    var searchRequestAttributes: [Attribute] {
+        var attributes = [Attribute]()
+        attributes.append(SynchronizableAnyAttribute())
+
+        switch self {
+            case .genericPassword(let attr):
+                attributes.append(KeychainAttribute.class(.genericPassword))
+                attributes.append(KeychainAttribute.service(attr.service))
+
+            case .internetPassword(let attr):
+                attributes.append(KeychainAttribute.class(.internetPassword))
+
+                attributes.append(KeychainAttribute.protocolType(attr.protocolType))
+                attributes.append(KeychainAttribute.server(attr.domain))
+                attr.path.flatMap { attributes.append(KeychainAttribute.path($0)) }
+                attr.port.flatMap { attributes.append(KeychainAttribute.port($0)) }
+
+                // TODO: Investigate do we really require AuthenticationType on internet password
+                attributes.append(KeychainAttribute.authenticationType(attr.authenticationType))
+
+                attr.securityDomain.flatMap { attributes.append(KeychainAttribute.securityDomain($0)) }
+        }
+
+        return attributes
+    }
+
+    var updateRequestAttributes: [Attribute] {
+        var attributes = [KeychainAttribute]()
+
+        attributes.append(.accessible(accessible))
+        attributes.append(.synchronizable(synchronizable))
+
+        label.flatMap { attributes.append(.label($0)) }
+        comment.flatMap { attributes.append(.comment($0)) }
+        desc.flatMap { attributes.append(.attrDescription($0)) }
+        isInvisible.flatMap { attributes.append(.isInvisible($0)) }
+        isNegative.flatMap { attributes.append(.isNegative($0)) }
+        creator.flatMap { attributes.append(.creator($0)) }
+        type.flatMap { attributes.append(.type($0)) }
+
+        if case let .genericPassword(attrs) = self, let generic = attrs.generic {
+            attributes.append(.generic(generic))
+        }
+
         return attributes
     }
 }
