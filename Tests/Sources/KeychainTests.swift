@@ -49,7 +49,7 @@ class KeychainTests: XCTestCase {
 
     func testGetAttributesForGenericPasswordWithDefaultInitilisers() throws {
         let keychain = Keychain()
-        let key = KeychainKey<String>.genericPassword(key: "key", service: "com.swifty.keychainkit")
+        let key = Keychain.Key<String>.genericPassword(key: "key", service: "com.swifty.keychainkit")
 
         try? keychain.set("value", for: key)
         let attributes = try keychain.attributes(key)
@@ -73,7 +73,7 @@ class KeychainTests: XCTestCase {
         let keychain = Keychain(
             accessGroup: "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost"
         )
-        let key = KeychainKey<String>.genericPassword(
+        let key = Keychain.Key<String>.genericPassword(
             key: "key",
             service: "com.swifty.keychainkit",
             accessible: .accessibleAlways,
@@ -109,7 +109,7 @@ class KeychainTests: XCTestCase {
 
     func testGetAttributesForInternetPasswordWithDefaultInitilisers() throws {
         let keychain = Keychain()
-        let key = KeychainKey<String>.internetPassword(
+        let key = Keychain.Key<String>.internetPassword(
             key: "key",
             url: URL(string: "https://github.com:8080/SwiftyKeychainKit")!,
             authenticationType: .httpBasic
@@ -144,7 +144,7 @@ class KeychainTests: XCTestCase {
         let keychain = Keychain(
             accessGroup: "NS8HLGG733.com.swifty.keychain.tests.host.TestsHost"
         )
-        let key = KeychainKey<String>.internetPassword(
+        let key = Keychain.Key<String>.internetPassword(
             key: "key",
             accessible: .afterFirstUnlock,
             synchronizable: true,
@@ -190,9 +190,9 @@ class KeychainTests: XCTestCase {
     func testGenericPasswordItems() throws {
         let keychain = Keychain()
 
-        let key1 = KeychainKey<String>.genericPassword(key: "key1", service: "com.swifty.keychainkit")
-        let key2 = KeychainKey<String>.genericPassword(key: "key2", service: "com.swifty.keychainkit")
-        let key3 = KeychainKey<String>
+        let key1 = Keychain.Key<String>.genericPassword(key: "key1", service: "com.swifty.keychainkit")
+        let key2 = Keychain.Key<String>.genericPassword(key: "key2", service: "com.swifty.keychainkit")
+        let key3 = Keychain.Key<String>
             .internetPassword(key: "key3", url: URL(string: "https://github.com")!, authenticationType: .default)
 
         try keychain.set("value1", for: key1)
@@ -210,9 +210,9 @@ class KeychainTests: XCTestCase {
     func testInternetPasswordItems() throws {
         let keychain = Keychain()
 
-        let key1 = KeychainKey<String>.genericPassword(key: "key1", service: "com.swifty.keychainkit")
-        let key2 = KeychainKey<String>.genericPassword(key: "key2", service: "com.swifty.keychainkit")
-        let key3 = KeychainKey<String>
+        let key1 = Keychain.Key<String>.genericPassword(key: "key1", service: "com.swifty.keychainkit")
+        let key2 = Keychain.Key<String>.genericPassword(key: "key2", service: "com.swifty.keychainkit")
+        let key3 = Keychain.Key<String>
             .internetPassword(key: "key3", url: URL(string: "https://github.com")!, authenticationType: .default)
 
         try keychain.set("value1", for: key1)
@@ -230,9 +230,9 @@ class KeychainTests: XCTestCase {
     func testAllItems() throws {
         let keychain = Keychain()
 
-        let key1 = KeychainKey<String>.genericPassword(key: "key1", service: "com.swifty.keychainkit")
-        let key2 = KeychainKey<String>.genericPassword(key: "key2", service: "com.swifty.keychainkit")
-        let key3 = KeychainKey<String>
+        let key1 = Keychain.Key<String>.genericPassword(key: "key1", service: "com.swifty.keychainkit")
+        let key2 = Keychain.Key<String>.genericPassword(key: "key2", service: "com.swifty.keychainkit")
+        let key3 = Keychain.Key<String>
             .internetPassword(key: "key3", url: URL(string: "https://github.com")!, authenticationType: .default)
 
         try keychain.set("value1", for: key1)

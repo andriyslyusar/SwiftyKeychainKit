@@ -30,8 +30,8 @@ class KeychainKeyConfigurationTests: XCTestCase {
     func testDefaultKeychainKeyConfiguration() {
         let configuration = KeychainKeyConfiguration.shared
 
-        let genericPassword = KeychainKey<String>.genericPassword(key: "key1")
-        let internetPassword = KeychainKey<String>.internetPassword(key: "key2", url: URL(string: "https://www.google.com")!)
+        let genericPassword = Keychain.Key<String>.genericPassword(key: "key1")
+        let internetPassword = Keychain.Key<String>.internetPassword(key: "key2", url: URL(string: "https://www.google.com")!)
 
         // Assert KeychainKeyConfiguration
         XCTAssertEqual(configuration.service, "com.swifty.keychain.tests.host.TestsHost")
@@ -69,8 +69,8 @@ class KeychainKeyConfigurationTests: XCTestCase {
         configuration.synchronizable = true
         configuration.authenticationType = AuthenticationType.httpBasic
 
-        let genericPassword = KeychainKey<String>.genericPassword(key: "key1")
-        let internetPassword = KeychainKey<String>.internetPassword(key: "key2", url: URL(string: "https://www.google.com")!)
+        let genericPassword = Keychain.Key<String>.genericPassword(key: "key1")
+        let internetPassword = Keychain.Key<String>.internetPassword(key: "key2", url: URL(string: "https://www.google.com")!)
 
         XCTAssertEqual(configuration.service, "com.google")
         XCTAssertEqual(configuration.accessible, AccessibilityLevel.afterFirstUnlock)

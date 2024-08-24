@@ -30,7 +30,7 @@ public struct AppKeychainStorage<T: KeychainSerializable> {
     @Environment(\.defaultAppKeychainStorage) private var defaultKeychain
 
     private let keychain: Keychain?
-    private let key: KeychainKey<T>
+    private let key: Keychain.Key<T>
 
     /// Keychain value for key
     /// get - use Result type to persist error while getting key value from keychain.
@@ -39,7 +39,7 @@ public struct AppKeychainStorage<T: KeychainSerializable> {
         tracker.value
     }
 
-    public init(_ key: KeychainKey<T>, keychain: Keychain? = nil) {
+    public init(_ key: Keychain.Key<T>, keychain: Keychain? = nil) {
         self.key = key
         self.keychain = keychain
     }
@@ -57,11 +57,11 @@ public struct AppKeychainStorage<T: KeychainSerializable> {
     private class Tracker: ObservableObject {
         var value: Result<T?, KeychainError> = .success(nil)
 
-        func get(key: KeychainKey<T>, keychain: Keychain) {
+        func get(key: Keychain.Key<T>, keychain: Keychain) {
             self.value = keychain[key]
         }
 
-        func set(_ newValue: T?, key: KeychainKey<T>, keychain: Keychain) throws {
+        func set(_ newValue: T?, key: Keychain.Key<T>, keychain: Keychain) throws {
             if let newValue {
                 try keychain.set(newValue, for: key)
             } else {
@@ -75,7 +75,7 @@ public struct AppKeychainStorage<T: KeychainSerializable> {
             self.objectWillChange.send()
         }
 
-        func remove(key: KeychainKey<T>, keychain: Keychain) throws {
+        func remove(key: Keychain.Key<T>, keychain: Keychain) throws {
             try keychain.remove(key)
             self.value = .success(nil)
 

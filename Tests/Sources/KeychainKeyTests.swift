@@ -28,7 +28,7 @@ import XCTest
 
 class KeychainKeyTests: XCTestCase {
     func testGenericPasswordInitilizer() {
-        let key = KeychainKey<Int>.genericPassword(
+        let key = Keychain.Key<Int>.genericPassword(
             key: "key",
             service: "com.swifty.keychainkit",
             accessible: .afterFirstUnlock,
@@ -57,7 +57,7 @@ class KeychainKeyTests: XCTestCase {
     }
 
     func testInternetPasswordInitilizer() {
-        let key = KeychainKey<Int>.internetPassword(
+        let key = Keychain.Key<Int>.internetPassword(
             key: "key",
             accessible: .afterFirstUnlock,
             synchronizable: true,
@@ -94,7 +94,7 @@ class KeychainKeyTests: XCTestCase {
     }
 
     func testInternetPasswordInitilizerWithURL() {
-        let key = KeychainKey<Int>.internetPassword(
+        let key = Keychain.Key<Int>.internetPassword(
             key: "key",
             accessible: .afterFirstUnlock,
             synchronizable: true,

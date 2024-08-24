@@ -25,235 +25,238 @@
 import Foundation
 import Security
 
-/**
- Extend this class and add your user defaults keys as static constants so you can use the shortcut dot notation
- (e.g. `keychain[.yourKey]`)
+///  Extend this class and add your user defaults keys as static constants so you can use the shortcut dot notation (e.g. `keychain[.yourKey]`)
+///
+///  ```
+///  extension KeychainKey {
+///     static var key1: Keychain.Key<String> { .genericPassword(key: "key1") }
+///
+///     static var key2: Keychain.Key<String> { .genericPassword(key: "key2", label: "Keychain key label", comment: "Keychain key comment") }
+///
+///     static var key3: Keychain.Key<String> { .internetPassword(key: "key3", url: URL(string: "https://www.github.com/andriyslyusar/SwiftyKeychainKit/issues")!) }
+///
+///     static var key4: Keychain.Key<Int> { .internetPassword(key: "key", accessible: .afterFirstUnlock, protocolType: .https, domain: "github.com", path: "/andriyslyusar/SwiftyKeychainKit/issues") }
+///  }
+///  ```
 
- Example:
- ```
- extension KeychainKeys {
- static let yourKey = KeychainKey<String>(key: "key")
+public protocol KeychainKey {}
 
- static let anotherKey = KeychainKey<String>(key: "secret", label: "Keychain key label", comment: "Keychain key comment")
- }
- ```
- */
-public protocol KeychainKeys {}
+extension Keychain {
+    public enum Key<T: KeychainSerializable>: KeychainKey {
+        case genericPassword(GenericPassword)
+        case internetPassword(InternetPassword)
 
-public enum KeychainKey<ValueType: KeychainSerializable>: KeychainKeys {
-    case genericPassword(GenericPassword)
-    case internetPassword(InternetPassword)
-
-    public static func genericPassword(
-        key: String,
-        service: String = KeychainKeyConfiguration.shared.service,
-        accessible: AccessibilityLevel = KeychainKeyConfiguration.shared.accessible,
-        synchronizable: Bool = KeychainKeyConfiguration.shared.synchronizable,
-        label: String? = nil,
-        comment: String? = nil,
-        description: String? = nil,
-        isInvisible: Bool? = nil,
-        isNegative: Bool? = nil,
-        generic: Data? = nil,
-        creator: String? = nil,
-        type: String? = nil
-    ) -> Self {
-        self.genericPassword(
-            .init(
-                key: key,
-                service: service,
-                accessible: accessible,
-                synchronizable: synchronizable,
-                label: label,
-                comment: comment,
-                desc: description,
-                isInvisible: isInvisible,
-                isNegative: isNegative,
-                generic: generic,
-                creator: creator,
-                type: type
+        public static func genericPassword(
+            key: String,
+            service: String = KeychainKeyConfiguration.shared.service,
+            accessible: AccessibilityLevel = KeychainKeyConfiguration.shared.accessible,
+            synchronizable: Bool = KeychainKeyConfiguration.shared.synchronizable,
+            label: String? = nil,
+            comment: String? = nil,
+            description: String? = nil,
+            isInvisible: Bool? = nil,
+            isNegative: Bool? = nil,
+            generic: Data? = nil,
+            creator: String? = nil,
+            type: String? = nil
+        ) -> Self {
+            self.genericPassword(
+                .init(
+                    key: key,
+                    service: service,
+                    accessible: accessible,
+                    synchronizable: synchronizable,
+                    label: label,
+                    comment: comment,
+                    desc: description,
+                    isInvisible: isInvisible,
+                    isNegative: isNegative,
+                    generic: generic,
+                    creator: creator,
+                    type: type
+                )
             )
-        )
-    }
+        }
 
-    public static func internetPassword(
-        key: String,
-        accessible: AccessibilityLevel = KeychainKeyConfiguration.shared.accessible,
-        synchronizable: Bool = KeychainKeyConfiguration.shared.synchronizable,
-        protocolType: ProtocolType,
-        domain: String,
-        port: Int? = nil,
-        path: String? = nil,
-        authenticationType: AuthenticationType = KeychainKeyConfiguration.shared.authenticationType,
-        securityDomain: String? = nil,
-        label: String? = nil,
-        comment: String? = nil,
-        description: String? = nil,
-        isInvisible: Bool? = nil,
-        isNegative: Bool? = nil,
-        creator: String? = nil,
-        type: String? = nil
-    ) -> Self {
-        self.internetPassword(
-            .init(
-                key: key,
-                accessible: accessible,
-                synchronizable: synchronizable,
-                protocolType: protocolType,
-                domain: domain,
-                port: port,
-                path: path,
-                authenticationType: authenticationType,
-                securityDomain: securityDomain,
-                label: label,
-                comment: comment,
-                desc: description,
-                isInvisible: isInvisible,
-                isNegative: isNegative,
-                creator: creator,
-                type: type
+        public static func internetPassword(
+            key: String,
+            accessible: AccessibilityLevel = KeychainKeyConfiguration.shared.accessible,
+            synchronizable: Bool = KeychainKeyConfiguration.shared.synchronizable,
+            protocolType: ProtocolType,
+            domain: String,
+            port: Int? = nil,
+            path: String? = nil,
+            authenticationType: AuthenticationType = KeychainKeyConfiguration.shared.authenticationType,
+            securityDomain: String? = nil,
+            label: String? = nil,
+            comment: String? = nil,
+            description: String? = nil,
+            isInvisible: Bool? = nil,
+            isNegative: Bool? = nil,
+            creator: String? = nil,
+            type: String? = nil
+        ) -> Self {
+            self.internetPassword(
+                .init(
+                    key: key,
+                    accessible: accessible,
+                    synchronizable: synchronizable,
+                    protocolType: protocolType,
+                    domain: domain,
+                    port: port,
+                    path: path,
+                    authenticationType: authenticationType,
+                    securityDomain: securityDomain,
+                    label: label,
+                    comment: comment,
+                    desc: description,
+                    isInvisible: isInvisible,
+                    isNegative: isNegative,
+                    creator: creator,
+                    type: type
+                )
             )
-        )
-    }
-
-    public static func internetPassword(
-        key: String,
-        accessible: AccessibilityLevel = KeychainKeyConfiguration.shared.accessible,
-        synchronizable: Bool = KeychainKeyConfiguration.shared.synchronizable,
-        url: URL,
-        authenticationType: AuthenticationType = KeychainKeyConfiguration.shared.authenticationType,
-        securityDomain: String? = nil,
-        label: String? = nil,
-        comment: String? = nil,
-        description: String? = nil,
-        isInvisible: Bool? = nil,
-        isNegative: Bool? = nil,
-        creator: String? = nil,
-        type: String? = nil
-    ) -> Self {
-        let protocolType = url.scheme.flatMap(ProtocolType.init(rawValue:)) ?? .https
-        
-        let domain = if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
-            url.host(percentEncoded: false) ?? ""
-        } else {
-            url.host ?? ""
         }
 
-        let path = if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
-            url.path(percentEncoded: false)
-        } else {
-            url.path
-        }
+        public static func internetPassword(
+            key: String,
+            accessible: AccessibilityLevel = KeychainKeyConfiguration.shared.accessible,
+            synchronizable: Bool = KeychainKeyConfiguration.shared.synchronizable,
+            url: URL,
+            authenticationType: AuthenticationType = KeychainKeyConfiguration.shared.authenticationType,
+            securityDomain: String? = nil,
+            label: String? = nil,
+            comment: String? = nil,
+            description: String? = nil,
+            isInvisible: Bool? = nil,
+            isNegative: Bool? = nil,
+            creator: String? = nil,
+            type: String? = nil
+        ) -> Self {
+            let protocolType = url.scheme.flatMap(ProtocolType.init(rawValue:)) ?? .https
 
-        return .internetPassword(
-            .init(
-                key: key,
-                accessible: accessible,
-                synchronizable: synchronizable,
-                protocolType: protocolType,
-                domain: domain,
-                port: url.port,
-                path: path,
-                authenticationType: authenticationType,
-                securityDomain: securityDomain,
-                label: label,
-                comment: comment,
-                desc: description,
-                isInvisible: isInvisible,
-                isNegative: isNegative,
-                creator: creator,
-                type: type
+            let domain = if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+                url.host(percentEncoded: false) ?? ""
+            } else {
+                url.host ?? ""
+            }
+
+            let path = if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+                url.path(percentEncoded: false)
+            } else {
+                url.path
+            }
+
+            return .internetPassword(
+                .init(
+                    key: key,
+                    accessible: accessible,
+                    synchronizable: synchronizable,
+                    protocolType: protocolType,
+                    domain: domain,
+                    port: url.port,
+                    path: path,
+                    authenticationType: authenticationType,
+                    securityDomain: securityDomain,
+                    label: label,
+                    comment: comment,
+                    desc: description,
+                    isInvisible: isInvisible,
+                    isNegative: isNegative,
+                    creator: creator,
+                    type: type
+                )
             )
-        )
-    }
-
-    public var key: String {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.key
-            case .internetPassword(let attrs):
-                return attrs.key
         }
-    }
 
-    public var accessible: AccessibilityLevel {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.accessible
-            case .internetPassword(let attrs):
-                return attrs.accessible
+        public var key: String {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.key
+                case .internetPassword(let attrs):
+                    return attrs.key
+            }
         }
-    }
 
-    public var synchronizable: Bool {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.synchronizable
-            case .internetPassword(let attrs):
-                return attrs.synchronizable
+        public var accessible: AccessibilityLevel {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.accessible
+                case .internetPassword(let attrs):
+                    return attrs.accessible
+            }
         }
-    }
 
-    public var label: String? {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.label
-            case .internetPassword(let attrs):
-                return attrs.label
+        public var synchronizable: Bool {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.synchronizable
+                case .internetPassword(let attrs):
+                    return attrs.synchronizable
+            }
         }
-    }
 
-    public var comment: String? {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.comment
-            case .internetPassword(let attrs):
-                return attrs.comment
+        public var label: String? {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.label
+                case .internetPassword(let attrs):
+                    return attrs.label
+            }
         }
-    }
 
-    public var desc: String? {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.desc
-            case .internetPassword(let attrs):
-                return attrs.desc
+        public var comment: String? {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.comment
+                case .internetPassword(let attrs):
+                    return attrs.comment
+            }
         }
-    }
 
-    public var isInvisible: Bool? {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.isInvisible
-            case .internetPassword(let attrs):
-                return attrs.isInvisible
+        public var desc: String? {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.desc
+                case .internetPassword(let attrs):
+                    return attrs.desc
+            }
         }
-    }
 
-    public var isNegative: Bool? {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.isNegative
-            case .internetPassword(let attrs):
-                return attrs.isNegative
+        public var isInvisible: Bool? {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.isInvisible
+                case .internetPassword(let attrs):
+                    return attrs.isInvisible
+            }
         }
-    }
 
-    public var creator: String? {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.creator
-            case .internetPassword(let attrs):
-                return attrs.creator
+        public var isNegative: Bool? {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.isNegative
+                case .internetPassword(let attrs):
+                    return attrs.isNegative
+            }
         }
-    }
 
-    public var type: String? {
-        switch self {
-            case .genericPassword(let attrs):
-                return attrs.type
-            case .internetPassword(let attrs):
-                return attrs.type
+        public var creator: String? {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.creator
+                case .internetPassword(let attrs):
+                    return attrs.creator
+            }
+        }
+
+        public var type: String? {
+            switch self {
+                case .genericPassword(let attrs):
+                    return attrs.type
+                case .internetPassword(let attrs):
+                    return attrs.type
+            }
         }
     }
 }
@@ -513,55 +516,6 @@ public enum AuthenticationType: Equatable {
     case httpDigest
     case htmlForm
     case `default`
-}
-
-extension KeychainKey {
-    var searchRequestAttributes: [Attribute] {
-        var attributes = [Attribute]()
-        attributes.append(SynchronizableAnyAttribute())
-
-        switch self {
-            case .genericPassword(let attr):
-                attributes.append(KeychainAttribute.class(.genericPassword))
-                attributes.append(KeychainAttribute.service(attr.service))
-
-            case .internetPassword(let attr):
-                attributes.append(KeychainAttribute.class(.internetPassword))
-
-                attributes.append(KeychainAttribute.protocolType(attr.protocolType))
-                attributes.append(KeychainAttribute.server(attr.domain))
-                attr.path.flatMap { attributes.append(KeychainAttribute.path($0)) }
-                attr.port.flatMap { attributes.append(KeychainAttribute.port($0)) }
-
-                // TODO: Investigate do we really require AuthenticationType on internet password
-                attributes.append(KeychainAttribute.authenticationType(attr.authenticationType))
-
-                attr.securityDomain.flatMap { attributes.append(KeychainAttribute.securityDomain($0)) }
-        }
-
-        return attributes
-    }
-
-    var updateRequestAttributes: [Attribute] {
-        var attributes = [KeychainAttribute]()
-
-        attributes.append(.accessible(accessible))
-        attributes.append(.synchronizable(synchronizable))
-
-        label.flatMap { attributes.append(.label($0)) }
-        comment.flatMap { attributes.append(.comment($0)) }
-        desc.flatMap { attributes.append(.attrDescription($0)) }
-        isInvisible.flatMap { attributes.append(.isInvisible($0)) }
-        isNegative.flatMap { attributes.append(.isNegative($0)) }
-        creator.flatMap { attributes.append(.creator($0)) }
-        type.flatMap { attributes.append(.type($0)) }
-
-        if case let .genericPassword(attrs) = self, let generic = attrs.generic {
-            attributes.append(.generic(generic))
-        }
-
-        return attributes
-    }
 }
 
 extension GenericPassword {
