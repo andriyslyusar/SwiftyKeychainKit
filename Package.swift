@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftyKeychainKit",
     platforms: [
-        .iOS(.v8)
+        .iOS(.v12)
     ],
     products: [
         .library(name: "SwiftyKeychainKit", targets: ["SwiftyKeychainKit"]),
@@ -13,3 +13,13 @@ let package = Package(
         .target(name: "SwiftyKeychainKit", path: "Sources")
     ]
 )
+
+for target in package.targets {
+    target.swiftSettings = target.swiftSettings ?? []
+    target.swiftSettings?.append(
+        contentsOf: [
+            .enableExperimentalFeature("StrictConcurrency"),
+            .enableUpcomingFeature("ExistentialAny")
+        ]
+    )
+}

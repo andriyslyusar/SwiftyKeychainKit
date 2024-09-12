@@ -24,12 +24,12 @@
 
 import Foundation
 
-protocol Attribute {
+protocol Attribute: Sendable {
     typealias Element = (key: CFString, value: Any)
     var element: Element { get }
 }
 
-public enum KeychainAttribute: Equatable {
+public enum KeychainAttribute: Sendable, Equatable {
     case `class`(ItemClass)
     case service(String)
     case accessible(AccessibilityLevel)
@@ -272,7 +272,7 @@ extension Bool {
     }
 }
 
-enum SearchResultAttribute {
+enum SearchResultAttribute: Sendable {
     case matchLimit(MatchLimit)
 
     enum MatchLimit {
@@ -290,7 +290,7 @@ enum SearchResultAttribute {
     }
 }
 
-enum ReturnResultAttribute {
+enum ReturnResultAttribute: Sendable {
     case returnData(Bool)
     case returnAttributes(Bool)
     case returnRef(Bool)

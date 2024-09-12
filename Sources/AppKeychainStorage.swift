@@ -88,7 +88,7 @@ public struct AppKeychainStorage<T: KeychainSerializable> {
 }
 
 @available(iOS 14.0, *)
-extension AppKeychainStorage: DynamicProperty {
+extension AppKeychainStorage: @preconcurrency DynamicProperty {
     /// Updates the underlying value of the stored value. SwiftUI calls this function before rendering a view's.
     public func update() {
         tracker.get(key: key, keychain: keychain ?? defaultKeychain)

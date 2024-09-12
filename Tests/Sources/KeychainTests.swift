@@ -76,7 +76,7 @@ class KeychainTests: XCTestCase {
         let key = Keychain.Key<String>.genericPassword(
             key: "key",
             service: "com.swifty.keychainkit",
-            accessible: .accessibleAlways,
+            accessible: .afterFirstUnlock,
             label: "label",
             comment: "comment",
             description: "description",
@@ -92,7 +92,7 @@ class KeychainTests: XCTestCase {
 
         XCTAssertEqual(attributes.class, .genericPassword)
         XCTAssertEqual(attributes.service, "com.swifty.keychainkit")
-        XCTAssertEqual(attributes.accessible, .accessibleAlways)
+        XCTAssertEqual(attributes.accessible, .afterFirstUnlock)
         XCTAssertEqual(attributes.synchronizable, false)
         XCTAssertEqual(attributes.label, "label")
         XCTAssertEqual(attributes.comment, "comment")

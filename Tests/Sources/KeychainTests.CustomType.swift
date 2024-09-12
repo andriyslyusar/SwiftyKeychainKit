@@ -43,7 +43,7 @@ class KeychainCustomTypeTests: AbstractKeychainTests<[String]> {
 }
 
 // TODO: Get another example as array of Codable elements would be automatically work using logic from `KeychainSerializable where Self: Decodable & Encodable`
-extension [String]: KeychainSerializable {
+extension [String]: @retroactive KeychainSerializable {
     public func encode() throws -> Data {
         try JSONSerialization.data(withJSONObject: self, options: [])
     }

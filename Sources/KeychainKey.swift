@@ -39,7 +39,7 @@ import Security
 ///  }
 ///  ```
 
-public protocol KeychainKey {}
+public protocol KeychainKey: Sendable {}
 
 extension Keychain {
     public enum Key<T: KeychainSerializable>: KeychainKey {
@@ -261,13 +261,13 @@ extension Keychain {
     }
 }
 
-public class KeychainKeyConfiguration {
+public final class KeychainKeyConfiguration {
     public var service: String
     public var accessible: AccessibilityLevel
     public var synchronizable: Bool
     public var authenticationType: AuthenticationType
 
-    public static let shared = KeychainKeyConfiguration(
+    public nonisolated(unsafe) static let shared = KeychainKeyConfiguration(
         service: Bundle.main.bundleIdentifier ?? "com.swifty.keychainkit",
         accessible: .whenUnlocked,
         synchronizable: false,
@@ -287,7 +287,7 @@ public class KeychainKeyConfiguration {
     }
 }
 
-public protocol KeychainItem {
+public protocol KeychainItem: Sendable {
     var key: String { get }
 }
 
@@ -368,7 +368,7 @@ public struct InternetPassword: KeychainItem {
     public let type: String?
 }
 
-public struct GenericPassword: KeychainItem {
+public struct GenericPassword: Sendable, KeychainItem {
     public let key: String
 
     /// The service associated with Keychain item
@@ -433,7 +433,7 @@ public struct GenericPassword: KeychainItem {
     public let type: String?
 }
 
-public enum ItemClass: Equatable {
+public enum ItemClass: Sendable, Equatable {
     /// The value that indicates a Generic password item.
     ///
     /// For more information, see [Keychain Services](https://developer.apple.com/documentation/security/ksecclassgenericpassword)
@@ -445,7 +445,7 @@ public enum ItemClass: Equatable {
     case internetPassword
 }
 
-public enum AccessibilityLevel: Equatable {
+public enum AccessibilityLevel: Sendable, Equatable {
     /// The data in the keychain can only be accessed when the device is unlocked.
     /// Only available if a passcode is set on the device
     ///
@@ -473,7 +473,7 @@ public enum AccessibilityLevel: Equatable {
     case accessibleAlways
 }
 
-public enum ProtocolType: Equatable {
+public enum ProtocolType: Sendable, Equatable {
     case ftp
     case ftpAccount
     case http
@@ -507,7 +507,7 @@ public enum ProtocolType: Equatable {
     case pop3S
 }
 
-public enum AuthenticationType: Equatable {
+public enum AuthenticationType: Sendable, Equatable {
     case ntlm
     case msn
     case dpa

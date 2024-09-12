@@ -26,7 +26,7 @@ import Foundation
 
 public let KeychainAccessErrorDomain = "com.swifty.keychain.error"
 
-public enum KeychainError: OSStatus, Error {
+public enum KeychainError: OSStatus, Error, Sendable {
     case invalidDataCast                    = 1000
     case success                            = 0
     case unimplemented                      = -4
@@ -434,7 +434,7 @@ public enum KeychainError: OSStatus, Error {
 }
 
 extension KeychainError {
-    public init(_ error: Error) {
+    public init(_ error: any Error) {
         if let error = error as? KeychainError {
             self = error
         } else {

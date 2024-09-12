@@ -43,7 +43,9 @@ class KeychainArchivableTests: AbstractKeychainTests<ArchivableObject> {
 }
 
 @objc(ArchivableValue)
-class ArchivableObject: NSObject, NSCoding, KeychainSerializable {
+class ArchivableObject: NSObject, NSSecureCoding, KeychainSerializable {
+    static let supportsSecureCoding: Bool = true
+
     var intProperty: Int
 
     init(intProperty: Int) {
@@ -58,7 +60,9 @@ class ArchivableObject: NSObject, NSCoding, KeychainSerializable {
     required init?(coder aDecoder: NSCoder) {
         intProperty = aDecoder.decodeInteger(forKey: "intProperty")
     }
+}
 
+extension ArchivableObject {
     override func isEqual(_ object: Any?) -> Bool {
         guard let archivableObject = object as? ArchivableObject else {
             return false

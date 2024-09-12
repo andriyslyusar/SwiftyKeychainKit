@@ -106,15 +106,13 @@ public extension KeychainSerializable where Self: Decodable & Encodable {
     }
 }
 
-public extension KeychainSerializable where Self: NSCoding {
+public extension KeychainSerializable where Self: NSSecureCoding & NSObject {
     func encode() throws -> Data {
-        // TODO: iOS 13 deprecated +archivedDataWithRootObject:requiringSecureCoding:error:
-        NSKeyedArchiver.archivedData(withRootObject: self)
+        try NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: true)
     }
 
     static func decode(_ data: Data) throws -> Self? {
-        // TODO: iOS 13 deprecated +unarchivedObjectOfClass:fromData:error:
-        guard let value = NSKeyedUnarchiver.unarchiveObject(with: data) as? Self else {
+        guard let value = try NSKeyedUnarchiver.unarchivedObject(ofClass: self, from: data) else {
             throw KeychainError.invalidDataCast
         }
         return value

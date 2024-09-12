@@ -25,7 +25,7 @@
 import Foundation
 
 @dynamicCallable
-public struct Keychain {
+public struct Keychain: Sendable {
     /// Keychain items with share access  group
     public var accessGroup: String?
 
@@ -94,7 +94,7 @@ public struct Keychain {
     /// try keychain.removeAll(ofType: .internetPassword)
     /// ```
     public func removeAll(ofType type: ItemClass) throws {
-        var searchRequestAttributes = [Attribute]()
+        var searchRequestAttributes = [any Attribute]()
         searchRequestAttributes += self.searchRequestAttributes
         searchRequestAttributes.append(KeychainAttribute.class(type))
         searchRequestAttributes.append(SynchronizableAnyAttribute())
@@ -184,7 +184,7 @@ public struct Keychain {
     /// let isStored = try keychain.hasKey(.mySecretKey)
     /// ```
     public func hasKey<T>(_ key: Keychain.Key<T>) throws -> Bool {
-        let attributesToSearch: [Attribute] = self.searchRequestAttributes
+        let attributesToSearch: [any Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
             + [SearchResultAttribute.matchLimit(.one)]
@@ -208,7 +208,7 @@ public struct Keychain {
     /// ```swift
     /// let items = try keychain.items()
     /// ```
-    public func items() throws -> [KeychainItem] {
+    public func items() throws -> [any KeychainItem] {
         [try items(ofType: .genericPassword), try items(ofType: .internetPassword)]
             .flatMap { $0 }
     }
@@ -221,8 +221,8 @@ public struct Keychain {
     /// ```swift
     /// let items = try keychain.items(ofType: .internetPassword)
     /// ```
-    public func items(ofType type: ItemClass) throws -> [KeychainItem] {
-        let request: [Attribute] = self.searchRequestAttributes
+    public func items(ofType type: ItemClass) throws -> [any KeychainItem] {
+        let request: [any Attribute] = self.searchRequestAttributes
         + [
             KeychainAttribute.class(type),
             SearchResultAttribute.matchLimit(.all),
@@ -268,12 +268,12 @@ public extension Keychain {
     /// ```
     /// let defaultKeychain = Keychain.default
     /// ```
-    static var `default` = Keychain()
+    static let `default` = Keychain()
 }
 
 private extension Keychain {
     func set<T: KeychainSerializable>(_ value: T, forKey key: Keychain.Key<T>) throws {
-        let attributesToSearch: [Attribute] = self.searchRequestAttributes
+        let attributesToSearch: [any Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
 
@@ -318,7 +318,7 @@ private extension Keychain {
     }
 
     func get<T: KeychainSerializable>(key: Keychain.Key<T>) throws -> T? {
-        let attributesToSearch: [Attribute] = self.searchRequestAttributes
+        let attributesToSearch: [any Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
             + [SearchResultAttribute.matchLimit(.one)]
@@ -342,7 +342,7 @@ private extension Keychain {
     }
 
     func attributes<T: KeychainSerializable>(key: Keychain.Key<T>) throws -> [KeychainAttribute] {
-        let attributesToSearch: [Attribute] = self.searchRequestAttributes
+        let attributesToSearch: [any Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
             + [SearchResultAttribute.matchLimit(.one)]
@@ -367,7 +367,7 @@ private extension Keychain {
     }
 
     func remove<T: KeychainSerializable>(key: Keychain.Key<T>) throws {
-        let attributesToSearch: [Attribute] = self.searchRequestAttributes
+        let attributesToSearch: [any Attribute] = self.searchRequestAttributes
             + key.searchRequestAttributes
             + [KeychainAttribute.account(key.key)]
 
@@ -377,11 +377,11 @@ private extension Keychain {
         }
     }
 
-    func keychainItemDelete(_ attributes: [Attribute]) -> OSStatus {
+    func keychainItemDelete(_ attributes: [any Attribute]) -> OSStatus {
         return SecItemDelete(attributes.compose())
     }
 
-    func keychainItemAdd(_ attributes: [Attribute]) -> OSStatus {
+    func keychainItemAdd(_ attributes: [any Attribute]) -> OSStatus {
         return SecItemAdd(attributes.compose(), nil)
     }
 
@@ -391,25 +391,25 @@ private extension Keychain {
     ///   - query: Attributes collection that describes the search for the keychain items you want to update.
     ///   - attributes: Attributes collection containing the attributes whose values should be changed, along with the new values.
     /// - Returns: A result code
-    func keychainItemUpdate(attributesToSearch: [Attribute], attributesToUpdate: [Attribute]) -> OSStatus {
+    func keychainItemUpdate(attributesToSearch: [any Attribute], attributesToUpdate: [any Attribute]) -> OSStatus {
         return SecItemUpdate(attributesToSearch.compose(), attributesToUpdate.compose())
     }
 
-    func keychainItemFetch(_ attributes: [Attribute]) -> OSStatus {
+    func keychainItemFetch(_ attributes: [any Attribute]) -> OSStatus {
         return SecItemCopyMatching(attributes.compose(), nil)
     }
 
     /// Build keychain search request attributes
-    var searchRequestAttributes: [Attribute] {
-        var attributes = [Attribute]()
+    var searchRequestAttributes: [any Attribute] {
+        var attributes = [any Attribute]()
         accessGroup.flatMap { attributes.append(KeychainAttribute.accessGroup($0)) }
         return attributes
     }
 }
 
 private extension Keychain.Key {
-    var searchRequestAttributes: [Attribute] {
-        var attributes = [Attribute]()
+    var searchRequestAttributes: [any Attribute] {
+        var attributes = [any Attribute]()
         attributes.append(SynchronizableAnyAttribute())
 
         switch self {
@@ -434,7 +434,7 @@ private extension Keychain.Key {
         return attributes
     }
 
-    var updateRequestAttributes: [Attribute] {
+    var updateRequestAttributes: [any Attribute] {
         var attributes = [KeychainAttribute]()
 
         attributes.append(.accessible(accessible))
